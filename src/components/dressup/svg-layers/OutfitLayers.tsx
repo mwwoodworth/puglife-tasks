@@ -43,13 +43,13 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
           {/* Jacket */}
           <path d="M92,230 L90,300 Q150,315 210,300 L208,230 Q180,225 150,222 Q120,225 92,230" fill="url(#tux-grad)" stroke="#020617" strokeWidth="2" strokeLinejoin="round" />
           {/* Shirt */}
-          <path d="M135,225 L150,270 L165,225" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1" />
+          <path d="M135,225 L150,270 L165,225" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1" filter="url(#inner-shadow)" />
           {/* Lapels */}
-          <path d="M125,225 L145,265 L135,225 Z" fill="#1E293B" stroke="#020617" strokeWidth="1" />
-          <path d="M175,225 L155,265 L165,225 Z" fill="#1E293B" stroke="#020617" strokeWidth="1" />
+          <path d="M125,225 L145,265 L135,225 Z" fill="#1E293B" stroke="#020617" strokeWidth="1" filter="url(#inner-shadow)" />
+          <path d="M175,225 L155,265 L165,225 Z" fill="#1E293B" stroke="#020617" strokeWidth="1" filter="url(#inner-shadow)" />
           {/* Premium Bow tie */}
-          <path d="M138,225 L150,232 L162,225 L162,235 L150,228 L138,235 Z" fill="#DC2626" stroke="#7F1D1D" strokeWidth="1" />
-          <circle cx="150" cy="230" r="3.5" fill="#EF4444" stroke="#7F1D1D" strokeWidth="1" />
+          <path d="M138,225 L150,232 L162,225 L162,235 L150,228 L138,235 Z" fill="#DC2626" stroke="#7F1D1D" strokeWidth="1" filter="url(#inner-shadow)" />
+          <circle cx="150" cy="230" r="3.5" fill="#EF4444" stroke="#7F1D1D" strokeWidth="1" filter="url(#inner-shadow)" />
           {/* Buttons */}
           <circle cx="150" cy="252" r="2.5" fill="#0F172A" stroke="#475569" strokeWidth="0.5" />
           <circle cx="150" cy="268" r="2.5" fill="#0F172A" stroke="#475569" strokeWidth="0.5" />
@@ -74,10 +74,10 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
           <path d="M105,250 Q100,300 95,330 M195,250 Q200,300 205,330 M130,250 Q125,300 120,330 M170,250 Q175,300 180,330" fill="none" stroke="#86198F" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
           
           {/* Bodice */}
-          <path d="M108,230 Q150,220 192,230 L185,260 Q150,255 115,260 Z" fill="url(#bodice-grad)" stroke="#86198F" strokeWidth="1" />
+          <path d="M108,230 Q150,220 192,230 L185,260 Q150,255 115,260 Z" fill="url(#bodice-grad)" stroke="#86198F" strokeWidth="1" filter="url(#inner-shadow)" />
           
           {/* Gold Sash */}
-          <path d="M112,258 Q150,250 188,258 L185,264 Q150,256 115,264 Z" fill="#FBBF24" stroke="#B45309" strokeWidth="1" />
+          <path d="M112,258 Q150,250 188,258 L185,264 Q150,256 115,264 Z" fill="#FBBF24" stroke="#B45309" strokeWidth="1" filter="url(#inner-shadow)" />
           
           {/* Sparkles */}
           <circle cx="130" cy="280" r="2.5" fill="white" />
@@ -107,9 +107,9 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
           <path d="M130,300 A 5,5 0 1,1 137,307 A 7,7 0 1,0 130,300" fill="#FEF08A" />
 
           {/* Premium Buttons */}
-          <circle cx="150" cy="245" r="3.5" fill="#E0E7FF" stroke="#3730A3" strokeWidth="1" />
-          <circle cx="150" cy="265" r="3.5" fill="#E0E7FF" stroke="#3730A3" strokeWidth="1" />
-          <circle cx="150" cy="285" r="3.5" fill="#E0E7FF" stroke="#3730A3" strokeWidth="1" />
+          <circle cx="150" cy="245" r="3.5" fill="#E0E7FF" stroke="#3730A3" strokeWidth="1" filter="url(#inner-shadow)" />
+          <circle cx="150" cy="265" r="3.5" fill="#E0E7FF" stroke="#3730A3" strokeWidth="1" filter="url(#inner-shadow)" />
+          <circle cx="150" cy="285" r="3.5" fill="#E0E7FF" stroke="#3730A3" strokeWidth="1" filter="url(#inner-shadow)" />
         </motion.g>
       );
     case "outfit-raincoat":
@@ -173,8 +173,8 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
 
           {/* Deep open collar */}
           <path d="M125,225 L150,260 L175,225" fill="none" stroke="#0C4A6E" strokeWidth="2.5" strokeLinejoin="round" />
-          <path d="M125,225 L135,245 L115,245 Z" fill="#0EA5E9" stroke="#0C4A6E" strokeWidth="1.5" />
-          <path d="M175,225 L165,245 L185,245 Z" fill="#0EA5E9" stroke="#0C4A6E" strokeWidth="1.5" />
+          <path d="M125,225 L135,245 L115,245 Z" fill="#0EA5E9" stroke="#0C4A6E" strokeWidth="1.5" filter="url(#inner-shadow)" />
+          <path d="M175,225 L165,245 L185,245 Z" fill="#0EA5E9" stroke="#0C4A6E" strokeWidth="1.5" filter="url(#inner-shadow)" />
           
           {/* Buttons */}
           <circle cx="150" cy="275" r="2.5" fill="#FDE047" stroke="#B45309" strokeWidth="0.5" />
@@ -226,8 +226,8 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
           <path d="M150,230 L150,265 M125,235 Q135,245 150,240 M175,235 Q165,245 150,240 M130,250 Q140,255 150,252 M170,250 Q160,255 150,252" fill="none" stroke="#1E3A8A" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
           
           {/* Hero Belt */}
-          <path d="M90,272 Q150,282 210,272 L208,280 Q150,290 92,280 Z" fill="url(#belt-grad)" stroke="#78350F" strokeWidth="1.5" />
-          <rect x="140" y="268" width="20" height="16" rx="3" fill="url(#belt-grad)" stroke="#78350F" strokeWidth="2" />
+          <path d="M90,272 Q150,282 210,272 L208,280 Q150,290 92,280 Z" fill="url(#belt-grad)" stroke="#78350F" strokeWidth="1.5" filter="url(#inner-shadow)" />
+          <rect x="140" y="268" width="20" height="16" rx="3" fill="url(#belt-grad)" stroke="#78350F" strokeWidth="2" filter="url(#inner-shadow)" />
           <circle cx="150" cy="276" r="4" fill="#EF4444" />
           
           {/* Chest emblem (Diamond/S-shield style) */}
@@ -302,7 +302,7 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
             { cx: 150, cy: 310, r: 1, c: "#FDE047" }, { cx: 110, cy: 310, r: 2, c: "#C084FC" },
             { cx: 160, cy: 330, r: 1.5, c: "#93C5FD" }, { cx: 130, cy: 250, r: 1, c: "#FFFFFF" }
           ].map((s, i) => (
-            <motion.circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill={s.c} animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 1.5 + Math.random(), repeat: Infinity, delay: Math.random() * 2 }} />
+            <motion.circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill={s.c} animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 1.5 + (i * 0.1), repeat: Infinity, delay: (i * 0.2) % 2 }} />
           ))}
           
           {/* Shooting star */}

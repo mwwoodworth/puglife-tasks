@@ -18,9 +18,12 @@ import { useDressUp } from "@/hooks/useDressUp";
 import { useChat } from "@/hooks/useChat";
 import { useAlcoholTracker } from "@/hooks/useAlcoholTracker";
 import { useToast } from "@/hooks/useToast";
+import { useMicrophone } from "@/hooks/useMicrophone";
+import { useVoiceChat } from "@/hooks/useVoiceChat";
 
 import SvgPug from "@/components/dressup/SvgPug";
 import LollieSpeechBubble from "@/components/pug/LollieSpeechBubble";
+import VoiceChatButton from "@/components/pug/VoiceChatButton";
 import TreatsCounter from "@/components/rewards/TreatsCounter";
 import TabBar from "@/components/TabBar";
 import SparkleEffect from "@/components/ui/SparkleEffect";
@@ -34,12 +37,18 @@ import LollieView from "@/components/lollie/LollieView";
 
 export default function Home() {
   // ── Legacy Tasks ──
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [activeTab, setActiveTab] = useState<AppTab>("dashboard");
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    if (typeof window !== "undefined") {
+      migrateV4ToV5();
+      return loadTasks();
+    }
+    return [];
+  });
+  const [activeTab, setActiveTab] = useState<AppTab>(() => typeof window !== "undefined" ? loadActiveTab() : "dashboard");
   const [pugMood, setPugMood] = useState<PugMood>("sleeping");
-  const [streak, setStreak] = useState(getStreak());
+  const [streak, setStreak] = useState(() => typeof window !== "undefined" ? getStreak() : { current: 0, best: 0, lastReset: new Date().toISOString() });
   const [isLoaded, setIsLoaded] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>(() => typeof window !== "undefined" ? loadFavorites() : []);
 
   // ── Hooks ──
   const { muted, toggleMute, play } = useSound();
@@ -53,17 +62,15 @@ export default function Home() {
   const chat = useChat();
   const alcohol = useAlcoholTracker();
   const toast = useToast();
+  const mic = useMicrophone();
+  const voiceChat = useVoiceChat();
 
   // Ref to track previous water goal state for confetti
   const prevWaterGoalRef = useRef(false);
 
   // ── Init ──
   useEffect(() => {
-    migrateV4ToV5();
-    setTasks(loadTasks());
-    setStreak(getStreak());
-    setActiveTab(loadActiveTab());
-    setFavorites(loadFavorites());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 
@@ -84,7 +91,38 @@ export default function Home() {
       saveStats(stats);
     }
     prevWaterGoalRef.current = water.goalReached;
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [water.goalReached, water.isLoaded]);
+
+  // ── Voice Chat Handler ──
+  const handleVoiceStop = useCallback(async () => {
+    const audioBlob = await mic.stopRecording();
+    if (!audioBlob) return;
+    
+    const systemPrompt = buildSystemPrompt({
+      timeOfDay: getTimeOfDay(),
+      tasksCompleted: dailyReset.completedTasks.length,
+      totalTasks: dailyReset.allSections.reduce((s, sec) => s + sec.tasks.length, 0),
+      waterOz: water.totalOz,
+      waterGoalOz: water.goalOz,
+      todayMood: mood.todayMood?.mood || null,
+      streak: streak.current,
+      level: rewards.level,
+      levelName: rewards.levelProgress?.currentLevel?.name || "Puppy",
+      treats: rewards.treats,
+      badDayMode: dailyReset.badDayMode,
+      equippedItems: Object.values(dressUp.equipped).filter(Boolean) as string[],
+    });
+
+    voiceChat.processVoiceInput(
+      audioBlob,
+      chat.messages,
+      systemPrompt,
+      (text) => toast.show(`You: ${text}`, "info"), // Show what Whisper heard
+      (text) => lollie.showMessage(text)            // Put Lollie's reply in her bubble
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
+  }, [mic, voiceChat, chat.messages, dailyReset, water, mood, streak, rewards, dressUp.equipped, lollie, toast]);
 
   // ── Achievement auto-detection ──
   useEffect(() => {
@@ -109,6 +147,7 @@ export default function Home() {
         toast.show(`${achievement.emoji} ${achievement.name}!`, "success");
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [rewards.state?.totalTreatsEarned, rewards.state?.level, streak.current, isLoaded]);
 
   // ── Storage quota check on startup ──
@@ -122,6 +161,7 @@ export default function Home() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [isLoaded]);
 
   // ── Tab change ──
@@ -210,6 +250,7 @@ export default function Home() {
         setPugMood("happy");
       }, 100);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [dailyReset, play, confetti, rewards, lollie]);
 
   // ── Water ──
@@ -221,6 +262,7 @@ export default function Home() {
     setPugMood("eating");
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(10);
     setTimeout(() => setPugMood("happy"), 1500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [water, play, lollie, rewards]);
 
   const handleRemoveLastDrink = useCallback(() => {
@@ -313,6 +355,7 @@ export default function Home() {
     });
     chat.sendMessage(content, systemPrompt);
     play("chat-send");
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [dailyReset, water, mood, streak, rewards, dressUp.equipped, chat, play]);
 
   // ── Dress-Up spend treats ──
@@ -372,11 +415,26 @@ export default function Home() {
             equipped={displayEquipped}
             size={activeTab === "dashboard" ? 120 : 80}
             onClick={handlePugClick}
-            isTalking={chat.isStreaming}
+            isTalking={chat.isStreaming || voiceChat.isSpeaking}
+            audioVolumeLevel={voiceChat.lollieVolumeLevel}
             showParticles={activeTab === "dashboard"}
           />
-          <div className="mt-1">
-            <LollieSpeechBubble message={lollie.message} isTyping={lollie.isTyping} />
+          <div className="mt-1 flex flex-col items-center">
+            <LollieSpeechBubble message={lollie.message} isTyping={lollie.isTyping || voiceChat.isProcessing} />
+            {activeTab === "dashboard" && (
+              <VoiceChatButton 
+                isRecording={mic.isRecording}
+                isProcessing={voiceChat.isProcessing}
+                isSpeaking={voiceChat.isSpeaking}
+                micVolumeLevel={mic.volumeLevel}
+                onStart={() => {
+                  voiceChat.stopAudio();
+                  mic.startRecording();
+                }}
+                onStop={handleVoiceStop}
+                onInterrupt={voiceChat.stopAudio}
+              />
+            )}
           </div>
         </motion.div>
 

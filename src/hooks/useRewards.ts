@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { RewardsState } from "@/lib/types";
 import { loadRewards, saveRewards } from "@/lib/storage";
 import {
@@ -9,16 +9,10 @@ import {
 } from "@/lib/rewards-engine";
 
 export function useRewards() {
-  const [state, setState] = useState<RewardsState | null>(null);
-
-  useEffect(() => {
-    setState(loadRewards());
-  }, []);
-
-  const save = useCallback((next: RewardsState) => {
-    setState(next);
-    saveRewards(next);
-  }, []);
+  const [state, setState] = useState<RewardsState | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return loadRewards();
+  });
 
   const earnTreats = useCallback(
     (amount: number): { leveledUp: boolean; newLevel: number } => {

@@ -22,10 +22,10 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Bridge */}
           <path d="M135,152 Q150,146 165,152" fill="none" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
           {/* Left lens */}
-          <ellipse cx="118" cy="154" rx="20" ry="16" fill="url(#lens-dark)" stroke="#020617" strokeWidth="2" />
+          <ellipse cx="118" cy="154" rx="20" ry="16" fill="url(#lens-dark)" stroke="#020617" strokeWidth="2" filter="url(#inner-shadow)" />
           <ellipse cx="118" cy="154" rx="20" ry="16" fill="url(#glare)" />
           {/* Right lens */}
-          <ellipse cx="182" cy="154" rx="20" ry="16" fill="url(#lens-dark)" stroke="#020617" strokeWidth="2" />
+          <ellipse cx="182" cy="154" rx="20" ry="16" fill="url(#lens-dark)" stroke="#020617" strokeWidth="2" filter="url(#inner-shadow)" />
           <ellipse cx="182" cy="154" rx="20" ry="16" fill="url(#glare)" />
           {/* Arms */}
           <line x1="98" y1="152" x2="84" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
@@ -43,10 +43,10 @@ export function GlassesLayer({ id }: { id: string }) {
           </defs>
           <path d="M135,152 Q150,146 165,152" fill="none" stroke="#BE185D" strokeWidth="3" strokeLinecap="round" />
           {/* Left heart lens */}
-          <path d="M118,146 Q106,133 106,149 Q106,159 118,166 Q130,159 130,149 Q130,133 118,146" fill="url(#lens-pink)" stroke="#9D174D" strokeWidth="2" />
+          <path d="M118,146 Q106,133 106,149 Q106,159 118,166 Q130,159 130,149 Q130,133 118,146" fill="url(#lens-pink)" stroke="#9D174D" strokeWidth="2" filter="url(#inner-shadow)" />
           <path d="M110,146 Q115,140 120,146" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
           {/* Right heart lens */}
-          <path d="M182,146 Q170,133 170,149 Q170,159 182,166 Q194,159 194,149 Q194,133 182,146" fill="url(#lens-pink)" stroke="#9D174D" strokeWidth="2" />
+          <path d="M182,146 Q170,133 170,149 Q170,159 182,166 Q194,159 194,149 Q194,133 182,146" fill="url(#lens-pink)" stroke="#9D174D" strokeWidth="2" filter="url(#inner-shadow)" />
           <path d="M174,146 Q179,140 184,146" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
           {/* Arms */}
           <line x1="106" y1="149" x2="88" y2="146" stroke="#9D174D" strokeWidth="3" strokeLinecap="round" />
@@ -103,8 +103,8 @@ export function GlassesLayer({ id }: { id: string }) {
           <path d="M135,152 Q150,148 165,152" fill="none" stroke="url(#frame-gold)" strokeWidth="2" />
           
           {/* Teardrop lenses */}
-          <path d="M102,145 Q118,135 135,145 Q135,164 118,170 Q102,164 102,145" fill="url(#lens-aviator)" stroke="url(#frame-gold)" strokeWidth="2" />
-          <path d="M165,145 Q182,135 198,145 Q198,164 182,170 Q165,164 165,145" fill="url(#lens-aviator)" stroke="url(#frame-gold)" strokeWidth="2" />
+          <path d="M102,145 Q118,135 135,145 Q135,164 118,170 Q102,164 102,145" fill="url(#lens-aviator)" stroke="url(#frame-gold)" strokeWidth="2" filter="url(#inner-shadow)" />
+          <path d="M165,145 Q182,135 198,145 Q198,164 182,170 Q165,164 165,145" fill="url(#lens-aviator)" stroke="url(#frame-gold)" strokeWidth="2" filter="url(#inner-shadow)" />
           
           {/* Arms */}
           <line x1="102" y1="148" x2="84" y2="144" stroke="url(#frame-gold)" strokeWidth="2" strokeLinecap="round" />

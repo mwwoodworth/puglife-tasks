@@ -70,6 +70,7 @@ export default function AnimatedPug({ mood, size = 120, onClick, outfit }: Anima
     };
     const set = emojis[mood];
     if (set) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setParticles(set.map((emoji, i) => ({ id: Date.now() + i, emoji, x: (i - 2) * 22, delay: i * 0.1 })));
       const t = setTimeout(() => setParticles([]), 2500);
       return () => clearTimeout(t);
@@ -85,7 +86,7 @@ export default function AnimatedPug({ mood, size = 120, onClick, outfit }: Anima
             key={p.id}
             className="absolute text-base pointer-events-none z-20"
             initial={{ opacity: 0, y: 0, x: p.x }}
-            animate={{ opacity: [0, 1, 0], y: -55, x: p.x + (Math.random() - 0.5) * 20 }}
+            animate={{ opacity: [0, 1, 0], y: -55, x: p.x + ((p.id % 10) / 10 - 0.5) * 20 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.8, delay: p.delay }}
             style={{ top: "5%" }}

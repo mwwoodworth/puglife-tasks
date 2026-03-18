@@ -31,7 +31,7 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
           {/* Creases */}
           <path d="M135,220 L145,225 M135,230 L145,225 M165,220 L155,225 M165,230 L155,225" fill="none" stroke="#831843" strokeWidth="1" opacity="0.5" />
           {/* Center Knot */}
-          <rect x="145" y="218" width="10" height="14" rx="3" fill="#EC4899" stroke="#831843" strokeWidth="1.5" />
+          <rect x="145" y="218" width="10" height="14" rx="3" fill="#EC4899" stroke="#831843" strokeWidth="1.5" filter="url(#inner-shadow)" />
           <line x1="147" y1="220" x2="147" y2="230" stroke="#FBCFE8" strokeWidth="1" opacity="0.6" />
         </motion.g>
       );
@@ -120,9 +120,9 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
             </linearGradient>
           </defs>
           {/* Main pack */}
-          <rect x="115" y="230" width="70" height="55" rx="12" fill="url(#pack-grad)" stroke="#7C2D12" strokeWidth="2" />
+          <rect x="115" y="230" width="70" height="55" rx="12" fill="url(#pack-grad)" stroke="#7C2D12" strokeWidth="2" filter="url(#inner-shadow)" />
           {/* Front Pocket */}
-          <rect x="125" y="245" width="50" height="30" rx="6" fill="url(#pocket-grad)" stroke="#7C2D12" strokeWidth="1.5" />
+          <rect x="125" y="245" width="50" height="30" rx="6" fill="url(#pocket-grad)" stroke="#7C2D12" strokeWidth="1.5" filter="url(#inner-shadow)" />
           {/* Straps wrapping over shoulders (visible from front) */}
           <path d="M120,230 Q110,215 125,220" fill="none" stroke="#9A3412" strokeWidth="4" strokeLinecap="round" />
           <path d="M180,230 Q190,215 175,220" fill="none" stroke="#9A3412" strokeWidth="4" strokeLinecap="round" />
@@ -150,7 +150,7 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
           <path d="M135,220 L150,265 L165,220" fill="none" stroke="#1E3A8A" strokeWidth="8" strokeLinejoin="round" opacity="0.3" style={{ mixBlendMode: 'multiply' }} />
           {/* Medal Pendant */}
           <motion.g animate={{ rotateY: [0, 20, -20, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ originX: "150px", originY: "270px" }}>
-            <circle cx="150" cy="270" r="16" fill="url(#medal-gold)" stroke="#78350F" strokeWidth="2" />
+            <circle cx="150" cy="270" r="16" fill="url(#medal-gold)" stroke="#78350F" strokeWidth="2" filter="url(#inner-shadow)" />
             <circle cx="150" cy="270" r="12" fill="none" stroke="#D97706" strokeWidth="1" />
             <path d="M150,258 L153,266 L161,266 L154,271 L157,279 L150,274 L143,279 L146,271 L139,266 L147,266 Z" fill="#FFFFFF" stroke="#D97706" strokeWidth="0.5" />
           </motion.g>
@@ -175,17 +175,17 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
           <path d="M85,145 Q85,85 150,80 Q215,85 215,145" fill="none" stroke="#0F172A" strokeWidth="12" strokeLinecap="round" opacity="0.4" style={{ mixBlendMode: 'multiply' }} />
           
           {/* Left Cup */}
-          <rect x="70" y="130" width="26" height="36" rx="8" fill="url(#hp-cup)" stroke="#020617" strokeWidth="2" />
+          <rect x="70" y="130" width="26" height="36" rx="8" fill="url(#hp-cup)" stroke="#020617" strokeWidth="2" filter="url(#inner-shadow)" />
           <rect x="74" y="136" width="14" height="24" rx="4" fill="#64748B" />
           {/* Glowing accent */}
-          <circle cx="81" cy="148" r="3" fill="#10B981" filter="drop-shadow(0 0 4px #10B981)" />
+          <circle cx="81" cy="148" r="3" fill="#10B981" filter="url(#soft-drop-shadow)" />
           {/* Cushion */}
           <ellipse cx="88" cy="148" rx="6" ry="12" fill="#0F172A" />
           
           {/* Right Cup */}
-          <rect x="204" y="130" width="26" height="36" rx="8" fill="url(#hp-cup)" stroke="#020617" strokeWidth="2" />
+          <rect x="204" y="130" width="26" height="36" rx="8" fill="url(#hp-cup)" stroke="#020617" strokeWidth="2" filter="url(#inner-shadow)" />
           <rect x="212" y="136" width="14" height="24" rx="4" fill="#64748B" />
-          <circle cx="219" cy="148" r="3" fill="#10B981" filter="drop-shadow(0 0 4px #10B981)" />
+          <circle cx="219" cy="148" r="3" fill="#10B981" filter="url(#soft-drop-shadow)" />
           <ellipse cx="212" cy="148" rx="6" ry="12" fill="#0F172A" />
         </motion.g>
       );
@@ -202,7 +202,7 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
           {/* Crease lines */}
           <path d="M130,222 L145,260 M170,222 L155,260 M150,230 L150,270" fill="none" stroke="#7F1D1D" strokeWidth="1.5" opacity="0.4" strokeLinecap="round" />
           {/* Knot */}
-          <circle cx="150" cy="220" r="6" fill="#DC2626" stroke="#7F1D1D" strokeWidth="1.5" />
+          <circle cx="150" cy="220" r="6" fill="#DC2626" stroke="#7F1D1D" strokeWidth="1.5" filter="url(#inner-shadow)" />
           {/* Paisley pattern elements */}
           <g fill="#FFFFFF" opacity="0.8">
             <circle cx="135" cy="235" r="2.5" />
@@ -248,7 +248,7 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
           {[
             { cx: 45, cy: 220, d: 0 }, { cx: 255, cy: 220, d: 0.5 }, { cx: 70, cy: 200, d: 1 }, { cx: 230, cy: 200, d: 1.5 }
           ].map((s, i) => (
-            <motion.path key={i} d={`M${s.cx},${s.cy-6} L${s.cx+1.5},${s.cy-1.5} L${s.cx+6},${s.cy} L${s.cx+1.5},${s.cy+1.5} L${s.cx},${s.cy+6} L${s.cx-1.5},${s.cy+1.5} L${s.cx-6},${s.cy} L${s.cx-1.5},${s.cy-1.5} Z`} fill="#FFFFFF" filter="drop-shadow(0 0 4px #FBBF24)" animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5], rotate: 90 }} transition={{ duration: 2, repeat: Infinity, delay: s.d }} />
+            <motion.path key={i} d={`M${s.cx},${s.cy-6} L${s.cx+1.5},${s.cy-1.5} L${s.cx+6},${s.cy} L${s.cx+1.5},${s.cy+1.5} L${s.cx},${s.cy+6} L${s.cx-1.5},${s.cy+1.5} L${s.cx-6},${s.cy} L${s.cx-1.5},${s.cy-1.5} Z`} fill="#FFFFFF" filter="url(#soft-drop-shadow)" animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5], rotate: 90 }} transition={{ duration: 2, repeat: Infinity, delay: s.d }} />
           ))}
         </motion.g>
       );

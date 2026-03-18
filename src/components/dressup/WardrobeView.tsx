@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PugMood, DressUpSlot, DressUpItem, SoundEffect, SavedLook } from "@/lib/types";
-import { DRESSUP_ITEMS, getItemById, RARITY_COLORS, SLOT_LABELS } from "@/lib/dressup-catalog";
+import { DRESSUP_ITEMS, RARITY_COLORS } from "@/lib/dressup-catalog";
 import SvgPug from "./SvgPug";
 import CategoryTabs, { FilterCategory } from "./CategoryTabs";
 import SavedLooks from "./SavedLooks";

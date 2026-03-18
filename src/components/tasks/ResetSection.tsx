@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ResetSectionDef, ResetSectionId } from "@/lib/types";
+import { ResetSectionDef } from "@/lib/types";
 import ResetTask from "./ResetTask";
 
 interface ResetSectionProps {

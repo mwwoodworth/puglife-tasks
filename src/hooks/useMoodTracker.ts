@@ -5,13 +5,18 @@ import { MoodLevel, MoodEntry, MOOD_CONFIG } from "@/lib/types";
 import { loadTodayMood, saveTodayMood, loadMoodHistory } from "@/lib/storage";
 
 export function useMoodTracker() {
-  const [todayMood, setTodayMood] = useState<MoodEntry | null>(null);
-  const [history, setHistory] = useState<MoodEntry[]>([]);
+  const [todayMood, setTodayMood] = useState<MoodEntry | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return loadTodayMood();
+  });
+  const [history, setHistory] = useState<MoodEntry[]>(() => {
+    if (typeof window === 'undefined') return [];
+    return loadMoodHistory();
+  });
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setTodayMood(loadTodayMood());
-    setHistory(loadMoodHistory());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 

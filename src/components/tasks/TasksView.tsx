@@ -51,7 +51,7 @@ export default function TasksView({
   tasks, setTasks, onMoodChange, playSound, onStreakUpdate,
 }: TasksViewProps) {
   const [showCustomTasks, setShowCustomTasks] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const customTasksRef = useRef<HTMLDivElement>(null);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [activePriority, setActivePriority] = useState<Priority | "all">("all");

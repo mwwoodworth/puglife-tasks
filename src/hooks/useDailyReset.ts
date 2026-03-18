@@ -10,11 +10,9 @@ import {
 } from "@/lib/daily-reset-plan";
 
 export function useDailyReset() {
-  const [state, setState] = useState<DailyResetState | null>(null);
-
-  useEffect(() => {
-    setState(loadDailyResetState());
-  }, []);
+  const [state, setState] = useState<DailyResetState | null>(() => {
+    return typeof window !== "undefined" ? loadDailyResetState() : null;
+  });
 
   const save = useCallback((next: DailyResetState) => {
     setState(next);

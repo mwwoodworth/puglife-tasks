@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Sparkle {
@@ -14,25 +14,26 @@ interface Sparkle {
 
 const SPARKLE_EMOJIS = ["✨", "💜", "⭐", "🌟", "💫", "🐾", "💕", "💎", "🦋", "🔮", "🌙", "💖"];
 
-export default function SparkleEffect() {
-  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+const createSparkle = (): Sparkle => ({
+  id: Date.now() + Math.random(),
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: 10 + Math.random() * 16,
+  emoji: SPARKLE_EMOJIS[Math.floor(Math.random() * SPARKLE_EMOJIS.length)],
+  delay: Math.random() * 2,
+});
 
-  const createSparkle = useCallback((): Sparkle => ({
-    id: Date.now() + Math.random(),
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 10 + Math.random() * 16,
-    emoji: SPARKLE_EMOJIS[Math.floor(Math.random() * SPARKLE_EMOJIS.length)],
-    delay: Math.random() * 2,
-  }), []);
+export default function SparkleEffect() {
+  const [sparkles, setSparkles] = useState<Sparkle[]>(() => {
+    return typeof window !== "undefined" ? Array.from({ length: 20 }, () => createSparkle()) : [];
+  });
 
   useEffect(() => {
-    setSparkles(Array.from({ length: 20 }, () => createSparkle()));
     const interval = setInterval(() => {
       setSparkles((prev) => [...prev.slice(-22), createSparkle()]);
     }, 1200);
     return () => clearInterval(interval);
-  }, [createSparkle]);
+  }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

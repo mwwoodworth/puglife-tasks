@@ -12,11 +12,11 @@ const STANDARD_DRINKS: Record<AlcoholDrinkType, number> = {
 };
 
 export function useAlcoholTracker() {
-  const [data, setData] = useState<AlcoholDayData | null>(null);
+  const [data, setData] = useState<AlcoholDayData | null>(() => typeof window !== "undefined" ? loadAlcoholData() : null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setData(loadAlcoholData());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 

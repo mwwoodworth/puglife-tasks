@@ -10,16 +10,14 @@ import {
 import { detectNewMilestones, calculateWeightProgress } from "@/lib/weight-utils";
 
 export function useWeightTracker() {
-  const [entries, setEntries] = useState<WeightEntry[]>([]);
-  const [goal, setGoal] = useState<WeightGoalData | null>(null);
-  const [milestones, setMilestones] = useState<WeightMilestone[]>([]);
+  const [entries, setEntries] = useState<WeightEntry[]>(() => typeof window !== "undefined" ? loadWeightEntries() : []);
+  const [goal, setGoal] = useState<WeightGoalData | null>(() => typeof window !== "undefined" ? loadWeightGoal() : null);
+  const [milestones, setMilestones] = useState<WeightMilestone[]>(() => typeof window !== "undefined" ? loadWeightMilestones() : []);
   const [newMilestone, setNewMilestone] = useState<WeightMilestone | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setEntries(loadWeightEntries());
-    setGoal(loadWeightGoal());
-    setMilestones(loadWeightMilestones());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 

@@ -34,7 +34,7 @@ export function BackgroundLayer({ id }: { id: string }) {
               key={i}
               d={`M${s.x},${s.y - s.r} L${s.x + s.r/2},${s.y - s.r/2} L${s.x + s.r},${s.y} L${s.x + s.r/2},${s.y + s.r/2} L${s.x},${s.y + s.r} L${s.x - s.r/2},${s.y + s.r/2} L${s.x - s.r},${s.y} L${s.x - s.r/2},${s.y - s.r/2} Z`}
               fill="#FDE047"
-              filter="drop-shadow(0 0 3px #FDE047)"
+              filter="url(#soft-drop-shadow)"
               animate={{ opacity: [0.3, 1, 0.3], scale: [0.7, 1.3, 0.7], rotate: [0, 45, 0] }}
               transition={{ duration: 2 + (i % 2), repeat: Infinity, delay: s.d, ease: "easeInOut" }}
             />
@@ -70,7 +70,7 @@ export function BackgroundLayer({ id }: { id: string }) {
             </radialGradient>
           </defs>
           {/* Sun */}
-          <motion.circle cx="250" cy="30" r="22" fill="url(#sun-grad)" filter="drop-shadow(0 0 6px #FBBF24)"
+          <motion.circle cx="250" cy="30" r="22" fill="url(#sun-grad)" filter="url(#soft-drop-shadow)"
             animate={{ scale: [1, 1.08, 1] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -115,7 +115,7 @@ export function BackgroundLayer({ id }: { id: string }) {
           ))}
           {/* Glowing Fireflies */}
           {[10, 2, 8, 4, 12].map((delay, i) => (
-            <motion.circle key={`ff-${i}`} cx={100 + i*30} cy={60 + (i%2)*10} r="1" fill="#BEF264" filter="drop-shadow(0 0 3px #BEF264)"
+            <motion.circle key={`ff-${i}`} cx={100 + i*30} cy={60 + (i%2)*10} r="1" fill="#BEF264" filter="url(#soft-drop-shadow)"
               animate={{ opacity: [0, 1, 0], y: [0, -10, 0] }}
               transition={{ duration: 3 + (i%3), repeat: Infinity, delay: delay*0.2 }}
             />

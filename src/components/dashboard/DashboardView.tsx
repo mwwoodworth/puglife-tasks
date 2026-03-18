@@ -13,7 +13,6 @@ interface DashboardViewProps {
   onToggleTask: (taskId: string) => void;
   onActivateBadDay: () => void;
   dayProgress: { total: number; done: number; percent: number };
-  waterPercent: number;
   waterCount: number;
   streak: number;
   todayMood: MoodLevel | null;
@@ -33,7 +32,7 @@ const MOOD_OPTIONS: { mood: MoodLevel; emoji: string; label: string }[] = [
 
 export default function DashboardView({
   completedTasks, badDayMode, onToggleTask, onActivateBadDay,
-  dayProgress, waterPercent, waterCount, streak, todayMood,
+  dayProgress, waterCount, streak, todayMood,
   onLogMood, treats, onSwitchTab, playSound,
 }: DashboardViewProps) {
   const currentSection = getCurrentResetSection();

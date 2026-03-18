@@ -32,7 +32,7 @@ export function HatLayer({ id }: { id: string }) {
           <path d="M120,95 L135,80 L150,90 L165,80 L180,95 Z" fill="#92400E" />
           {/* Front gold crown */}
           <path d="M110,100 L118,65 L135,85 L150,55 L165,85 L182,65 L190,100 Z" fill="url(#gold-grad)" stroke="#78350F" strokeWidth="1.5" strokeLinejoin="round" />
-          <rect x="110" y="100" width="80" height="12" rx="3" fill="url(#gold-grad)" stroke="#78350F" strokeWidth="1.5" />
+          <rect x="110" y="100" width="80" height="12" rx="3" fill="url(#gold-grad)" stroke="#78350F" strokeWidth="1.5" filter="url(#inner-shadow)" />
           {/* Crown highlights */}
           <path d="M115,102 L185,102" stroke="#FEF08A" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
           <circle cx="150" cy="55" r="3" fill="#FEF08A" />
@@ -116,7 +116,7 @@ export function HatLayer({ id }: { id: string }) {
           {/* Crown dent */}
           <path d="M135,62 Q150,75 165,62" fill="none" stroke="#713F12" strokeWidth="4" strokeLinecap="round" opacity="0.6" />
           {/* Brim Front */}
-          <path d="M70,112 Q150,135 230,112 Q150,122 70,112 Z" fill="url(#brim-grad)" stroke="#451A03" strokeWidth="1.5" />
+          <path d="M70,112 Q150,135 230,112 Q150,122 70,112 Z" fill="url(#brim-grad)" stroke="#451A03" strokeWidth="1.5" filter="url(#inner-shadow)" />
           {/* Band */}
           <path d="M106,105 Q150,115 194,105 L195,112 Q150,122 105,112 Z" fill="#451A03" />
           <rect x="145" y="107" width="10" height="6" rx="1" fill="#FBBF24" />
@@ -138,7 +138,7 @@ export function HatLayer({ id }: { id: string }) {
           </defs>
           {/* Base Band */}
           <ellipse cx="150" cy="112" rx="52" ry="12" fill="#D1D5DB" />
-          <path d="M98,112 Q150,125 202,112 L200,95 Q150,105 100,95 Z" fill="url(#band-grad)" stroke="#9CA3AF" strokeWidth="1" />
+          <path d="M98,112 Q150,125 202,112 L200,95 Q150,105 100,95 Z" fill="url(#band-grad)" stroke="#9CA3AF" strokeWidth="1" filter="url(#inner-shadow)" />
           
           {/* Puffs */}
           <circle cx="120" cy="65" r="22" fill="url(#puff-grad)" />
@@ -208,7 +208,7 @@ export function HatLayer({ id }: { id: string }) {
             </radialGradient>
           </defs>
           {/* Brim */}
-          <ellipse cx="150" cy="115" rx="70" ry="14" fill="url(#witch-brim)" stroke="#0F172A" strokeWidth="2" />
+          <ellipse cx="150" cy="115" rx="70" ry="14" fill="url(#witch-brim)" stroke="#0F172A" strokeWidth="2" filter="url(#inner-shadow)" />
           {/* Cone - crumpled and magical */}
           <path d="M105,115 Q120,60 170,20 Q150,70 195,115 Z" fill="url(#witch-cone)" stroke="#0F172A" strokeWidth="1.5" strokeLinejoin="round" />
           <path d="M125,75 Q150,85 165,70" fill="none" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
@@ -241,7 +241,7 @@ export function HatLayer({ id }: { id: string }) {
           <path d="M150,30 Q180,10 190,50 Q170,45 150,30" fill="#B91C1C" />
           
           {/* Fluffy Band */}
-          <rect x="90" y="104" width="120" height="18" rx="9" fill="url(#santa-fluff)" stroke="#D1D5DB" strokeWidth="1" />
+          <rect x="90" y="104" width="120" height="18" rx="9" fill="url(#santa-fluff)" stroke="#D1D5DB" strokeWidth="1" filter="url(#inner-shadow)" />
           <path d="M95,110 Q150,105 205,110 M95,115 Q150,120 205,115" fill="none" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
           
           {/* Pom Pom */}
@@ -267,7 +267,7 @@ export function HatLayer({ id }: { id: string }) {
           <path d="M115,95 L133,75 L150,85 L167,75 L185,95 Z" fill="#6366F1" />
           {/* Front Platinum Crown */}
           <path d="M105,102 L115,55 L133,80 L150,42 L167,80 L185,55 L195,102 Z" fill="url(#plat-grad)" stroke="#4F46E5" strokeWidth="2" strokeLinejoin="round" />
-          <rect x="105" y="102" width="90" height="16" rx="4" fill="url(#plat-grad)" stroke="#4F46E5" strokeWidth="2" />
+          <rect x="105" y="102" width="90" height="16" rx="4" fill="url(#plat-grad)" stroke="#4F46E5" strokeWidth="2" filter="url(#inner-shadow)" />
           
           {/* Engraving lines */}
           <path d="M110,106 L190,106 M110,114 L190,114" stroke="#818CF8" strokeWidth="1" strokeLinecap="round" opacity="0.8" />
@@ -285,14 +285,14 @@ export function HatLayer({ id }: { id: string }) {
           ].map((dia, i) => (
             <motion.g key={i} transform={`translate(${dia.cx}, ${dia.cy}) scale(${dia.scale})`} 
               animate={{ opacity: [0.8, 1, 0.8] }} transition={{ duration: 1.5, repeat: Infinity, delay: dia.d }}>
-              <path d="M0,-8 L6,0 L0,8 L-6,0 Z" fill="#E0E7FF" stroke="#6366F1" strokeWidth="1" />
+              <path d="M0,-8 L6,0 L0,8 L-6,0 Z" fill="#E0E7FF" stroke="#6366F1" strokeWidth="1" filter="url(#inner-shadow)" />
               <path d="M0,-4 L3,0 L0,4 L-3,0 Z" fill="#FFFFFF" />
             </motion.g>
           ))}
 
           {/* Floating Magic Star */}
           <motion.g transform="translate(150, 25)" animate={{ scale: [1, 1.3, 1], rotate: [0, 90, 180] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
-             <path d="M0,-10 L2,-2 L10,0 L2,2 L0,10 L-2,2 L-10,0 L-2,-2 Z" fill="#FFFFFF" filter="drop-shadow(0 0 4px #A78BFA)" />
+             <path d="M0,-10 L2,-2 L10,0 L2,2 L0,10 L-2,2 L-10,0 L-2,-2 Z" fill="#FFFFFF" filter="url(#soft-drop-shadow)" />
           </motion.g>
         </motion.g>
       );

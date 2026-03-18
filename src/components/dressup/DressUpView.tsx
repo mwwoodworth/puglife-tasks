@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { PugMood, DressUpSlot, DressUpItem, SoundEffect } from "@/lib/types";
-import { DRESSUP_ITEMS, getItemById } from "@/lib/dressup-catalog";
+import { DRESSUP_ITEMS } from "@/lib/dressup-catalog";
 import SvgPug from "./SvgPug";
 import CategoryTabs, { FilterCategory } from "./CategoryTabs";
 import ItemCard from "./ItemCard";

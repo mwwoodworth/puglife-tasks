@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence, TargetAndTransition } from "framer-motion";
 import { PugMood, DressUpSlot } from "@/lib/types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 // SVG layer components
 import { HatLayer } from "./svg-layers/HatLayers";
@@ -19,17 +19,17 @@ interface SvgPugProps {
   isTalking?: boolean;
   interactive?: boolean;
   showParticles?: boolean;
+  audioVolumeLevel?: number; // Hook for Phase 3 Lip Sync
 }
 
 // ── Ultra-Polished Color Palette with Gradients ──
 const C = {
-  outline: "#2A1F1D",     // Rich dark brown/black outline
+  outline: "#1F1513",     // Even richer, darker brown outline
   eyeWhite: "#FFFFFF",
-  iris: "#382211",        // Deep warm brown
-  tongue: "url(#tongue-grad)",
+  iris: "#2A1409",        // Darker, wetter looking eyes
   tongueFlat: "#FF7B93",
-  cheek: "#FF8C9D",       // Brighter blush
-  pawPad: "#5A433A",      // Darker paw pads for contrast
+  cheek: "#FF708C",       // More saturated blush
+  pawPad: "#4D362C",      
 } as const;
 
 export default function SvgPug({
@@ -40,39 +40,53 @@ export default function SvgPug({
   isTalking = false,
   interactive = true,
   showParticles = false,
+  audioVolumeLevel = 0,
 }: SvgPugProps) {
   const [blinking, setBlinking] = useState(false);
   const [tapReaction, setTapReaction] = useState<string | null>(null);
   const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-blink & Random looking around
+  // Auto-blink & Dynamic Global Mouse Tracking
   useEffect(() => {
     if (mood === "sleeping") return;
     
-    // Blink logic
+    // Blink logic - fast, organic
     const blink = () => {
       setBlinking(true);
-      setTimeout(() => setBlinking(false), 150); // slightly slower blink for cuteness
+      setTimeout(() => setBlinking(false), 120); 
     };
     const blinkInterval = setInterval(blink, 2500 + Math.random() * 3000);
     
-    // Look around logic (subtle pupil movement)
-    const lookAround = () => {
-      if (Math.random() > 0.5) {
-        setPupilOffset({
-          x: (Math.random() - 0.5) * 4,
-          y: (Math.random() - 0.5) * 2,
-        });
-        setTimeout(() => setPupilOffset({ x: 0, y: 0 }), 800 + Math.random() * 1000);
-      }
+    // Global mouse tracking for eye pupils
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      const diffX = e.clientX - centerX;
+      const diffY = e.clientY - centerY;
+      
+      // Limit eye movement distance based on distance from center
+      const angle = Math.atan2(diffY, diffX);
+      const distance = Math.min(Math.sqrt(diffX*diffX + diffY*diffY) / 100, 6); // Max 6px radius
+      
+      setPupilOffset({
+        x: Math.cos(angle) * distance,
+        y: Math.sin(angle) * distance,
+      });
     };
-    const lookInterval = setInterval(lookAround, 2000);
+
+    if (interactive) {
+      window.addEventListener("mousemove", handleMouseMove);
+    }
     
     return () => {
       clearInterval(blinkInterval);
-      clearInterval(lookInterval);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [mood]);
+  }, [mood, interactive]);
 
   const handleClick = useCallback(() => {
     if (!interactive) return;
@@ -83,436 +97,328 @@ export default function SvgPug({
   }, [interactive, onClick]);
 
   const s = size / 120;
-  const easeSpring = { type: "spring", stiffness: 300, damping: 15 };
   const easeIO = "easeInOut" as const;
 
-  // ── Lifelike Breathing (Continuous background animation) ──
+  // ── Lifelike Organic Breathing ──
   const breathing: TargetAndTransition = {
     scaleX: [1, 1.015, 1],
-    scaleY: [1, 0.985, 1],
-    transition: { duration: 2.2, repeat: Infinity, ease: easeIO }
+    scaleY: [1, 0.98, 1],
+    transition: { duration: 2.5, repeat: Infinity, ease: easeIO }
   };
 
-  // ── Body animations (Head leads, body follows + breathing) ──
+  // ── High-Fidelity Physics/Body Animations ──
   const bodyAnimation: Record<PugMood, TargetAndTransition> = {
-    sleeping: {
-      scaleY: [1, 1.04, 1],
-      scaleX: [1, 0.98, 1],
-      transition: { duration: 3.5, repeat: Infinity, ease: easeIO },
-    },
-    idle: {
-      y: [0, -2 * s, 0],
-      transition: { duration: 3, repeat: Infinity, ease: easeIO },
-    },
-    happy: {
-      y: [0, -8 * s, 0],
-      scaleY: [1, 0.96, 1.03, 1],
-      transition: { duration: 0.6, repeat: Infinity, ease: easeIO },
-    },
-    excited: {
-      y: [0, -14 * s, 0],
-      scaleX: [1, 0.93, 1.05, 1],
-      scaleY: [1, 1.06, 0.94, 1],
-      transition: { duration: 0.35, repeat: Infinity },
-    },
-    celebrating: {
-      y: [0, -16 * s, 0],
-      scaleX: [1, 0.9, 1.08, 1],
-      scaleY: [1, 1.1, 0.9, 1],
-      rotate: [0, -4, 4, 0],
-      transition: { duration: 0.45, repeat: Infinity },
-    },
-    sad: {
-      y: [0, 2, 0],
-      scale: 0.95,
-      transition: { duration: 4, repeat: Infinity, ease: easeIO },
-    },
-    eating: {
-      y: [0, -3, 0],
-      scaleY: [1, 0.97, 1.02, 1],
-      transition: { duration: 0.3, repeat: Infinity },
-    },
-    love: {
-      scale: [1, 1.05, 1],
-      x: [0, 3, -3, 0],
-      transition: { duration: 1.4, repeat: Infinity, ease: easeIO },
-    },
-    "working-out": {
-      y: [0, -5, 0],
-      scaleY: [1, 0.95, 1.03, 1],
-      transition: { duration: 0.4, repeat: Infinity },
-    },
+    sleeping: { scaleY: [1, 1.05, 1], scaleX: [1, 0.96, 1], transition: { duration: 3.5, repeat: Infinity, ease: easeIO } },
+    idle: { y: [0, -3 * s, 0], transition: { duration: 3, repeat: Infinity, ease: easeIO } },
+    happy: { y: [0, -10 * s, 0], scaleY: [1, 0.95, 1.04, 1], transition: { duration: 0.6, repeat: Infinity, ease: easeIO } },
+    excited: { y: [0, -16 * s, 0], scaleX: [1, 0.9, 1.08, 1], scaleY: [1, 1.1, 0.9, 1], transition: { duration: 0.35, repeat: Infinity } },
+    celebrating: { y: [0, -18 * s, 0], scaleX: [1, 0.88, 1.1, 1], scaleY: [1, 1.12, 0.88, 1], rotate: [0, -6, 6, 0], transition: { duration: 0.45, repeat: Infinity } },
+    sad: { y: [0, 3, 0], scale: 0.94, transition: { duration: 4, repeat: Infinity, ease: easeIO } },
+    eating: { y: [0, -4, 0], scaleY: [1, 0.96, 1.03, 1], transition: { duration: 0.3, repeat: Infinity } },
+    love: { scale: [1, 1.06, 1], x: [0, 4, -4, 0], transition: { duration: 1.4, repeat: Infinity, ease: easeIO } },
+    "working-out": { y: [0, -8, 0], scaleY: [1, 0.92, 1.05, 1], transition: { duration: 0.35, repeat: Infinity } },
   };
 
-  // ── Ear animations (floppier, more gravity) ──
   const earAnimation: Record<PugMood, TargetAndTransition> = {
-    sleeping: { rotate: -10, transition: { duration: 1 } },
-    idle: { rotate: [0, -3, 3, 0], transition: { duration: 4.5, repeat: Infinity, ease: easeIO } },
-    happy: { rotate: [0, 10, -10, 0], transition: { duration: 0.6, repeat: Infinity, delay: 0.08 } },
-    excited: { rotate: [0, 18, -18, 0], transition: { duration: 0.35, repeat: Infinity, delay: 0.05 } },
-    celebrating: { rotate: [0, 25, -25, 0], transition: { duration: 0.45, repeat: Infinity, delay: 0.06 } },
-    sad: { rotate: -15, transition: { duration: 0.8, ease: easeIO } },
-    eating: { rotate: [0, 5, -5, 0], transition: { duration: 0.4, repeat: Infinity, delay: 0.05 } },
-    love: { rotate: [0, 6, -6, 0], transition: { duration: 1.4, repeat: Infinity, delay: 0.1 } },
-    "working-out": { rotate: [0, 8, -8, 0], transition: { duration: 0.4, repeat: Infinity } },
+    sleeping: { rotate: -12, transition: { duration: 1 } },
+    idle: { rotate: [0, -4, 4, 0], transition: { duration: 4.5, repeat: Infinity, ease: easeIO } },
+    happy: { rotate: [0, 14, -14, 0], transition: { duration: 0.6, repeat: Infinity, delay: 0.08 } },
+    excited: { rotate: [0, 22, -22, 0], transition: { duration: 0.35, repeat: Infinity, delay: 0.05 } },
+    celebrating: { rotate: [0, 28, -28, 0], transition: { duration: 0.45, repeat: Infinity, delay: 0.06 } },
+    sad: { rotate: -18, transition: { duration: 0.8, ease: easeIO } },
+    eating: { rotate: [0, 7, -7, 0], transition: { duration: 0.4, repeat: Infinity, delay: 0.05 } },
+    love: { rotate: [0, 8, -8, 0], transition: { duration: 1.4, repeat: Infinity, delay: 0.1 } },
+    "working-out": { rotate: [0, 12, -12, 0], transition: { duration: 0.35, repeat: Infinity } },
   };
 
-  // ── Tail animations (snappier) ──
   const tailAnimation: Record<PugMood, TargetAndTransition> = {
     sleeping: { rotate: 0 },
-    idle: { rotate: [0, 5, -5, 0], transition: { duration: 3, repeat: Infinity, ease: easeIO } },
-    happy: { rotate: [0, 25, -25, 0], transition: { duration: 0.3, repeat: Infinity } },
-    excited: { rotate: [0, 35, -35, 0], transition: { duration: 0.15, repeat: Infinity } },
-    celebrating: { rotate: [0, 40, -40, 0], transition: { duration: 0.2, repeat: Infinity } },
-    sad: { rotate: -8, transition: { duration: 0.8 } },
-    eating: { rotate: [0, 12, -12, 0], transition: { duration: 0.4, repeat: Infinity } },
-    love: { rotate: [0, 18, -18, 0], transition: { duration: 0.45, repeat: Infinity } },
-    "working-out": { rotate: [0, 15, -15, 0], transition: { duration: 0.3, repeat: Infinity } },
+    idle: { rotate: [0, 6, -6, 0], transition: { duration: 3, repeat: Infinity, ease: easeIO } },
+    happy: { rotate: [0, 30, -30, 0], transition: { duration: 0.3, repeat: Infinity } },
+    excited: { rotate: [0, 45, -45, 0], transition: { duration: 0.15, repeat: Infinity } },
+    celebrating: { rotate: [0, 50, -50, 0], transition: { duration: 0.2, repeat: Infinity } },
+    sad: { rotate: -10, transition: { duration: 0.8 } },
+    eating: { rotate: [0, 15, -15, 0], transition: { duration: 0.4, repeat: Infinity } },
+    love: { rotate: [0, 22, -22, 0], transition: { duration: 0.45, repeat: Infinity } },
+    "working-out": { rotate: [0, 20, -20, 0], transition: { duration: 0.3, repeat: Infinity } },
   };
 
   const isHeartEyes = mood === "love";
   const isClosed = mood === "sleeping" || blinking;
   const isSad = mood === "sad";
+  
+  // Phase 3 Prep: Audio Volume drives mouth height dynamically
   const isTalkingMouth = isTalking || mood === "eating";
+  const lipSyncOffset = isTalking ? (audioVolumeLevel > 0 ? audioVolumeLevel * 15 : 10) : (mood === "eating" ? 12 : 0);
 
-  // Tap reaction animations
-  const tapAnim = tapReaction === "bounce"
-    ? { scale: [1, 1.15, 0.9, 1.08, 1] }
-    : tapReaction === "wiggle"
-    ? { rotate: [0, -8, 8, -5, 5, 0] }
-    : tapReaction === "squish"
-    ? { scaleX: [1, 1.15, 0.95, 1], scaleY: [1, 0.85, 1.05, 1] }
-    : undefined;
+  const tapAnim = tapReaction === "bounce" ? { scale: [1, 1.18, 0.88, 1.1, 1] } : tapReaction === "wiggle" ? { rotate: [0, -10, 10, -6, 6, 0] } : tapReaction === "squish" ? { scaleX: [1, 1.2, 0.9, 1], scaleY: [1, 0.8, 1.1, 1] } : undefined;
 
   return (
     <motion.div
+      ref={containerRef}
       onClick={handleClick}
       className="relative cursor-pointer select-none"
       style={{ width: size, height: size * 1.15 }}
-      whileHover={interactive ? { scale: 1.02 } : undefined}
+      whileHover={interactive ? { scale: 1.03 } : undefined}
       whileTap={interactive ? { scale: 0.92 } : undefined}
       animate={tapAnim}
       transition={tapReaction ? { duration: 0.6, ease: easeIO } : undefined}
     >
-      {/* Dynamic Aura */}
+      {/* 3D Radiant Aura */}
       <div
-        className="absolute inset-0 rounded-full animate-glow-pulse opacity-50"
+        className="absolute inset-0 rounded-full animate-glow-pulse opacity-60"
         style={{
-          background: "radial-gradient(circle, rgba(167,139,250,0.25) 0%, transparent 70%)",
-          transform: "scale(1.4)",
+          background: "radial-gradient(circle, rgba(167,139,250,0.3) 0%, rgba(236,72,153,0.1) 40%, transparent 75%)",
+          transform: "scale(1.5)",
+          filter: "blur(8px)",
         }}
       />
 
-      <svg
-        viewBox="0 0 300 345"
-        width={size}
-        height={size * 1.15}
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ overflow: "visible" }}
-      >
+      <svg viewBox="0 0 300 345" width={size} height={size * 1.15} xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible" }}>
         <defs>
-          {/* Gradients for rich shading */}
-          <radialGradient id="body-grad" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#FFF2E0" />   {/* Highlight */}
-            <stop offset="60%" stopColor="#F5D0A9" />  {/* Base */}
-            <stop offset="100%" stopColor="#D9AA7A" /> {/* Shadow */}
+          {/* Advanced Multi-Stop Volumetric Gradients */}
+          <radialGradient id="body-grad" cx="45%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FFF6EB" />   
+            <stop offset="30%" stopColor="#FDE3C4" />
+            <stop offset="70%" stopColor="#E6B88A" />
+            <stop offset="100%" stopColor="#C4915F" /> 
           </radialGradient>
           
-          <radialGradient id="mask-grad" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#4A4447" />
-            <stop offset="70%" stopColor="#2D282A" />
-            <stop offset="100%" stopColor="#1A1718" />
+          <radialGradient id="mask-grad" cx="45%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#5E5659" />
+            <stop offset="40%" stopColor="#363033" />
+            <stop offset="85%" stopColor="#1E1A1C" />
+            <stop offset="100%" stopColor="#120F10" />
           </radialGradient>
           
           <linearGradient id="tongue-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FF9EAF" />
-            <stop offset="100%" stopColor="#FF6B8B" />
+            <stop offset="0%" stopColor="#FFA6B6" />
+            <stop offset="40%" stopColor="#FF7A95" />
+            <stop offset="100%" stopColor="#E64A6A" />
           </linearGradient>
 
           <radialGradient id="shadow-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(0,0,0,0.25)" />
+            <stop offset="0%" stopColor="rgba(0,0,0,0.35)" />
+            <stop offset="60%" stopColor="rgba(0,0,0,0.15)" />
             <stop offset="100%" stopColor="rgba(0,0,0,0)" />
           </radialGradient>
 
-          <filter id="epic-glow">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+          {/* Deep 3D Drop Shadows */}
+          <filter id="soft-drop-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#000000" floodOpacity="0.25" />
           </filter>
-
-          <filter id="soft-drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#000000" floodOpacity="0.15" />
+          
+          <filter id="inner-shadow">
+            <feOffset dx="0" dy="3"/>
+            <feGaussianBlur stdDeviation="3" result="offset-blur"/>
+            <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+            <feFlood floodColor="black" floodOpacity="0.3" result="color"/>
+            <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+            <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
           </filter>
         </defs>
 
-        {/* === Layer 1: Background === */}
         {equipped.background && <BackgroundLayer id={equipped.background} />}
 
-        {/* === Layer 2: Floor shadow === */}
-        <motion.ellipse
-          cx="150" cy="326" rx="75" ry="12"
-          fill="url(#shadow-grad)"
-          animate={bodyAnimation[mood]}
-        />
+        <motion.ellipse cx="150" cy="326" rx="80" ry="14" fill="url(#shadow-grad)" animate={bodyAnimation[mood]} />
 
-        {/* === Layer 3: Curly tail === */}
-        <motion.g
-          style={{ originX: "205px", originY: "258px" }}
-          animate={tailAnimation[mood]}
-        >
-          {/* Thicker, cuter tail */}
-          <path
-            d="M195,258 Q225,230 238,245 Q248,262 232,270 Q222,255 218,262 Q214,272 208,265"
-            fill="url(#body-grad)"
-            stroke={C.outline}
-            strokeWidth="3"
-            strokeLinejoin="round"
-          />
-          <circle cx="236" cy="250" r="11" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
+        <motion.g style={{ originX: "205px", originY: "258px" }} animate={tailAnimation[mood]}>
+          <path d="M195,258 Q230,225 245,245 Q255,265 235,275 Q220,255 215,262 Q210,275 200,265" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3.5" strokeLinejoin="round" />
+          <circle cx="242" cy="252" r="12" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
         </motion.g>
 
-        {/* === Layer 4: Outfit behind body === */}
         {equipped.accessory && <AccessoryLayer id={equipped.accessory} position="behind" />}
         {equipped.outfit && <OutfitLayer id={equipped.outfit} position="behind" />}
 
-        {/* === Layer 5: BODY === */}
+        {/* ── BODY ── */}
         <motion.g animate={bodyAnimation[mood]}>
-          {/* Breathing wrapper */}
           <motion.g animate={mood === "sleeping" ? undefined : breathing}>
-            {/* Main torso - squishier */}
-            <ellipse cx="150" cy="265" rx="76" ry="66" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
-            {/* Belly highlight */}
-            <ellipse cx="150" cy="275" rx="45" ry="40" fill="#FFFFFF" opacity="0.3" filter="blur(4px)" />
+            <ellipse cx="150" cy="265" rx="80" ry="68" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
+            <ellipse cx="150" cy="275" rx="50" ry="45" fill="#FFFFFF" opacity="0.4" filter="blur(6px)" />
 
-            {/* Front legs - chunkier */}
-            <g stroke={C.outline} strokeWidth="3" strokeLinejoin="round">
-              <path d="M100,318 Q115,318 128,318 C128,290 120,270 100,270 C80,270 85,318 100,318 Z" fill="url(#body-grad)" />
-              <path d="M200,318 Q185,318 172,318 C172,290 180,270 200,270 C220,270 215,318 200,318 Z" fill="url(#body-grad)" />
+            <g stroke={C.outline} strokeWidth="3" strokeLinejoin="round" filter="url(#inner-shadow)">
+              <path d="M96,318 Q115,320 130,318 C130,285 120,265 96,265 C76,265 80,318 96,318 Z" fill="url(#body-grad)" />
+              <path d="M204,318 Q185,320 170,318 C170,285 180,265 204,265 C224,265 220,318 204,318 Z" fill="url(#body-grad)" />
             </g>
 
-            {/* Paw details - little cute toes */}
             <g fill={C.pawPad}>
-              {/* Left paw */}
-              <ellipse cx="94" cy="312" rx="4" ry="5" transform="rotate(-15 94 312)" />
-              <ellipse cx="103" cy="310" rx="4.5" ry="5.5" />
-              <ellipse cx="112" cy="312" rx="4" ry="5" transform="rotate(15 112 312)" />
-              {/* Right paw */}
-              <ellipse cx="188" cy="312" rx="4" ry="5" transform="rotate(-15 188 312)" />
-              <ellipse cx="197" cy="310" rx="4.5" ry="5.5" />
-              <ellipse cx="206" cy="312" rx="4" ry="5" transform="rotate(15 206 312)" />
+              <ellipse cx="90" cy="312" rx="4.5" ry="6" transform="rotate(-20 90 312)" />
+              <ellipse cx="100" cy="310" rx="5" ry="6.5" />
+              <ellipse cx="110" cy="312" rx="4.5" ry="6" transform="rotate(20 110 312)" />
+              <ellipse cx="190" cy="312" rx="4.5" ry="6" transform="rotate(-20 190 312)" />
+              <ellipse cx="200" cy="310" rx="5" ry="6.5" />
+              <ellipse cx="210" cy="312" rx="4.5" ry="6" transform="rotate(20 210 312)" />
             </g>
 
-            {/* === Outfit on body === */}
             {equipped.outfit && <OutfitLayer id={equipped.outfit} position="front" />}
           </motion.g>
 
-          {/* === HEAD === */}
+          {/* ── HEAD ── */}
           <g>
-            {/* Neck / Collar fold */}
-            <ellipse cx="150" cy="215" rx="42" ry="20" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
-            <path d="M112,215 Q150,230 188,215" fill="none" stroke="#B88A5D" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+            <ellipse cx="150" cy="215" rx="46" ry="22" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
+            <path d="M108,215 Q150,234 192,215" fill="none" stroke="#A87B51" strokeWidth="4" strokeLinecap="round" opacity="0.6" filter="blur(1px)" />
 
-            {/* Main head circle - wider for cuteness */}
-            <ellipse cx="150" cy="155" rx="96" ry="86" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" filter="url(#soft-drop-shadow)" />
+            <ellipse cx="150" cy="155" rx="102" ry="92" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" filter="url(#soft-drop-shadow)" />
+            <ellipse cx="145" cy="105" rx="45" ry="18" fill="#FFFFFF" opacity="0.3" filter="blur(8px)" transform="rotate(-5 145 105)" />
 
-            {/* Head highlight */}
-            <ellipse cx="150" cy="110" rx="40" ry="15" fill="#FFFFFF" opacity="0.25" filter="blur(6px)" />
+            {/* MASK */}
+            <g stroke={C.outline} strokeWidth="3">
+              <ellipse cx="150" cy="184" rx="64" ry="50" fill="url(#mask-grad)" />
+              <path d="M112,146 Q150,130 188,146 L184,168 Q150,158 116,168 Z" fill="url(#mask-grad)" />
+            </g>
+            <ellipse cx="150" cy="158" rx="25" ry="10" fill="#FFFFFF" opacity="0.15" filter="blur(3px)" />
 
-            {/* === BLACK MASK === */}
-            <g stroke={C.outline} strokeWidth="2.5">
-              {/* Main muzzle */}
-              <ellipse cx="150" cy="182" rx="58" ry="46" fill="url(#mask-grad)" />
-              {/* Bridge to eyes */}
-              <path d="M116,146 Q150,132 184,146 L180,166 Q150,158 120,166 Z" fill="url(#mask-grad)" />
+            {/* WRINKLES */}
+            <g stroke="#9C6B43" strokeLinecap="round" fill="none">
+              <path d="M100,110 Q150,98 200,110" strokeWidth="5" opacity="0.75" />
+              <path d="M110,125 Q150,115 190,125" strokeWidth="4" opacity="0.65" />
+              <path d="M120,138 Q150,132 180,138" strokeWidth="3" opacity="0.55" />
             </g>
 
-            {/* Muzzle highlight for 3D effect */}
-            <ellipse cx="150" cy="155" rx="20" ry="8" fill="#FFFFFF" opacity="0.1" filter="blur(2px)" />
-
-            {/* === WRINKLES — thick, soft, expressive === */}
-            <g stroke="#AD7B4D" strokeLinecap="round" fill="none">
-              <path d="M105,115 Q150,105 195,115" strokeWidth="4" opacity="0.8" />
-              <path d="M115,128 Q150,120 185,128" strokeWidth="3" opacity="0.7" />
-              <path d="M125,140 Q150,135 175,140" strokeWidth="2.5" opacity="0.6" />
-            </g>
-
-            {/* === EARS — dark floppy === */}
+            {/* EARS */}
             <motion.g animate={earAnimation[mood]}>
-              {/* Left ear */}
-              <motion.g style={{ originX: "75px", originY: "125px" }}>
-                <path
-                  d="M70,105 Q50,80 55,115 Q58,140 75,152 Q88,145 92,125 Q95,105 85,95 Z"
-                  fill="url(#mask-grad)"
-                  stroke={C.outline}
-                  strokeWidth="3"
-                  strokeLinejoin="round"
-                />
-                <ellipse cx="72" cy="120" rx="8" ry="14" fill="#5C3645" opacity="0.3" transform="rotate(-15 72 120)" />
+              <motion.g style={{ originX: "70px", originY: "125px" }}>
+                <path d="M65,100 Q40,75 48,115 Q50,145 70,158 Q85,150 90,125 Q95,100 82,90 Z" fill="url(#mask-grad)" stroke={C.outline} strokeWidth="3.5" strokeLinejoin="round" />
+                <ellipse cx="68" cy="120" rx="9" ry="16" fill="#3D202D" opacity="0.4" transform="rotate(-18 68 120)" />
               </motion.g>
-              {/* Right ear */}
-              <motion.g style={{ originX: "225px", originY: "125px" }}>
-                <path
-                  d="M230,105 Q250,80 245,115 Q242,140 225,152 Q212,145 208,125 Q205,105 215,95 Z"
-                  fill="url(#mask-grad)"
-                  stroke={C.outline}
-                  strokeWidth="3"
-                  strokeLinejoin="round"
-                />
-                <ellipse cx="228" cy="120" rx="8" ry="14" fill="#5C3645" opacity="0.3" transform="rotate(15 228 120)" />
+              <motion.g style={{ originX: "230px", originY: "125px" }}>
+                <path d="M235,100 Q260,75 252,115 Q250,145 230,158 Q215,150 210,125 Q205,100 218,90 Z" fill="url(#mask-grad)" stroke={C.outline} strokeWidth="3.5" strokeLinejoin="round" />
+                <ellipse cx="232" cy="120" rx="9" ry="16" fill="#3D202D" opacity="0.4" transform="rotate(18 232 120)" />
               </motion.g>
             </motion.g>
 
-            {/* === EYES === */}
+            {/* EYES */}
             <g>
               {isHeartEyes ? (
                 <>
-                  <motion.g animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.8, repeat: Infinity }}>
-                    <path d="M115,152 C115,142 104,138 104,148 C104,158 115,168 115,168 C115,168 126,158 126,148 C126,138 115,142 115,152 Z" fill="#FF477E" stroke={C.outline} strokeWidth="2" />
-                    <circle cx="110" cy="146" r="3" fill="white" opacity="0.8" />
+                  <motion.g animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 0.8, repeat: Infinity }}>
+                    <path d="M115,152 C115,140 102,135 102,148 C102,160 115,172 115,172 C115,172 128,160 128,148 C128,135 115,140 115,152 Z" fill="#FF2E63" stroke={C.outline} strokeWidth="2.5" />
+                    <circle cx="108" cy="145" r="4" fill="white" opacity="0.9" />
                   </motion.g>
-                  <motion.g animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.8, repeat: Infinity, delay: 0.1 }}>
-                    <path d="M185,152 C185,142 174,138 174,148 C174,158 185,168 185,168 C185,168 196,158 196,148 C196,138 185,142 185,152 Z" fill="#FF477E" stroke={C.outline} strokeWidth="2" />
-                    <circle cx="180" cy="146" r="3" fill="white" opacity="0.8" />
+                  <motion.g animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 0.8, repeat: Infinity, delay: 0.15 }}>
+                    <path d="M185,152 C185,140 172,135 172,148 C172,160 185,172 185,172 C185,172 198,160 198,148 C198,135 185,140 185,152 Z" fill="#FF2E63" stroke={C.outline} strokeWidth="2.5" />
+                    <circle cx="178" cy="145" r="4" fill="white" opacity="0.9" />
                   </motion.g>
                 </>
               ) : (
                 <>
-                  {/* Left eye — huge, glossy, cute */}
                   <g>
-                    <circle cx="118" cy="154" r="22" fill={C.eyeWhite} stroke={C.outline} strokeWidth="3" />
+                    <circle cx="118" cy="154" r="24" fill={C.eyeWhite} stroke={C.outline} strokeWidth="3.5" filter="url(#inner-shadow)" />
                     {isClosed ? (
                       <>
-                        <path d="M100,154 Q118,166 136,154" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
-                        <path d="M105,159 L100,165 M118,162 L118,169 M131,159 L136,165" stroke={C.outline} strokeWidth="2" strokeLinecap="round" />
+                        <path d="M96,154 Q118,168 140,154" fill="none" stroke={C.outline} strokeWidth="4.5" strokeLinecap="round" />
+                        <path d="M102,160 L96,167 M118,164 L118,172 M134,160 L140,167" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
                       </>
                     ) : (
                       <g transform={`translate(${pupilOffset.x}, ${pupilOffset.y})`}>
-                        <circle cx="120" cy="154" r="15" fill={C.iris} />
-                        <circle cx="122" cy="152" r="9" fill="#120A05" />
-                        {/* Anime-style gloss highlights */}
-                        <circle cx="114" cy="146" r="6" fill="white" />
-                        <circle cx="126" cy="158" r="2.5" fill="white" opacity="0.8" />
+                        <circle cx="120" cy="154" r="16" fill={C.iris} />
+                        <circle cx="123" cy="152" r="10" fill="#0D0704" />
+                        <circle cx="113" cy="145" r="7" fill="white" filter="blur(0.5px)" />
+                        <circle cx="127" cy="159" r="3" fill="white" opacity="0.85" />
                       </g>
                     )}
                   </g>
 
-                  {/* Right eye */}
                   <g>
-                    <circle cx="182" cy="154" r="22" fill={C.eyeWhite} stroke={C.outline} strokeWidth="3" />
+                    <circle cx="182" cy="154" r="24" fill={C.eyeWhite} stroke={C.outline} strokeWidth="3.5" filter="url(#inner-shadow)" />
                     {isClosed ? (
                       <>
-                        <path d="M164,154 Q182,166 200,154" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
-                        <path d="M169,159 L164,165 M182,162 L182,169 M195,159 L200,165" stroke={C.outline} strokeWidth="2" strokeLinecap="round" />
+                        <path d="M160,154 Q182,168 204,154" fill="none" stroke={C.outline} strokeWidth="4.5" strokeLinecap="round" />
+                        <path d="M166,160 L160,167 M182,164 L182,172 M198,160 L204,167" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
                       </>
                     ) : (
                       <g transform={`translate(${pupilOffset.x}, ${pupilOffset.y})`}>
-                        <circle cx="180" cy="154" r="15" fill={C.iris} />
-                        <circle cx="178" cy="152" r="9" fill="#120A05" />
-                        {/* Highlights (mirrored slightly for consistent light source) */}
-                        <circle cx="174" cy="146" r="6" fill="white" />
-                        <circle cx="186" cy="158" r="2.5" fill="white" opacity="0.8" />
+                        <circle cx="180" cy="154" r="16" fill={C.iris} />
+                        <circle cx="177" cy="152" r="10" fill="#0D0704" />
+                        <circle cx="173" cy="145" r="7" fill="white" filter="blur(0.5px)" />
+                        <circle cx="187" cy="159" r="3" fill="white" opacity="0.85" />
                       </g>
                     )}
                   </g>
 
-                  {/* Expressive Sad Eyebrows */}
                   {isSad && (
                     <>
-                      <path d="M98,136 Q118,128 138,140" fill="none" stroke={C.outline} strokeWidth="3.5" strokeLinecap="round" />
-                      <path d="M162,140 Q182,128 202,136" fill="none" stroke={C.outline} strokeWidth="3.5" strokeLinecap="round" />
+                      <path d="M92,136 Q118,124 142,142" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
+                      <path d="M158,142 Q182,124 208,136" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
                     </>
                   )}
                 </>
               )}
             </g>
 
-            {/* === CHEEKS — vibrant, soft blush === */}
-            <ellipse cx="98" cy="180" rx="16" ry="10" fill={C.cheek} opacity={mood === "love" || mood === "happy" || mood === "celebrating" ? "0.6" : "0.25"} filter="blur(2px)" />
-            <ellipse cx="202" cy="180" rx="16" ry="10" fill={C.cheek} opacity={mood === "love" || mood === "happy" || mood === "celebrating" ? "0.6" : "0.25"} filter="blur(2px)" />
+            {/* CHEEKS */}
+            <ellipse cx="94" cy="182" rx="18" ry="12" fill={C.cheek} opacity={mood === "love" || mood === "happy" || mood === "celebrating" ? "0.75" : "0.3"} filter="blur(3px)" />
+            <ellipse cx="206" cy="182" rx="18" ry="12" fill={C.cheek} opacity={mood === "love" || mood === "happy" || mood === "celebrating" ? "0.75" : "0.3"} filter="blur(3px)" />
 
-            {/* === NOSE — squishy and wet-looking === */}
+            {/* WET NOSE */}
             <g>
-              <ellipse cx="150" cy="186" rx="34" ry="24" fill="#1A1718" stroke={C.outline} strokeWidth="2.5" />
-              <ellipse cx="150" cy="182" rx="22" ry="14" fill="#0A0809" />
-              {/* Glossy wet nose highlight */}
-              <path d="M136,176 Q150,170 164,176 Q150,178 136,176 Z" fill="#FFFFFF" opacity="0.4" />
-              {/* Nostrils */}
-              <ellipse cx="140" cy="185" rx="5" ry="3" fill="#000" transform="rotate(15 140 185)" />
-              <ellipse cx="160" cy="185" rx="5" ry="3" fill="#000" transform="rotate(-15 160 185)" />
+              <ellipse cx="150" cy="188" rx="38" ry="26" fill="#141112" stroke={C.outline} strokeWidth="3" filter="url(#inner-shadow)" />
+              <ellipse cx="150" cy="184" rx="24" ry="15" fill="#050404" />
+              <path d="M134,177 Q150,168 166,177 Q150,180 134,177 Z" fill="#FFFFFF" opacity="0.5" filter="blur(1px)" />
+              <ellipse cx="138" cy="188" rx="6" ry="3.5" fill="#000" transform="rotate(18 138 188)" />
+              <ellipse cx="162" cy="188" rx="6" ry="3.5" fill="#000" transform="rotate(-18 162 188)" />
             </g>
 
-            {/* === MOUTH === */}
+            {/* MOUTH & LIP SYNC */}
             <g>
               {isTalkingMouth ? (
                 <motion.g>
-                  {/* Open mouth inner */}
+                  {/* Dynamic talking mouth based on lipSyncOffset */}
                   <motion.path
-                    d="M132,204 Q150,225 168,204 Z"
-                    fill="#331A22"
+                    d={`M128,206 Q150,${215 + lipSyncOffset} 172,206 Z`}
+                    fill="#261017"
                     stroke={C.outline}
-                    strokeWidth="2.5"
-                    animate={{ d: ["M132,204 Q150,215 168,204 Z", "M132,204 Q150,230 168,204 Z", "M132,204 Q150,215 168,204 Z"] }}
-                    transition={{ duration: 0.35, repeat: Infinity }}
+                    strokeWidth="3"
+                    animate={
+                      !audioVolumeLevel && isTalking
+                        ? { d: ["M128,206 Q150,218 172,206 Z", "M128,206 Q150,235 172,206 Z", "M128,206 Q150,218 172,206 Z"] }
+                        : undefined
+                    }
+                    transition={{ duration: 0.3, repeat: Infinity }}
                   />
-                  {/* Tongue animating inside */}
                   <motion.ellipse
-                    cx="150" cy="214" rx="10" ry="6"
+                    cx="150" cy="216" rx="12" ry="7"
                     fill="url(#tongue-grad)"
-                    animate={{ ry: [5, 8, 5], cy: [212, 216, 212] }}
-                    transition={{ duration: 0.35, repeat: Infinity }}
+                    animate={{ ry: [6, 9, 6], cy: [214, 218, 214] }}
+                    transition={{ duration: 0.3, repeat: Infinity }}
                   />
                 </motion.g>
               ) : isSad ? (
-                <path d="M130,208 Q150,198 170,208" fill="none" stroke={C.outline} strokeWidth="3.5" strokeLinecap="round" />
+                <path d="M125,212 Q150,198 175,212" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
               ) : (
                 <>
-                  {/* Nose-to-lip crease */}
-                  <path d="M150,192 L150,202" stroke={C.outline} strokeWidth="2.5" />
-                  {/* Smiling Jowls */}
-                  <path d="M125,202 Q150,222 175,202" fill="none" stroke={C.outline} strokeWidth="3.5" strokeLinecap="round" />
-                  <path d="M115,195 Q125,205 135,200" fill="none" stroke={C.outline} strokeWidth="2" strokeLinecap="round" />
-                  <path d="M185,195 Q175,205 165,200" fill="none" stroke={C.outline} strokeWidth="2" strokeLinecap="round" />
+                  <path d="M150,196 L150,206" stroke={C.outline} strokeWidth="3" />
+                  <path d="M120,206 Q150,228 180,206" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
+                  <path d="M110,198 Q122,210 134,204" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M190,198 Q178,210 166,204" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
                   
-                  {/* Big cute derp tongue */}
                   {(mood === "happy" || mood === "excited" || mood === "celebrating" || mood === "idle") && (
                     <motion.g
-                      animate={mood === "excited" || mood === "celebrating" ? { y: [0, 3, 0], scaleY: [1, 1.1, 1] } : {}}
+                      animate={mood === "excited" || mood === "celebrating" ? { y: [0, 4, 0], scaleY: [1, 1.15, 1] } : {}}
                       transition={{ duration: 0.2, repeat: Infinity }}
                     >
-                      <path d="M142,212 Q150,230 158,212 Z" fill="url(#tongue-grad)" stroke={C.outline} strokeWidth="2" />
-                      <line x1="150" y1="212" x2="150" y2="222" stroke="#D1506B" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M140,214 Q150,236 160,214 Z" fill="url(#tongue-grad)" stroke={C.outline} strokeWidth="2.5" />
+                      <line x1="150" y1="214" x2="150" y2="226" stroke="#C2304C" strokeWidth="2" strokeLinecap="round" />
                     </motion.g>
                   )}
                 </>
               )}
             </g>
 
-            {/* === Glasses layer === */}
             {equipped.glasses && <GlassesLayer id={equipped.glasses} />}
-
-            {/* === Hat layer === */}
             {equipped.hat && <HatLayer id={equipped.hat} />}
           </g>
 
-          {/* === Accessory front === */}
           {equipped.accessory && <AccessoryLayer id={equipped.accessory} position="front" />}
         </motion.g>
 
-        {/* === Custom Premium Floating Particles === */}
+        {/* Custom Premium Particles */}
         <AnimatePresence>
           {showParticles && mood === "sleeping" && (
             <>
               {[0, 1, 2].map((i) => (
-                <motion.g
-                  key={`zzz-${i}`}
-                  initial={{ opacity: 0, y: 0, x: 0, scale: 0.5 }}
-                  animate={{ opacity: [0, 1, 0], y: -40, x: 15, scale: 1.2 }}
-                  transition={{ duration: 3, repeat: Infinity, delay: i * 1 }}
-                  transform={`translate(${180 + i * 10}, ${100 - i * 10})`}
-                >
-                  <path d="M0,0 L15,0 L5,15 L20,15" fill="none" stroke="#A78BFA" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+                <motion.g key={`zzz-${i}`} initial={{ opacity: 0, y: 0, x: 0, scale: 0.5 }} animate={{ opacity: [0, 1, 0], y: -50, x: 20, scale: 1.3 }} transition={{ duration: 3.5, repeat: Infinity, delay: i * 1.2 }} transform={`translate(${185 + i * 12}, ${90 - i * 12})`}>
+                  <path d="M0,0 L18,0 L6,18 L24,18" fill="none" stroke="#C084FC" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" style={{ filter: "drop-shadow(0px 0px 4px rgba(192,132,252,0.6))" }} />
                 </motion.g>
               ))}
             </>
@@ -520,44 +426,8 @@ export default function SvgPug({
           {showParticles && mood === "love" && (
             <>
               {[0, 1, 2].map((i) => (
-                <motion.g
-                  key={`heart-${i}`}
-                  initial={{ opacity: 0, y: 0, scale: 0 }}
-                  animate={{ opacity: [0, 1, 0], y: -50, scale: [0, 1.5, 0.8] }}
-                  transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
-                  transform={`translate(${90 + i * 45}, ${95})`}
-                >
-                  <path d="M0,5 A5,5 0 0,1 10,5 A5,5 0 0,1 20,5 Q20,12 10,20 Q0,12 0,5 Z" fill="#FF477E" />
-                </motion.g>
-              ))}
-            </>
-          )}
-          {showParticles && mood === "celebrating" && (
-            <>
-              {[0, 1, 2, 3].map((i) => (
-                <motion.g
-                  key={`sparkle-${i}`}
-                  initial={{ opacity: 0, y: 0, scale: 0, rotate: 0 }}
-                  animate={{ opacity: [0, 1, 0], y: -40, scale: 1.5, rotate: 180 }}
-                  transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.3 }}
-                  transform={`translate(${80 + i * 40}, ${85})`}
-                >
-                  <path d="M10,0 Q10,10 20,10 Q10,10 10,20 Q10,10 0,10 Q10,10 10,0 Z" fill="#FBBF24" />
-                </motion.g>
-              ))}
-            </>
-          )}
-          {showParticles && mood === "happy" && (
-            <>
-              {[0, 1].map((i) => (
-                <motion.g
-                  key={`star-${i}`}
-                  initial={{ opacity: 0, y: 0, scale: 0, rotate: -30 }}
-                  animate={{ opacity: [0, 1, 0], y: -30, scale: 1.2, rotate: 30 }}
-                  transition={{ duration: 2.2, repeat: Infinity, delay: i * 1 }}
-                  transform={`translate(${100 + i * 80}, ${90})`}
-                >
-                  <path d="M10,0 L13,7 L20,7 L14,12 L16,19 L10,15 L4,19 L6,12 L0,7 L7,7 Z" fill="#FCD34D" />
+                <motion.g key={`heart-${i}`} initial={{ opacity: 0, y: 0, scale: 0 }} animate={{ opacity: [0, 1, 0], y: -60, scale: [0, 1.8, 0.9] }} transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.7 }} transform={`translate(${85 + i * 50}, ${85})`}>
+                  <path d="M0,6 A6,6 0 0,1 12,6 A6,6 0 0,1 24,6 Q24,14 12,24 Q0,14 0,6 Z" fill="#FF2E63" style={{ filter: "drop-shadow(0px 4px 6px rgba(255,46,99,0.5))" }} />
                 </motion.g>
               ))}
             </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { DrinkType, WaterDayData, WaterEntry } from "@/lib/types";
 import { loadWaterData, saveWaterData, loadWaterHistory } from "@/lib/storage";
 
@@ -19,11 +19,9 @@ const DRINK_LABELS: Record<DrinkType, { label: string; emoji: string }> = {
 };
 
 export function useWaterTracker() {
-  const [data, setData] = useState<WaterDayData | null>(null);
-
-  useEffect(() => {
-    setData(loadWaterData());
-  }, []);
+  const [data, setData] = useState<WaterDayData | null>(() => {
+    return typeof window !== "undefined" ? loadWaterData() : null;
+  });
 
   const addDrink = useCallback((type: DrinkType) => {
     setData((prev) => {

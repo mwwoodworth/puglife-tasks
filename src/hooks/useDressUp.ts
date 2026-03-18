@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { DressUpSlot, DressUpState, SavedLook } from "@/lib/types";
 import { loadDressUpState, saveDressUpState } from "@/lib/storage";
 import { DRESSUP_ITEMS, getItemById } from "@/lib/dressup-catalog";
 
 export function useDressUp() {
-  const [state, setState] = useState<DressUpState | null>(null);
+  const [state, setState] = useState<DressUpState | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return loadDressUpState();
+  });
   const [previewItem, setPreviewItem] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const loaded = loadDressUpState();
-    setState(loaded);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 
@@ -21,8 +23,8 @@ export function useDressUp() {
     saveDressUpState(next);
   }, []);
 
-  const equipped = state?.equipped || { hat: null, glasses: null, outfit: null, accessory: null, background: null };
-  const unlockedItems = state?.unlockedItems || [];
+  const equipped = useMemo(() => state?.equipped || { hat: null, glasses: null, outfit: null, accessory: null, background: null }, [state?.equipped]);
+  const unlockedItems = useMemo(() => state?.unlockedItems || [], [state?.unlockedItems]);
 
   const isUnlocked = useCallback((itemId: string) => {
     return unlockedItems.includes(itemId);
