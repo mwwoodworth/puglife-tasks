@@ -6,6 +6,9 @@ class PugSoundEngine {
   private noiseBuffer: AudioBuffer | null = null;
   private compressor: DynamicsCompressorNode | null = null;
   private reverbBuffer: AudioBuffer | null = null;
+  private masterGain: GainNode | null = null;
+  private duckGain: GainNode | null = null;
+  private userVolume = 1;
 
   private getCtx(): AudioContext {
     if (!this.ctx) this.ctx = new AudioContext();
@@ -13,7 +16,36 @@ class PugSoundEngine {
     return this.ctx;
   }
 
-  // Master compressor to prevent clipping
+  // Circadian volume: reduce by 20% after 8pm, 30% after 10pm
+  private circadianMultiplier(): number {
+    const h = new Date().getHours();
+    if (h >= 22 || h < 6) return 0.7;
+    if (h >= 20) return 0.8;
+    return 1;
+  }
+
+  private effectiveVolume(): number {
+    return this.userVolume * this.circadianMultiplier();
+  }
+
+  setVolume(v: number) {
+    this.userVolume = Math.max(0, Math.min(1, v));
+    if (this.masterGain) {
+      const ctx = this.getCtx();
+      this.masterGain.gain.setTargetAtTime(this.effectiveVolume(), ctx.currentTime, 0.05);
+    }
+  }
+
+  // Audio ducking: briefly lower interface sounds when pug vocalizes
+  private duck() {
+    if (!this.duckGain) return;
+    const ctx = this.getCtx();
+    const t = ctx.currentTime;
+    this.duckGain.gain.setTargetAtTime(0.3, t, 0.02);
+    this.duckGain.gain.setTargetAtTime(1, t + 0.25, 0.1);
+  }
+
+  // Master compressor to prevent clipping + volume/duck nodes
   private getMaster(): AudioNode {
     const ctx = this.getCtx();
     if (!this.compressor) {
@@ -21,7 +53,11 @@ class PugSoundEngine {
       this.compressor.threshold.setValueAtTime(-24, ctx.currentTime);
       this.compressor.knee.setValueAtTime(30, ctx.currentTime);
       this.compressor.ratio.setValueAtTime(12, ctx.currentTime);
-      this.compressor.connect(ctx.destination);
+      this.masterGain = ctx.createGain();
+      this.masterGain.gain.setValueAtTime(this.effectiveVolume(), ctx.currentTime);
+      this.duckGain = ctx.createGain();
+      this.duckGain.gain.setValueAtTime(1, ctx.currentTime);
+      this.compressor.connect(this.duckGain).connect(this.masterGain).connect(ctx.destination);
     }
     return this.compressor;
   }
@@ -147,6 +183,7 @@ class PugSoundEngine {
   // Pug Toot: Brown noise burst through low bandpass — "pffft" character
   playPugToot() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       // Brown noise via filtered white noise
@@ -176,6 +213,7 @@ class PugSoundEngine {
   // Pug Woof: Sawtooth + noise burst — short, cute bark
   playPugWoof() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;
@@ -207,6 +245,7 @@ class PugSoundEngine {
   // Pug Snort: Pink noise with LFO amplitude modulation — snuffling
   playPugSnort() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;
@@ -216,9 +255,9 @@ class PugSoundEngine {
       bp.type = "bandpass";
       bp.frequency.setValueAtTime(400, t);
       bp.Q.setValueAtTime(3, t);
-      // LFO for snuffling rhythm
+      // LFO for snuffling rhythm — randomized rate for variety
       const lfo = ctx.createOscillator();
-      lfo.frequency.setValueAtTime(8, t);
+      lfo.frequency.setValueAtTime(this.randomPitch(8, 0.2), t);
       const lfoGain = ctx.createGain();
       lfoGain.gain.setValueAtTime(0.05, t);
       const g = ctx.createGain();
@@ -234,6 +273,7 @@ class PugSoundEngine {
   // Pug Whimper: Sine with vibrato, descending pitch
   playPugWhimper() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;
@@ -259,6 +299,7 @@ class PugSoundEngine {
   // Happy Bark: Two quick bursts
   playPugBark() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;
@@ -293,15 +334,16 @@ class PugSoundEngine {
   // Sleepy Snore: Low sine with slow amplitude cycling
   playPugSnore() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(80, t);
-      // Slow amplitude cycling
+      osc.frequency.setValueAtTime(this.randomPitch(80, 0.08), t);
+      // Slow amplitude cycling — randomized rate for each snore
       const lfo = ctx.createOscillator();
-      lfo.frequency.setValueAtTime(0.5, t);
+      lfo.frequency.setValueAtTime(this.randomPitch(0.5, 0.3), t);
       const lfoGain = ctx.createGain();
       lfoGain.gain.setValueAtTime(0.04, t);
       const g = ctx.createGain();
@@ -325,6 +367,7 @@ class PugSoundEngine {
   // Celebration Yip: Fast ascending arpeggio with sparkle
   playPugYip() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;
@@ -351,6 +394,7 @@ class PugSoundEngine {
   // Eating Chomps: Filtered noise bursts
   playPugChomp() {
     if (this.muted) return;
+    this.duck();
     try {
       const ctx = this.getCtx();
       const t = ctx.currentTime;

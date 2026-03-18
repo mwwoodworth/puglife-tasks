@@ -91,18 +91,33 @@ body {
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-/* Glass card — deep purple frosted glass */
+/* Glass card — deep purple frosted glass with inner highlight */
 .glass-card {
   background: rgba(76, 29, 149, 0.35);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  box-shadow: 0 8px 32px rgba(30, 10, 60, 0.3), 0 2px 8px rgba(139, 92, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(30, 10, 60, 0.3), 0 2px 8px rgba(139, 92, 246, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card:hover {
   background: rgba(76, 29, 149, 0.45);
-  box-shadow: 0 12px 40px rgba(30, 10, 60, 0.4), 0 4px 12px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 40px rgba(30, 10, 60, 0.4), 0 4px 12px rgba(139, 92, 246, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Bad Day mode — muted lavender palette shift */
+.bad-day-mode {
+  filter: saturate(0.7) brightness(0.92);
+}
+.bad-day-mode .glass-card {
+  background: rgba(88, 28, 135, 0.3);
+  border-color: rgba(192, 132, 252, 0.15);
+}
+.bad-day-mode .gradient-text-sparkle {
+  background: linear-gradient(135deg, #c084fc, #f0abfc, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 /* Checkbox */
@@ -176,6 +191,31 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-track { background: var(--purple-950); border-radius: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--purple-600); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--purple-500); }
+
+/* FAB button */
+.fab-button {
+  position: fixed;
+  bottom: max(90px, calc(80px + env(safe-area-inset-bottom)));
+  right: 20px;
+  z-index: 40;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.5), 0 2px 8px rgba(236, 72, 153, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab-button:active {
+  transform: scale(0.92);
+  box-shadow: 0 3px 12px rgba(139, 92, 246, 0.4);
+}
 
 /* Safe area for mobile bottom nav */
 .pb-safe { padding-bottom: max(80px, calc(70px + env(safe-area-inset-bottom))); }

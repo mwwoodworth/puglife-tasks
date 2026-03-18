@@ -178,6 +178,7 @@ export default function Home() {
           const allDone = section.tasks.every((t) => updated.includes(t.id));
           if (allDone) {
             confetti.mediumBurst();
+            if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([15, 50, 15]);
             lollie.onSectionComplete();
             rewards.earnTreats(TREAT_VALUES.resetSectionComplete);
             play("celebration");
@@ -218,6 +219,7 @@ export default function Home() {
     lollie.onWaterDrink();
     rewards.earnTreats(TREAT_VALUES.waterDrink);
     setPugMood("eating");
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(10);
     setTimeout(() => setPugMood("happy"), 1500);
   }, [water, play, lollie, rewards]);
 
@@ -339,7 +341,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-dvh relative">
+    <div className={`min-h-dvh relative${dailyReset.badDayMode ? " bad-day-mode" : ""}`}>
       <ToastProvider toasts={toast.toasts} onDismiss={toast.dismiss} />
       <SparkleEffect />
 

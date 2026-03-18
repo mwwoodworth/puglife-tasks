@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Task, Priority, Category, SoundEffect, ResetSectionId } from "@/lib/types";
@@ -52,6 +52,7 @@ export default function TasksView({
 }: TasksViewProps) {
   const [showCustomTasks, setShowCustomTasks] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const customTasksRef = useRef<HTMLDivElement>(null);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [activePriority, setActivePriority] = useState<Priority | "all">("all");
   const [showCompleted, setShowCompleted] = useState(true);
@@ -194,8 +195,22 @@ export default function TasksView({
         💜 Having a bad day? Switch to survival mode
       </motion.button>
 
+      {/* FAB — quick add custom task */}
+      <motion.button
+        className="fab-button"
+        whileTap={{ scale: 0.88 }}
+        onClick={() => {
+          if (!showCustomTasks) setShowCustomTasks(true);
+          setTimeout(() => customTasksRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+          if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
+        }}
+        aria-label="Add custom task"
+      >
+        +
+      </motion.button>
+
       {/* Custom Tasks Section (collapsible) */}
-      <div className="border-t border-purple-500/15 pt-3">
+      <div ref={customTasksRef} className="border-t border-purple-500/15 pt-3">
         <button
           onClick={() => setShowCustomTasks(!showCustomTasks)}
           className="w-full flex items-center justify-between px-2 py-2"

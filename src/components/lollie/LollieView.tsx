@@ -253,7 +253,7 @@ export default function LollieView({ chat, wardrobe, settings, pugMood, playSoun
               Made with all the love for Danielle — from Lollie (and Matt) with snuggles. 💜
             </p>
             <p className="text-[10px] text-purple-500 mt-2">
-              v6.0 &middot; Lollie Life
+              v7.0 &middot; Lollie Life
             </p>
           </div>
         </motion.div>
