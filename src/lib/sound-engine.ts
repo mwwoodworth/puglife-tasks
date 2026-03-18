@@ -4,11 +4,64 @@ class PugSoundEngine {
   private ctx: AudioContext | null = null;
   private muted = false;
   private noiseBuffer: AudioBuffer | null = null;
+  private compressor: DynamicsCompressorNode | null = null;
+  private reverbBuffer: AudioBuffer | null = null;
 
   private getCtx(): AudioContext {
     if (!this.ctx) this.ctx = new AudioContext();
     if (this.ctx.state === "suspended") this.ctx.resume();
     return this.ctx;
+  }
+
+  // Master compressor to prevent clipping
+  private getMaster(): AudioNode {
+    const ctx = this.getCtx();
+    if (!this.compressor) {
+      this.compressor = ctx.createDynamicsCompressor();
+      this.compressor.threshold.setValueAtTime(-24, ctx.currentTime);
+      this.compressor.knee.setValueAtTime(30, ctx.currentTime);
+      this.compressor.ratio.setValueAtTime(12, ctx.currentTime);
+      this.compressor.connect(ctx.destination);
+    }
+    return this.compressor;
+  }
+
+  // Synthetic reverb impulse response
+  private getReverbBuffer(): AudioBuffer {
+    if (this.reverbBuffer) return this.reverbBuffer;
+    const ctx = this.getCtx();
+    const sampleRate = ctx.sampleRate;
+    const length = sampleRate * 0.8; // 800ms reverb tail
+    const buffer = ctx.createBuffer(2, length, sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = buffer.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5);
+      }
+    }
+    this.reverbBuffer = buffer;
+    return buffer;
+  }
+
+  // Create a convolver reverb node (wet path)
+  private createReverb(wetGain = 0.3): { input: GainNode; output: GainNode } {
+    const ctx = this.getCtx();
+    const convolver = ctx.createConvolver();
+    convolver.buffer = this.getReverbBuffer();
+    const wet = ctx.createGain();
+    wet.gain.setValueAtTime(wetGain, ctx.currentTime);
+    const dry = ctx.createGain();
+    dry.gain.setValueAtTime(1 - wetGain, ctx.currentTime);
+    const input = ctx.createGain();
+    const output = ctx.createGain();
+    input.connect(convolver).connect(wet).connect(output);
+    input.connect(dry).connect(output);
+    return { input, output };
+  }
+
+  // Pitch randomization for variety on repeated sounds
+  private randomPitch(baseFreq: number, range = 0.05): number {
+    return baseFreq * (1 + (Math.random() * 2 - 1) * range);
   }
 
   setMuted(m: boolean) { this.muted = m; }
@@ -416,6 +469,133 @@ class PugSoundEngine {
     this.noise(0.1, "highpass", 2000, 1, 0.08, 0.005, 0.08);
   }
 
+  // ── v5 SOUNDS ──
+
+  playChatSend() {
+    // Ascending ping — quick, light
+    if (this.muted) return;
+    try {
+      const ctx = this.getCtx();
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(this.randomPitch(880), t);
+      osc.frequency.linearRampToValueAtTime(this.randomPitch(1320), t + 0.08);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.connect(g).connect(this.getMaster());
+      osc.start(); osc.stop(t + 0.15);
+    } catch { /* audio not available */ }
+  }
+
+  playChatReceive() {
+    // Descending chime with reverb
+    if (this.muted) return;
+    try {
+      const ctx = this.getCtx();
+      const t = ctx.currentTime;
+      const reverb = this.createReverb(0.4);
+      const notes = [1320, 1100, 880];
+      notes.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(this.randomPitch(f), t + i * 0.07);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.06, t + i * 0.07);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.15);
+        osc.connect(g).connect(reverb.input);
+        osc.start(t + i * 0.07);
+        osc.stop(t + i * 0.07 + 0.2);
+      });
+      reverb.output.connect(this.getMaster());
+    } catch { /* audio not available */ }
+  }
+
+  playItemEquip() {
+    // Sparkly ascending arpeggio — satisfying equip feel
+    if (this.muted) return;
+    try {
+      const ctx = this.getCtx();
+      const t = ctx.currentTime;
+      const reverb = this.createReverb(0.3);
+      const notes = [660, 880, 1100, 1320, 1760];
+      notes.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        osc.type = i < 3 ? "triangle" : "sine";
+        osc.frequency.setValueAtTime(this.randomPitch(f, 0.02), t + i * 0.05);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.07, t + i * 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.15);
+        osc.connect(g).connect(reverb.input);
+        osc.start(t + i * 0.05);
+        osc.stop(t + i * 0.05 + 0.2);
+      });
+      reverb.output.connect(this.getMaster());
+    } catch { /* audio not available */ }
+  }
+
+  playItemPreview() {
+    // Soft warble — gentle preview feel
+    if (this.muted) return;
+    try {
+      const ctx = this.getCtx();
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(this.randomPitch(800), t);
+      const lfo = ctx.createOscillator();
+      lfo.frequency.setValueAtTime(6, t);
+      const lfoG = ctx.createGain();
+      lfoG.gain.setValueAtTime(30, t);
+      lfo.connect(lfoG).connect(osc.frequency);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.05, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      osc.connect(g).connect(this.getMaster());
+      osc.start(); lfo.start();
+      osc.stop(t + 0.3); lfo.stop(t + 0.3);
+    } catch { /* audio not available */ }
+  }
+
+  playShopPurchase() {
+    // Coin register + sparkle — purchase satisfaction
+    if (this.muted) return;
+    try {
+      const ctx = this.getCtx();
+      const t = ctx.currentTime;
+      const reverb = this.createReverb(0.25);
+      // Coin clink (metallic ring)
+      const osc1 = ctx.createOscillator();
+      osc1.type = "square";
+      osc1.frequency.setValueAtTime(this.randomPitch(2400), t);
+      const g1 = ctx.createGain();
+      g1.gain.setValueAtTime(0.06, t);
+      g1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      osc1.connect(g1).connect(reverb.input);
+      osc1.start(); osc1.stop(t + 0.1);
+      // Register ding
+      const osc2 = ctx.createOscillator();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(this.randomPitch(1568), t + 0.08);
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.08, t + 0.08);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      osc2.connect(g2).connect(reverb.input);
+      osc2.start(t + 0.08); osc2.stop(t + 0.4);
+      // Sparkle accent
+      const osc3 = ctx.createOscillator();
+      osc3.type = "sine";
+      osc3.frequency.setValueAtTime(this.randomPitch(2640), t + 0.2);
+      const g3 = ctx.createGain();
+      g3.gain.setValueAtTime(0.04, t + 0.2);
+      g3.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      osc3.connect(g3).connect(reverb.input);
+      osc3.start(t + 0.2); osc3.stop(t + 0.4);
+      reverb.output.connect(this.getMaster());
+    } catch { /* audio not available */ }
+  }
+
   play(effect: SoundEffect) {
     if (this.muted) return;
     const map: Record<SoundEffect, () => void> = {
@@ -440,6 +620,11 @@ class PugSoundEngine {
       "level-up": () => this.playLevelUp(),
       "achievement": () => this.playAchievement(),
       "confetti-pop": () => this.playConfettiPop(),
+      "chat-send": () => this.playChatSend(),
+      "chat-receive": () => this.playChatReceive(),
+      "item-equip": () => this.playItemEquip(),
+      "item-preview": () => this.playItemPreview(),
+      "shop-purchase": () => this.playShopPurchase(),
     };
     map[effect]?.();
   }

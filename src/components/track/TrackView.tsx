@@ -1,6 +1,6 @@
 "use client";
 
-import { SoundEffect, DrinkType, MoodLevel } from "@/lib/types";
+import { SoundEffect, DrinkType, MoodLevel, AlcoholDrinkType } from "@/lib/types";
 import { useWeightTracker } from "@/hooks/useWeightTracker";
 import { getRandomMessage } from "@/lib/pug-wisdom";
 import { PUG_WEIGHT_MILESTONE } from "@/lib/pug-wisdom";
@@ -10,6 +10,7 @@ import WeightGoal from "../weight/WeightGoal";
 import WeightStats from "../weight/WeightStats";
 import WaterTracker from "./WaterTracker";
 import MoodHistory from "./MoodHistory";
+import AlcoholTracker from "./AlcoholTracker";
 import { motion, AnimatePresence } from "framer-motion";
 import { WeightMilestone } from "@/lib/types";
 
@@ -29,6 +30,11 @@ interface TrackViewProps {
   moodWeekAvg: number | null;
   todayMood: MoodLevel | null;
   onLogMood: (mood: MoodLevel) => void;
+  // Alcohol props
+  alcoholTodayCount: number;
+  alcoholLast7Days: { date: string; count: number }[];
+  onAddAlcoholDrink: (type: AlcoholDrinkType) => void;
+  onRemoveLastAlcoholDrink: () => void;
 }
 
 export default function TrackView({
@@ -36,6 +42,7 @@ export default function TrackView({
   waterTotalOz, waterGoalOz, waterPercent, waterCount, waterGoalReached,
   onAddDrink, onRemoveLastDrink,
   moodLast30, moodWeekAvg, todayMood, onLogMood,
+  alcoholTodayCount, alcoholLast7Days, onAddAlcoholDrink, onRemoveLastAlcoholDrink,
 }: TrackViewProps) {
   const {
     entries, goal, milestones, newMilestone, progress, isLoaded,
@@ -75,6 +82,14 @@ export default function TrackView({
         onAddDrink={onAddDrink}
         onRemoveLast={onRemoveLastDrink}
         playSound={playSound}
+      />
+
+      {/* Alcohol Tracker */}
+      <AlcoholTracker
+        todayCount={alcoholTodayCount}
+        last7Days={alcoholLast7Days}
+        onAddDrink={onAddAlcoholDrink}
+        onRemoveLast={onRemoveLastAlcoholDrink}
       />
 
       {/* Mood History */}

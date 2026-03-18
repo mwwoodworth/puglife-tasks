@@ -14,7 +14,7 @@ const tabs: { id: AppTab; label: string; icon: string }[] = [
   { id: "tasks", label: "Tasks", icon: "✅" },
   { id: "track", label: "Track", icon: "📊" },
   { id: "rewards", label: "Rewards", icon: "⭐" },
-  { id: "more", label: "More", icon: "💜" },
+  { id: "lollie", label: "Lollie", icon: "🐶" },
 ];
 
 export default function TabBar({ activeTab, onTabChange }: TabBarProps) {

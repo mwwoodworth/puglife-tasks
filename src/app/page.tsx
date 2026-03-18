@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Task, AppTab, PugMood, SoundEffect, MoodLevel, ResetSectionId } from "@/lib/types";
-import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats } from "@/lib/storage";
+import { Task, AppTab, PugMood, SoundEffect, MoodLevel, AlcoholDrinkType } from "@/lib/types";
+import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats, migrateV4ToV5 } from "@/lib/storage";
 import { PUG_ENCOURAGEMENTS, getRandomMessage } from "@/lib/pug-wisdom";
 import { TREAT_VALUES } from "@/lib/rewards-engine";
+import { buildSystemPrompt, getTimeOfDay } from "@/lib/chat-context";
 import { useSound } from "@/hooks/useSound";
 import { useDailyReset } from "@/hooks/useDailyReset";
 import { useWaterTracker } from "@/hooks/useWaterTracker";
@@ -13,8 +14,11 @@ import { useMoodTracker } from "@/hooks/useMoodTracker";
 import { useRewards } from "@/hooks/useRewards";
 import { useConfetti } from "@/hooks/useConfetti";
 import { useLollie } from "@/hooks/useLollie";
+import { useDressUp } from "@/hooks/useDressUp";
+import { useChat } from "@/hooks/useChat";
+import { useAlcoholTracker } from "@/hooks/useAlcoholTracker";
 
-import AnimatedPug from "@/components/pug/AnimatedPug";
+import SvgPug from "@/components/dressup/SvgPug";
 import LollieSpeechBubble from "@/components/pug/LollieSpeechBubble";
 import TreatsCounter from "@/components/rewards/TreatsCounter";
 import TabBar from "@/components/TabBar";
@@ -23,7 +27,7 @@ import DashboardView from "@/components/dashboard/DashboardView";
 import TasksView from "@/components/tasks/TasksView";
 import TrackView from "@/components/track/TrackView";
 import RewardsView from "@/components/rewards/RewardsView";
-import MoreView from "@/components/more/MoreView";
+import LollieView from "@/components/lollie/LollieView";
 
 export default function Home() {
   // ── Legacy Tasks ──
@@ -42,12 +46,16 @@ export default function Home() {
   const rewards = useRewards();
   const confetti = useConfetti();
   const lollie = useLollie();
+  const dressUp = useDressUp();
+  const chat = useChat();
+  const alcohol = useAlcoholTracker();
 
   // Ref to track previous water goal state for confetti
   const prevWaterGoalRef = useRef(false);
 
   // ── Init ──
   useEffect(() => {
+    migrateV4ToV5();
     setTasks(loadTasks());
     setStreak(getStreak());
     setActiveTab(loadActiveTab());
@@ -113,7 +121,6 @@ export default function Home() {
     dailyReset.toggleTask(taskId);
 
     if (!wasCompleted) {
-      // Task completed — earn treats, play sound, confetti
       play("task-complete");
       confetti.smallBurst();
       rewards.earnTreats(TREAT_VALUES.resetTask);
@@ -121,16 +128,12 @@ export default function Home() {
       setPugMood("celebrating");
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(30);
 
-      // Check section completion after a tick
       setTimeout(() => {
-        // Re-read from the updated state
         const updated = dailyReset.completedTasks.concat(taskId);
-        // Check all sections
         const sections = dailyReset.allSections;
         for (const section of sections) {
           const allDone = section.tasks.every((t) => updated.includes(t.id));
           if (allDone) {
-            // Section complete
             confetti.mediumBurst();
             lollie.onSectionComplete();
             rewards.earnTreats(TREAT_VALUES.resetSectionComplete);
@@ -141,7 +144,6 @@ export default function Home() {
             break;
           }
         }
-        // Check full day
         const totalTasks = sections.reduce((sum, s) => sum + s.tasks.length, 0);
         if (updated.length >= totalTasks) {
           confetti.bigCelebration();
@@ -171,6 +173,18 @@ export default function Home() {
     water.removeLast();
   }, [water]);
 
+  // ── Alcohol ──
+  const handleAddAlcoholDrink = useCallback((type: AlcoholDrinkType) => {
+    alcohol.addDrink(type);
+    play("water-gulp");
+    lollie.showMessage("No judgment! Lollie's keeping track for you 💜");
+    setPugMood("happy");
+  }, [alcohol, play, lollie]);
+
+  const handleRemoveLastAlcoholDrink = useCallback(() => {
+    alcohol.removeLast();
+  }, [alcohol]);
+
   // ── Mood ──
   const handleLogMood = useCallback((moodLevel: MoodLevel) => {
     mood.logMood(moodLevel);
@@ -182,7 +196,6 @@ export default function Home() {
     stats.moodLogDays += 1;
     saveStats(stats);
 
-    // Bad day auto-suggest
     if (moodLevel <= 2 && !dailyReset.badDayMode) {
       setTimeout(() => {
         lollie.showMessage("Rough day? The survival plan is here if you need it. 💜");
@@ -228,8 +241,36 @@ export default function Home() {
     confetti.achievementUnlock();
   }, [rewards, play, confetti]);
 
+  // ── Chat ──
+  const handleChatSend = useCallback((content: string) => {
+    const systemPrompt = buildSystemPrompt({
+      timeOfDay: getTimeOfDay(),
+      tasksCompleted: dailyReset.completedTasks.length,
+      totalTasks: dailyReset.allSections.reduce((s, sec) => s + sec.tasks.length, 0),
+      waterOz: water.totalOz,
+      waterGoalOz: water.goalOz,
+      todayMood: mood.todayMood?.mood || null,
+      streak: streak.current,
+      level: rewards.level,
+      levelName: rewards.levelProgress?.currentLevel?.name || "Puppy",
+      treats: rewards.treats,
+      badDayMode: dailyReset.badDayMode,
+      equippedItems: Object.values(dressUp.equipped).filter(Boolean) as string[],
+    });
+    chat.sendMessage(content, systemPrompt);
+    play("chat-send");
+  }, [dailyReset, water, mood, streak, rewards, dressUp.equipped, chat, play]);
+
+  // ── Dress-Up spend treats ──
+  const handleSpendTreats = useCallback((amount: number) => {
+    rewards.spendTreats(amount);
+  }, [rewards]);
+
   // ── Level name for header ──
   const levelName = rewards.levelProgress?.currentLevel?.name || "Puppy";
+
+  // ── SVG Pug equipped state (with preview overlay) ──
+  const displayEquipped = dressUp.getDisplayEquipped();
 
   // ── Loading ──
   if (!isLoaded || !dailyReset.isLoaded) {
@@ -265,17 +306,19 @@ export default function Home() {
           </div>
         </motion.header>
 
-        {/* Animated Pug + Speech Bubble */}
+        {/* SVG Pug + Speech Bubble */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center mb-3"
         >
-          <AnimatedPug
+          <SvgPug
             mood={pugMood}
+            equipped={displayEquipped}
             size={activeTab === "dashboard" ? 120 : 80}
             onClick={handlePugClick}
-            outfit={rewards.equippedOutfit}
+            isTalking={chat.isStreaming}
+            showParticles={activeTab === "dashboard"}
           />
           <div className="mt-1">
             <LollieSpeechBubble message={lollie.message} isTyping={lollie.isTyping} />
@@ -343,6 +386,10 @@ export default function Home() {
                 moodWeekAvg={mood.weekAverage()}
                 todayMood={mood.todayMood?.mood || null}
                 onLogMood={handleLogMood}
+                alcoholTodayCount={alcohol.todayCount}
+                alcoholLast7Days={alcohol.last7Days}
+                onAddAlcoholDrink={handleAddAlcoholDrink}
+                onRemoveLastAlcoholDrink={handleRemoveLastAlcoholDrink}
               />
             )}
 
@@ -354,13 +401,35 @@ export default function Home() {
               />
             )}
 
-            {activeTab === "more" && (
-              <MoreView
+            {activeTab === "lollie" && (
+              <LollieView
+                chatMessages={chat.messages}
+                isChatStreaming={chat.isStreaming}
+                chatError={chat.error}
+                onChatSend={handleChatSend}
+                onChatClear={chat.clearHistory}
+                pugMood={pugMood}
+                equipped={dressUp.equipped}
+                unlockedItems={dressUp.unlockedItems}
+                previewItem={dressUp.previewItem}
+                displayEquipped={displayEquipped}
+                treats={rewards.treats}
+                savedLooks={dressUp.savedLooks}
+                onEquip={dressUp.equipItem}
+                onUnequip={dressUp.unequipSlot}
+                onPurchase={dressUp.purchaseItem}
+                onPreview={dressUp.preview}
+                onSaveLook={dressUp.saveLook}
+                onLoadLook={dressUp.loadLook}
+                onDeleteLook={dressUp.deleteLook}
+                onRandomOutfit={dressUp.randomOutfit}
+                onSpendTreats={handleSpendTreats}
                 streak={streak}
                 favorites={favorites}
                 onToggleFavorite={handleToggleFavorite}
                 muted={muted}
                 onToggleMute={toggleMute}
+                playSound={handlePlaySound}
               />
             )}
           </motion.div>

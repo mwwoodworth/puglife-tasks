@@ -73,7 +73,7 @@ export default function MoreView({ streak, favorites, onToggleFavorite, muted, o
               water tracking, mood logging, rewards, and endless encouragement from Lollie.
             </p>
             <p className="text-[10px] text-purple-500 mt-2">
-              v4.0 &middot; Lollie Life
+              v5.0 &middot; Lollie Life
             </p>
           </motion.div>
         )}

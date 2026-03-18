@@ -78,6 +78,18 @@ export function useRewards() {
     });
   }, []);
 
+  const spendTreats = useCallback((amount: number): boolean => {
+    let success = false;
+    setState((prev) => {
+      if (!prev || prev.treats < amount) return prev;
+      success = true;
+      const next = { ...prev, treats: prev.treats - amount };
+      saveRewards(next);
+      return next;
+    });
+    return success;
+  }, []);
+
   const levelProgress = state ? getLevelProgress(state.totalTreatsEarned) : null;
   const availableOutfits = state ? getAvailableOutfits(state.totalTreatsEarned) : [];
 
@@ -91,6 +103,7 @@ export function useRewards() {
     equippedOutfit: state?.equippedOutfit || null,
     unlockedOutfits: state?.unlockedOutfits || [],
     earnTreats,
+    spendTreats,
     unlockAchievement,
     equipOutfit,
     unlockOutfit,

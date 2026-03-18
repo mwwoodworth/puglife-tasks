@@ -1,7 +1,8 @@
 import {
   Task, WeightEntry, WeightGoalData, WeightMilestone, StreakData, AppTab,
   StepGoal, DailyResetState, WaterEntry, WaterDayData, MoodEntry,
-  RewardsState, MoodLevel,
+  RewardsState, MoodLevel, ChatMessage, DressUpState, DressUpSlot,
+  AlcoholDayData, AlcoholEntry, NotificationPrefs,
 } from "./types";
 import { createDefaultRewardsState } from "./rewards-engine";
 
@@ -24,6 +25,11 @@ const MOOD_HISTORY_KEY = "puglife-mood-history";
 const REWARDS_KEY = "puglife-rewards";
 const FAVORITES_KEY = "puglife-favorites";
 const STATS_KEY = "puglife-stats";
+const CHAT_HISTORY_KEY = "puglife-chat-history";
+const DRESSUP_STATE_KEY = "puglife-dressup-state";
+const ALCOHOL_DATA_KEY = "puglife-alcohol-data";
+const ALCOHOL_HISTORY_KEY = "puglife-alcohol-history";
+const NOTIFICATION_PREFS_KEY = "puglife-notification-prefs";
 
 // ── Helpers ──
 function safeGet<T>(key: string, fallback: T): T {
@@ -208,4 +214,105 @@ export function loadStats(): CumulativeStats {
 
 export function saveStats(stats: CumulativeStats) {
   safeSet(STATS_KEY, stats);
+}
+
+// ── Chat History ──
+export function loadChatHistory(): ChatMessage[] {
+  return safeGet(CHAT_HISTORY_KEY, []);
+}
+
+export function saveChatHistory(messages: ChatMessage[]) {
+  // Keep last 50 messages to prevent storage bloat
+  safeSet(CHAT_HISTORY_KEY, messages.slice(-50));
+}
+
+// ── Dress-Up State ──
+const DEFAULT_DRESSUP_STATE: DressUpState = {
+  unlockedItems: [],
+  equipped: { hat: null, glasses: null, outfit: null, accessory: null, background: null },
+  savedLooks: [],
+};
+
+export function loadDressUpState(): DressUpState {
+  return safeGet(DRESSUP_STATE_KEY, DEFAULT_DRESSUP_STATE);
+}
+
+export function saveDressUpState(state: DressUpState) {
+  safeSet(DRESSUP_STATE_KEY, state);
+}
+
+// ── Alcohol Tracking ──
+export function loadAlcoholData(): AlcoholDayData {
+  const today = new Date().toISOString().split("T")[0];
+  const data = safeGet<AlcoholDayData | null>(ALCOHOL_DATA_KEY, null);
+  if (data && data.date === today) return data;
+  // Archive yesterday if exists
+  if (data) {
+    const history = safeGet<AlcoholDayData[]>(ALCOHOL_HISTORY_KEY, []);
+    history.push(data);
+    safeSet(ALCOHOL_HISTORY_KEY, history.slice(-30));
+  }
+  return { date: today, entries: [] };
+}
+
+export function saveAlcoholData(data: AlcoholDayData) {
+  safeSet(ALCOHOL_DATA_KEY, data);
+}
+
+export function loadAlcoholHistory(): AlcoholDayData[] {
+  return safeGet(ALCOHOL_HISTORY_KEY, []);
+}
+
+// ── Notification Prefs ──
+export function loadNotificationPrefs(): NotificationPrefs {
+  return safeGet(NOTIFICATION_PREFS_KEY, { enabled: false, reminders: false, celebrations: false });
+}
+
+export function saveNotificationPrefs(prefs: NotificationPrefs) {
+  safeSet(NOTIFICATION_PREFS_KEY, prefs);
+}
+
+// ── Data Migration (v4 → v5) ──
+const MIGRATION_KEY = "puglife-v5-migrated";
+
+export function migrateV4ToV5() {
+  if (typeof window === "undefined") return;
+  if (safeGet(MIGRATION_KEY, false)) return;
+
+  // Migrate old outfit system to new dress-up slots
+  const rewards = loadRewards();
+  const dressUp = loadDressUpState();
+
+  const outfitMap: Record<string, { newId: string; slot: DressUpSlot }> = {
+    crown: { newId: "hat-crown", slot: "hat" },
+    sunglasses: { newId: "glasses-sun", slot: "glasses" },
+    "party-hat": { newId: "hat-party", slot: "hat" },
+    cape: { newId: "outfit-cape", slot: "outfit" },
+    "bow-tie": { newId: "acc-bowtie", slot: "accessory" },
+    "flower-crown": { newId: "hat-flower-crown", slot: "hat" },
+    pajamas: { newId: "outfit-pajamas", slot: "outfit" },
+  };
+
+  for (const oldId of rewards.unlockedOutfits) {
+    const mapping = outfitMap[oldId];
+    if (mapping && !dressUp.unlockedItems.includes(mapping.newId)) {
+      dressUp.unlockedItems.push(mapping.newId);
+    }
+  }
+
+  if (rewards.equippedOutfit) {
+    const mapping = outfitMap[rewards.equippedOutfit];
+    if (mapping) {
+      dressUp.equipped[mapping.slot] = mapping.newId;
+    }
+  }
+
+  // Migrate active tab "more" → "lollie"
+  const tab = loadActiveTab();
+  if (tab === ("more" as AppTab)) {
+    saveActiveTab("lollie");
+  }
+
+  saveDressUpState(dressUp);
+  safeSet(MIGRATION_KEY, true);
 }

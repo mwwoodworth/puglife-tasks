@@ -101,5 +101,41 @@ export function useConfetti() {
     });
   }, []);
 
-  return { smallBurst, mediumBurst, bigCelebration, waterConfetti, levelUp, achievementUnlock };
+  const dressUpConfetti = useCallback(async () => {
+    const confetti = await getConfetti();
+    confetti({
+      particleCount: 45,
+      spread: 70,
+      origin: { x: 0.5, y: 0.5 },
+      colors: ["#f472b6", "#fb923c", "#facc15", "#34d399", "#60a5fa", "#a855f7", "#e879f9"],
+      scalar: 1.0,
+    });
+  }, []);
+
+  const chatConfetti = useCallback(async () => {
+    const confetti = await getConfetti();
+    confetti({
+      particleCount: 20,
+      spread: 40,
+      origin: { x: 0.5, y: 0.5 },
+      colors: ["#f9a8d4", "#f0abfc", "#c4b5fd", "#fda4af"],
+      scalar: 0.7,
+    });
+  }, []);
+
+  const purchaseConfetti = useCallback(async () => {
+    const confetti = await getConfetti();
+    confetti({
+      particleCount: 50,
+      spread: 80,
+      origin: { x: 0.5, y: 0.45 },
+      colors: ["#fbbf24", "#f59e0b", "#d97706", "#a855f7", "#e879f9"],
+      scalar: 1.1,
+    });
+  }, []);
+
+  return {
+    smallBurst, mediumBurst, bigCelebration, waterConfetti, levelUp,
+    achievementUnlock, dressUpConfetti, chatConfetti, purchaseConfetti,
+  };
 }

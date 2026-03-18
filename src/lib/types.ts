@@ -9,7 +9,7 @@ export type Category =
   | "fun"
   | "pugcare";
 
-export type AppTab = "dashboard" | "tasks" | "track" | "rewards" | "more";
+export type AppTab = "dashboard" | "tasks" | "track" | "rewards" | "lollie";
 
 export type PugMood =
   | "sleeping"
@@ -43,7 +43,12 @@ export type SoundEffect =
   | "water-gulp"
   | "level-up"
   | "achievement"
-  | "confetti-pop";
+  | "confetti-pop"
+  | "chat-send"
+  | "chat-receive"
+  | "item-equip"
+  | "item-preview"
+  | "shop-purchase";
 
 // ── Tasks ──
 export interface Task {
@@ -243,5 +248,67 @@ export const TAB_CONFIG: Record<AppTab, { label: string; emoji: string; icon: st
   tasks: { label: "Tasks", emoji: "✅", icon: "tasks" },
   track: { label: "Track", emoji: "📊", icon: "track" },
   rewards: { label: "Rewards", emoji: "⭐", icon: "rewards" },
-  more: { label: "More", emoji: "💜", icon: "more" },
+  lollie: { label: "Lollie", emoji: "🐶", icon: "lollie" },
 };
+
+// ── AI Chat ──
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+}
+
+// ── Dress-Up System ──
+export type DressUpSlot = "hat" | "glasses" | "outfit" | "accessory" | "background";
+export type ItemRarity = "common" | "uncommon" | "rare" | "epic";
+
+export interface DressUpItem {
+  id: string;
+  name: string;
+  slot: DressUpSlot;
+  rarity: ItemRarity;
+  treatsCost: number;
+  svgLayerId: string;
+  previewEmoji: string;
+  isSpecial?: boolean;
+}
+
+export interface DressUpState {
+  unlockedItems: string[];
+  equipped: Record<DressUpSlot, string | null>;
+  savedLooks: SavedLook[];
+  lastViewedAt?: string;
+}
+
+export interface SavedLook {
+  id: string;
+  name: string;
+  equipped: Record<DressUpSlot, string | null>;
+  createdAt: string;
+}
+
+// ── Alcohol Tracking ──
+export type AlcoholDrinkType = "beer" | "wine" | "cocktail" | "shot";
+
+export interface AlcoholEntry {
+  id: string;
+  type: AlcoholDrinkType;
+  standardDrinks: number;
+  timestamp: string;
+}
+
+export interface AlcoholDayData {
+  date: string;
+  entries: AlcoholEntry[];
+}
+
+// ── Integrations ──
+export interface NotificationPrefs {
+  enabled: boolean;
+  reminders: boolean;
+  celebrations: boolean;
+}
+
+// ── Lollie View Sub-tabs ──
+export type LollieSubTab = "chat" | "dressup";
