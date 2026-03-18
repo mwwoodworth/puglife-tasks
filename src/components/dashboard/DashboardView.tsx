@@ -185,15 +185,25 @@ export default function DashboardView({
         </div>
       )}
 
-      {/* Bad Day Button */}
+      {/* Bad Day Mode — Prominent Activation */}
       {!badDayMode && (
         <motion.button
           onClick={onActivateBadDay}
-          className="w-full py-2.5 rounded-2xl bg-purple-900/20 border border-purple-500/15 text-xs font-bold text-purple-400"
-          whileTap={{ scale: 0.98 }}
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-fuchsia-900/40 to-purple-900/40 border border-fuchsia-500/25 text-center"
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ borderColor: "rgba(236,72,153,0.4)" }}
         >
-          💜 Bad day? Tap for survival mode
+          <p className="text-sm font-bold text-fuchsia-300">Rough day? Lollie&apos;s here. 💜</p>
+          <p className="text-[10px] text-purple-400 mt-0.5">Switch to survival mode — something &gt; nothing</p>
         </motion.button>
+      )}
+
+      {/* Bad Day Banner — Active */}
+      {badDayMode && (
+        <div className="rounded-2xl bg-gradient-to-r from-fuchsia-900/50 to-purple-900/50 border border-fuchsia-500/30 p-3 text-center">
+          <p className="text-xs font-bold text-fuchsia-300">Bad Day Mode 💜 Something &gt; Nothing</p>
+          <p className="text-[10px] text-purple-300 mt-1">You showed up. That&apos;s enough.</p>
+        </div>
       )}
 
       {/* View all tasks */}

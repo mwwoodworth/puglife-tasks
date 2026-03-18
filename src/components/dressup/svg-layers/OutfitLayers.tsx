@@ -130,6 +130,35 @@ export function OutfitLayer({ id, position }: OutfitLayerProps) {
           <path d="M130,225 L150,230 L170,225" fill="none" stroke="#60a5fa" strokeWidth="1" />
         </motion.g>
       );
+    case "outfit-lorelei":
+      // Marilyn Monroe / Lorelei Leigh iconic pink satin dress with long gloves & diamonds
+      return (
+        <motion.g {...equipAnim} filter="url(#epic-glow)">
+          {/* Pink satin dress — strapless, form-fitting top, flowing skirt */}
+          <path d="M100,225 Q88,280 80,325 L220,325 Q212,280 200,225 Q180,218 150,216 Q120,218 100,225" fill="#F472B6" stroke="#EC4899" strokeWidth="1" />
+          {/* Bodice — sweetheart neckline */}
+          <path d="M110,225 Q130,218 150,222 Q170,218 190,225 L188,248 Q150,242 112,248 Z" fill="#EC4899" />
+          <path d="M125,222 Q150,216 175,222" fill="none" stroke="#F9A8D4" strokeWidth="1" opacity="0.5" />
+          {/* Satin highlights */}
+          <path d="M115,255 Q125,300 118,320" fill="none" stroke="#F9A8D4" strokeWidth="2" opacity="0.3" />
+          <path d="M185,255 Q175,300 182,320" fill="none" stroke="#F9A8D4" strokeWidth="2" opacity="0.3" />
+          <path d="M145,250 Q148,290 142,320" fill="none" stroke="#F9A8D4" strokeWidth="1.5" opacity="0.2" />
+          {/* Long satin gloves */}
+          <path d="M95,225 L88,270" stroke="#F472B6" strokeWidth="6" strokeLinecap="round" opacity="0.7" />
+          <path d="M205,225 L212,270" stroke="#F472B6" strokeWidth="6" strokeLinecap="round" opacity="0.7" />
+          {/* Diamond necklace (Lorelei's signature) */}
+          <motion.g animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }}>
+            <path d="M125,222 Q150,230 175,222" fill="none" stroke="#E5E7EB" strokeWidth="1.5" />
+            <polygon points="150,228 147,233 150,238 153,233" fill="white" opacity="0.9" />
+            <polygon points="140,226 138,230 140,234 142,230" fill="white" opacity="0.7" />
+            <polygon points="160,226 158,230 160,234 162,230" fill="white" opacity="0.7" />
+          </motion.g>
+          {/* Sparkles on dress */}
+          <motion.circle cx="130" cy="275" r="1.5" fill="white" animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 1.8, repeat: Infinity }} />
+          <motion.circle cx="170" cy="290" r="1.5" fill="white" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }} />
+          <motion.circle cx="150" cy="305" r="1" fill="white" animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 2.2, repeat: Infinity, delay: 1 }} />
+        </motion.g>
+      );
     case "outfit-galaxy-cape":
       return (
         <motion.g {...equipAnim} filter="url(#epic-glow)">

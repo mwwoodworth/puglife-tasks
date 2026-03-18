@@ -17,12 +17,15 @@ import { useLollie } from "@/hooks/useLollie";
 import { useDressUp } from "@/hooks/useDressUp";
 import { useChat } from "@/hooks/useChat";
 import { useAlcoholTracker } from "@/hooks/useAlcoholTracker";
+import { useToast } from "@/hooks/useToast";
 
 import SvgPug from "@/components/dressup/SvgPug";
 import LollieSpeechBubble from "@/components/pug/LollieSpeechBubble";
 import TreatsCounter from "@/components/rewards/TreatsCounter";
 import TabBar from "@/components/TabBar";
 import SparkleEffect from "@/components/ui/SparkleEffect";
+import BadDayBanner from "@/components/ui/BadDayBanner";
+import ToastProvider from "@/components/ui/ToastProvider";
 import DashboardView from "@/components/dashboard/DashboardView";
 import TasksView from "@/components/tasks/TasksView";
 import TrackView from "@/components/track/TrackView";
@@ -49,6 +52,7 @@ export default function Home() {
   const dressUp = useDressUp();
   const chat = useChat();
   const alcohol = useAlcoholTracker();
+  const toast = useToast();
 
   // Ref to track previous water goal state for confetti
   const prevWaterGoalRef = useRef(false);
@@ -124,6 +128,7 @@ export default function Home() {
       play("task-complete");
       confetti.smallBurst();
       rewards.earnTreats(TREAT_VALUES.resetTask);
+      toast.show(`+${TREAT_VALUES.resetTask} 🍖`, "success");
       lollie.onTaskComplete();
       setPugMood("celebrating");
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(30);
@@ -288,6 +293,7 @@ export default function Home() {
 
   return (
     <div className="min-h-dvh relative">
+      <ToastProvider toasts={toast.toasts} onDismiss={toast.dismiss} />
       <SparkleEffect />
 
       <div className="relative z-10 max-w-lg mx-auto px-4 pt-3 pb-safe">
@@ -324,6 +330,9 @@ export default function Home() {
             <LollieSpeechBubble message={lollie.message} isTyping={lollie.isTyping} />
           </div>
         </motion.div>
+
+        {/* Bad Day Banner — persistent across all tabs */}
+        {activeTab !== "dashboard" && <BadDayBanner active={dailyReset.badDayMode} />}
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
@@ -403,32 +412,37 @@ export default function Home() {
 
             {activeTab === "lollie" && (
               <LollieView
-                chatMessages={chat.messages}
-                isChatStreaming={chat.isStreaming}
-                chatError={chat.error}
-                onChatSend={handleChatSend}
-                onChatClear={chat.clearHistory}
+                chat={{
+                  messages: chat.messages,
+                  isStreaming: chat.isStreaming,
+                  error: chat.error,
+                  onSend: handleChatSend,
+                  onClear: chat.clearHistory,
+                }}
+                wardrobe={{
+                  equipped: dressUp.equipped,
+                  displayEquipped,
+                  unlockedItems: dressUp.unlockedItems,
+                  treats: rewards.treats,
+                  savedLooks: dressUp.savedLooks,
+                  onEquip: dressUp.equipItem,
+                  onUnequip: dressUp.unequipSlot,
+                  onPurchase: dressUp.purchaseItem,
+                  onPreview: dressUp.preview,
+                  onSaveLook: dressUp.saveLook,
+                  onLoadLook: dressUp.loadLook,
+                  onDeleteLook: dressUp.deleteLook,
+                  onRandomOutfit: dressUp.randomOutfit,
+                  onSpendTreats: handleSpendTreats,
+                }}
+                settings={{
+                  streak,
+                  favorites,
+                  onToggleFavorite: handleToggleFavorite,
+                  muted,
+                  onToggleMute: toggleMute,
+                }}
                 pugMood={pugMood}
-                equipped={dressUp.equipped}
-                unlockedItems={dressUp.unlockedItems}
-                previewItem={dressUp.previewItem}
-                displayEquipped={displayEquipped}
-                treats={rewards.treats}
-                savedLooks={dressUp.savedLooks}
-                onEquip={dressUp.equipItem}
-                onUnequip={dressUp.unequipSlot}
-                onPurchase={dressUp.purchaseItem}
-                onPreview={dressUp.preview}
-                onSaveLook={dressUp.saveLook}
-                onLoadLook={dressUp.loadLook}
-                onDeleteLook={dressUp.deleteLook}
-                onRandomOutfit={dressUp.randomOutfit}
-                onSpendTreats={handleSpendTreats}
-                streak={streak}
-                favorites={favorites}
-                onToggleFavorite={handleToggleFavorite}
-                muted={muted}
-                onToggleMute={toggleMute}
                 playSound={handlePlaySound}
               />
             )}

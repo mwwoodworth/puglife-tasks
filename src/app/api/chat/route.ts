@@ -4,16 +4,21 @@ import { NextRequest } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY || "");
+const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY || "";
 
 export async function POST(req: NextRequest) {
+  if (!API_KEY) {
+    return new Response(JSON.stringify({ error: "api_key_missing", message: "Lollie needs her API key configured!" }), { status: 503 });
+  }
+
   try {
-    const { messages, systemPrompt } = await req.json();
+    const { messages, systemPrompt, quickResponse } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: "messages required" }), { status: 400 });
     }
 
+    const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
       systemInstruction: systemPrompt || "You are Lollie, a sweet and supportive pug assistant.",
@@ -26,8 +31,16 @@ export async function POST(req: NextRequest) {
     }));
 
     const lastMessage = messages[messages.length - 1];
-
     const chat = model.startChat({ history });
+
+    // Quick response mode — returns single JSON response (no stream)
+    if (quickResponse) {
+      const result = await chat.sendMessage(lastMessage.content);
+      const text = result.response.text();
+      return new Response(JSON.stringify({ text }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Stream the response
     const result = await chat.sendMessageStream(lastMessage.content);
@@ -44,7 +57,8 @@ export async function POST(req: NextRequest) {
           }
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
-        } catch (err) {
+        } catch (streamErr) {
+          console.error("Chat stream error:", streamErr);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Stream error" })}\n\n`));
           controller.close();
         }
@@ -60,6 +74,10 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("Chat API error:", err);
-    return new Response(JSON.stringify({ error: "Failed to generate response" }), { status: 500 });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    if (message.includes("429") || message.includes("quota") || message.includes("rate")) {
+      return new Response(JSON.stringify({ error: "rate_limited", message: "Lollie needs a moment to catch her breath!" }), { status: 429 });
+    }
+    return new Response(JSON.stringify({ error: "server_error", message: "Lollie tripped over her paws!" }), { status: 500 });
   }
 }

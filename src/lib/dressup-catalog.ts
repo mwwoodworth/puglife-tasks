@@ -32,6 +32,7 @@ export const DRESSUP_ITEMS: DressUpItem[] = [
   { id: "outfit-hawaiian", name: "Hawaiian Shirt", slot: "outfit", rarity: "uncommon", treatsCost: 50, svgLayerId: "hawaiian", previewEmoji: "🌺" },
   { id: "outfit-hoodie", name: "Cozy Hoodie", slot: "outfit", rarity: "common", treatsCost: 25, svgLayerId: "hoodie", previewEmoji: "🧥" },
   { id: "outfit-superhero", name: "Super Suit", slot: "outfit", rarity: "uncommon", treatsCost: 80, svgLayerId: "superhero", previewEmoji: "💪" },
+  { id: "outfit-lorelei", name: "Lorelei Dress", slot: "outfit", rarity: "epic", treatsCost: 300, svgLayerId: "lorelei", previewEmoji: "💎", isSpecial: true },
   { id: "outfit-galaxy-cape", name: "Galaxy Cape", slot: "outfit", rarity: "epic", treatsCost: 350, svgLayerId: "galaxy-cape", previewEmoji: "🌌", isSpecial: true },
 
   // ── ACCESSORIES (9) ──

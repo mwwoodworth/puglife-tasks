@@ -72,6 +72,16 @@ export function useLollie() {
     showMessage(getMoodResponse(mood));
   }, [showMessage]);
 
+  const onItemEquip = useCallback((itemName: string) => {
+    const msgs = [
+      `Ooh, the ${itemName}! Looking fabulous, Danielle!`,
+      `*strikes a pose* The ${itemName} is SO cute on me!`,
+      `${itemName}? Yes please! Lollie approves!`,
+      `Fashion icon status! Love the ${itemName}!`,
+    ];
+    showMessage(msgs[Math.floor(Math.random() * msgs.length)]);
+  }, [showMessage]);
+
   const onGreeting = useCallback((badDayMode: boolean) => {
     const ctx = {
       timeOfDay: getTimeOfDay(),
@@ -97,6 +107,7 @@ export function useLollie() {
     onWaterDrink,
     onWaterGoal,
     onMoodLog,
+    onItemEquip,
     onGreeting,
     greetingPrefix: getTimeGreetingPrefix(),
   };

@@ -56,7 +56,10 @@ export function useChat() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to get response");
+        const errBody = await res.json().catch(() => null);
+        const errCode = errBody?.error || "unknown";
+        const errMsg = errBody?.message || "Something went wrong";
+        throw new Error(`${errCode}::${errMsg}`);
       }
 
       const reader = res.body?.getReader();
@@ -101,7 +104,14 @@ export function useChat() {
       });
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
-      setError("Lollie got distracted by a squirrel! Try again?");
+      const msg = (err as Error).message || "";
+      if (msg.includes("api_key_missing")) {
+        setError("Lollie is sleeping... her API key needs to be configured!");
+      } else if (msg.includes("rate_limited")) {
+        setError("Lollie needs a moment to catch her breath! Try again in a sec.");
+      } else {
+        setError("Lollie tripped over her paws! Try again?");
+      }
       // Remove empty assistant message on error
       setMessages((prev) => {
         const filtered = prev.filter((m) => m.id !== assistantId);
