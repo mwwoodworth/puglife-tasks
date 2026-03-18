@@ -9,6 +9,7 @@ interface AnimatedPugProps {
   mood: PugMood;
   size?: number;
   onClick?: () => void;
+  outfit?: string | null;
 }
 
 const PUG_IMAGES: Record<PugMood, string> = {
@@ -35,6 +36,16 @@ const PUG_FALLBACKS: Record<PugMood, string> = {
   "working-out": "/pugs/pug-workout.png",
 };
 
+const OUTFIT_EMOJIS: Record<string, string> = {
+  crown: "👑",
+  sunglasses: "🕶️",
+  "party-hat": "🎉",
+  cape: "🦸",
+  "bow-tie": "🎀",
+  "flower-crown": "🌸",
+  pajamas: "😴",
+};
+
 const bodyVariants: Record<PugMood, TargetAndTransition> = {
   sleeping: { y: [0, -3, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } },
   idle: { y: [0, -5, 0], scale: [1, 1.02, 1], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } },
@@ -47,7 +58,7 @@ const bodyVariants: Record<PugMood, TargetAndTransition> = {
   love: { y: [0, -6, 0], scale: [1, 1.04, 1], transition: { duration: 1, repeat: Infinity, ease: "easeInOut" as const } },
 };
 
-export default function AnimatedPug({ mood, size = 120, onClick }: AnimatedPugProps) {
+export default function AnimatedPug({ mood, size = 120, onClick, outfit }: AnimatedPugProps) {
   const [particles, setParticles] = useState<{ id: number; emoji: string; x: number; delay: number }[]>([]);
 
   useEffect(() => {
@@ -84,21 +95,21 @@ export default function AnimatedPug({ mood, size = 120, onClick }: AnimatedPugPr
         ))}
       </AnimatePresence>
 
-      {/* Pug glow */}
+      {/* Pug glow — soft purple circle behind */}
       <motion.div
         className="absolute rounded-full"
         style={{
-          width: size * 0.85,
-          height: size * 0.85,
-          background: mood === "love" ? "radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)"
-            : mood === "celebrating" ? "radial-gradient(circle, rgba(250,204,21,0.2) 0%, transparent 70%)"
-            : "radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)",
+          width: size * 0.9,
+          height: size * 0.9,
+          background: mood === "love" ? "radial-gradient(circle, rgba(168,85,247,0.3) 0%, transparent 70%)"
+            : mood === "celebrating" ? "radial-gradient(circle, rgba(250,204,21,0.25) 0%, transparent 70%)"
+            : "radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%)",
         }}
         animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
         transition={{ duration: 2, repeat: Infinity }}
       />
 
-      {/* Animated Pug Image */}
+      {/* Animated Pug Image — circular with feathered edge */}
       <motion.div
         animate={bodyVariants[mood]}
         onClick={onClick}
@@ -113,7 +124,11 @@ export default function AnimatedPug({ mood, size = 120, onClick }: AnimatedPugPr
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.25 }}
-            className="w-full h-full"
+            className="w-full h-full rounded-full overflow-hidden"
+            style={{
+              maskImage: "radial-gradient(circle, black 55%, transparent 75%)",
+              WebkitMaskImage: "radial-gradient(circle, black 55%, transparent 75%)",
+            }}
           >
             <picture>
               <source srcSet={PUG_IMAGES[mood]} type="image/webp" />
@@ -122,13 +137,25 @@ export default function AnimatedPug({ mood, size = 120, onClick }: AnimatedPugPr
                 alt={`Lollie the pug - ${mood}`}
                 width={512}
                 height={512}
-                className="w-full h-full object-contain drop-shadow-xl"
+                className="w-full h-full object-cover drop-shadow-xl"
                 priority
                 unoptimized
               />
             </picture>
           </motion.div>
         </AnimatePresence>
+
+        {/* Outfit overlay */}
+        {outfit && OUTFIT_EMOJIS[outfit] && (
+          <motion.span
+            className="absolute -top-2 -right-1 text-xl z-30 drop-shadow-lg"
+            initial={{ scale: 0, rotate: -30 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            {OUTFIT_EMOJIS[outfit]}
+          </motion.span>
+        )}
       </motion.div>
 
       {/* Sleeping zzz overlay */}

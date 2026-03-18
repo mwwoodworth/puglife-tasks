@@ -1,39 +1,57 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Task, AppTab, PugMood, SoundEffect } from "@/lib/types";
-import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab } from "@/lib/storage";
-import {
-  PUG_IDLE_MESSAGES, PUG_ENCOURAGEMENTS, PUG_WEIGHT_MESSAGES,
-  PUG_MOTIVATION_MESSAGES, getRandomMessage,
-} from "@/lib/pug-wisdom";
+import { Task, AppTab, PugMood, SoundEffect, MoodLevel, ResetSectionId } from "@/lib/types";
+import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats } from "@/lib/storage";
+import { PUG_ENCOURAGEMENTS, getRandomMessage } from "@/lib/pug-wisdom";
+import { TREAT_VALUES } from "@/lib/rewards-engine";
 import { useSound } from "@/hooks/useSound";
+import { useDailyReset } from "@/hooks/useDailyReset";
+import { useWaterTracker } from "@/hooks/useWaterTracker";
+import { useMoodTracker } from "@/hooks/useMoodTracker";
+import { useRewards } from "@/hooks/useRewards";
+import { useConfetti } from "@/hooks/useConfetti";
+import { useLollie } from "@/hooks/useLollie";
 
 import AnimatedPug from "@/components/pug/AnimatedPug";
+import LollieSpeechBubble from "@/components/pug/LollieSpeechBubble";
+import TreatsCounter from "@/components/rewards/TreatsCounter";
 import TabBar from "@/components/TabBar";
 import SparkleEffect from "@/components/ui/SparkleEffect";
-import SoundToggle from "@/components/ui/SoundToggle";
 import DashboardView from "@/components/dashboard/DashboardView";
 import TasksView from "@/components/tasks/TasksView";
-import WeightView from "@/components/weight/WeightView";
-import MotivationView from "@/components/motivation/MotivationView";
+import TrackView from "@/components/track/TrackView";
+import RewardsView from "@/components/rewards/RewardsView";
+import MoreView from "@/components/more/MoreView";
 
 export default function Home() {
+  // ── Legacy Tasks ──
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTab, setActiveTab] = useState<AppTab>("dashboard");
   const [pugMood, setPugMood] = useState<PugMood>("sleeping");
-  const [pugMessage, setPugMessage] = useState("Loading... *yawns*");
   const [streak, setStreak] = useState(getStreak());
   const [isLoaded, setIsLoaded] = useState(false);
-  const { muted, toggleMute, play } = useSound();
+  const [favorites, setFavorites] = useState<string[]>([]);
 
-  // Load on mount
+  // ── Hooks ──
+  const { muted, toggleMute, play } = useSound();
+  const dailyReset = useDailyReset();
+  const water = useWaterTracker();
+  const mood = useMoodTracker();
+  const rewards = useRewards();
+  const confetti = useConfetti();
+  const lollie = useLollie();
+
+  // Ref to track previous water goal state for confetti
+  const prevWaterGoalRef = useRef(false);
+
+  // ── Init ──
   useEffect(() => {
     setTasks(loadTasks());
     setStreak(getStreak());
-    const savedTab = loadActiveTab();
-    setActiveTab(savedTab);
+    setActiveTab(loadActiveTab());
+    setFavorites(loadFavorites());
     setIsLoaded(true);
   }, []);
 
@@ -42,50 +60,31 @@ export default function Home() {
     if (isLoaded) saveTasks(tasks);
   }, [tasks, isLoaded]);
 
-  // Update pug mood based on context
+  // Watch for water goal completion
   useEffect(() => {
-    if (!isLoaded) return;
-    const total = tasks.length;
-    const completed = tasks.filter((t) => t.completed).length;
-
-    if (pugMood === "sleeping" || pugMood === "idle") {
-      if (total === 0) {
-        setPugMood("sleeping");
-        setPugMessage(getRandomMessage(PUG_IDLE_MESSAGES));
-      } else if (completed === total) {
-        setPugMood("celebrating");
-        setPugMessage("ALL DONE! Danielle, you're a legend!");
-      } else if (completed > 0) {
-        setPugMood("happy");
-        setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
-      } else {
-        setPugMood("idle");
-        setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
-      }
+    if (water.goalReached && !prevWaterGoalRef.current && water.isLoaded) {
+      confetti.waterConfetti();
+      lollie.onWaterGoal();
+      rewards.earnTreats(TREAT_VALUES.waterGoalHit);
+      play("celebration");
+      const stats = loadStats();
+      stats.waterGoalDays += 1;
+      saveStats(stats);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, isLoaded]);
+    prevWaterGoalRef.current = water.goalReached;
+  }, [water.goalReached, water.isLoaded]);
 
+  // ── Tab change ──
   const handleTabChange = useCallback((tab: AppTab) => {
     setActiveTab(tab);
     saveActiveTab(tab);
     play("tab-switch");
-
-    const tabMessages: Record<AppTab, { mood: PugMood; getMessage: () => string }> = {
-      dashboard: { mood: "happy", getMessage: () => "Welcome home, Danielle!" },
-      tasks: { mood: "idle", getMessage: () => getRandomMessage(PUG_ENCOURAGEMENTS) },
-      weight: { mood: "happy", getMessage: () => getRandomMessage(PUG_WEIGHT_MESSAGES) },
-      motivation: { mood: "love", getMessage: () => getRandomMessage(PUG_MOTIVATION_MESSAGES) },
-    };
-    const config = tabMessages[tab];
-    setPugMood(config.mood);
-    setPugMessage(config.getMessage());
   }, [play]);
 
   const handleMoodChange = useCallback((mood: string, message: string) => {
     setPugMood(mood as PugMood);
-    setPugMessage(message);
-  }, []);
+    lollie.showMessage(message);
+  }, [lollie]);
 
   const handleStreakUpdate = useCallback(() => {
     const updated = updateStreak();
@@ -96,23 +95,144 @@ export default function Home() {
     play(effect);
   }, [play]);
 
+  // ── Pug click ──
   const handlePugClick = useCallback(() => {
     play("pug-toot");
     setPugMood("excited");
-    setPugMessage("*TOOT* Hehe excuse me, Danielle!");
+    lollie.showMessage("*TOOT* Hehe excuse me, Danielle!");
     setTimeout(() => {
       setPugMood("happy");
-      setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
+      lollie.showMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
     }, 2500);
-  }, [play]);
+  }, [play, lollie]);
 
-  const handleDailyReset = useCallback(() => {
-    setTasks((prev) => prev.map((t) => ({ ...t, completed: false, completedAt: undefined })));
-    setPugMood("excited");
-    setPugMessage("Fresh day! Let's crush it, Danielle!");
+  // ── Reset task toggle (with rewards/confetti wiring) ──
+  const handleToggleResetTask = useCallback((taskId: string) => {
+    if (!dailyReset.state) return;
+    const wasCompleted = dailyReset.completedTasks.includes(taskId);
+    dailyReset.toggleTask(taskId);
+
+    if (!wasCompleted) {
+      // Task completed — earn treats, play sound, confetti
+      play("task-complete");
+      confetti.smallBurst();
+      rewards.earnTreats(TREAT_VALUES.resetTask);
+      lollie.onTaskComplete();
+      setPugMood("celebrating");
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(30);
+
+      // Check section completion after a tick
+      setTimeout(() => {
+        // Re-read from the updated state
+        const updated = dailyReset.completedTasks.concat(taskId);
+        // Check all sections
+        const sections = dailyReset.allSections;
+        for (const section of sections) {
+          const allDone = section.tasks.every((t) => updated.includes(t.id));
+          if (allDone) {
+            // Section complete
+            confetti.mediumBurst();
+            lollie.onSectionComplete();
+            rewards.earnTreats(TREAT_VALUES.resetSectionComplete);
+            play("celebration");
+            const stats = loadStats();
+            stats.resetSectionsCompleted += 1;
+            saveStats(stats);
+            break;
+          }
+        }
+        // Check full day
+        const totalTasks = sections.reduce((sum, s) => sum + s.tasks.length, 0);
+        if (updated.length >= totalTasks) {
+          confetti.bigCelebration();
+          lollie.onAllDone();
+          rewards.earnTreats(TREAT_VALUES.fullDayComplete);
+          play("milestone");
+          const stats = loadStats();
+          stats.fullDaysCompleted += 1;
+          saveStats(stats);
+        }
+        setPugMood("happy");
+      }, 100);
+    }
+  }, [dailyReset, play, confetti, rewards, lollie]);
+
+  // ── Water ──
+  const handleAddDrink = useCallback((type: Parameters<typeof water.addDrink>[0]) => {
+    water.addDrink(type);
+    play("water-gulp");
+    lollie.onWaterDrink();
+    rewards.earnTreats(TREAT_VALUES.waterDrink);
+    setPugMood("eating");
+    setTimeout(() => setPugMood("happy"), 1500);
+  }, [water, play, lollie, rewards]);
+
+  const handleRemoveLastDrink = useCallback(() => {
+    water.removeLast();
+  }, [water]);
+
+  // ── Mood ──
+  const handleLogMood = useCallback((moodLevel: MoodLevel) => {
+    mood.logMood(moodLevel);
+    play("sparkle");
+    confetti.smallBurst();
+    rewards.earnTreats(TREAT_VALUES.moodLog);
+    lollie.onMoodLog(moodLevel);
+    const stats = loadStats();
+    stats.moodLogDays += 1;
+    saveStats(stats);
+
+    // Bad day auto-suggest
+    if (moodLevel <= 2 && !dailyReset.badDayMode) {
+      setTimeout(() => {
+        lollie.showMessage("Rough day? The survival plan is here if you need it. 💜");
+      }, 2000);
+    }
+  }, [mood, play, confetti, rewards, lollie, dailyReset.badDayMode]);
+
+  // ── Bad Day ──
+  const handleActivateBadDay = useCallback(() => {
+    dailyReset.activateBadDay();
+    lollie.onBadDay();
+    play("pug-whimper");
+    setPugMood("sad");
+    setTimeout(() => setPugMood("love"), 2000);
+  }, [dailyReset, lollie, play]);
+
+  const handleDeactivateBadDay = useCallback(() => {
+    dailyReset.deactivateBadDay();
+    lollie.showMessage("Switching back! You've got this, Danielle!");
+    setPugMood("happy");
+  }, [dailyReset, lollie]);
+
+  // ── Favorites ──
+  const handleToggleFavorite = useCallback((message: string) => {
+    setFavorites((prev) => {
+      const next = prev.includes(message)
+        ? prev.filter((m) => m !== message)
+        : [...prev, message];
+      saveFavorites(next);
+      return next;
+    });
   }, []);
 
-  if (!isLoaded) {
+  // ── Rewards ──
+  const handleEquipOutfit = useCallback((id: string | null) => {
+    rewards.equipOutfit(id);
+    if (id) play("sparkle");
+  }, [rewards, play]);
+
+  const handleUnlockOutfit = useCallback((id: string) => {
+    rewards.unlockOutfit(id);
+    play("achievement");
+    confetti.achievementUnlock();
+  }, [rewards, play, confetti]);
+
+  // ── Level name for header ──
+  const levelName = rewards.levelProgress?.currentLevel?.name || "Puppy";
+
+  // ── Loading ──
+  if (!isLoaded || !dailyReset.isLoaded) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
@@ -128,46 +248,38 @@ export default function Home() {
   return (
     <div className="min-h-dvh relative">
       <SparkleEffect />
-      <SoundToggle muted={muted} onToggle={toggleMute} />
 
-      <div className="relative z-10 max-w-lg mx-auto px-4 pt-4 pb-safe">
+      <div className="relative z-10 max-w-lg mx-auto px-4 pt-3 pb-safe">
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-2"
+          className="mb-2"
         >
-          <div className="flex items-center justify-center gap-2">
-            <motion.span className="text-xl" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 2, repeat: Infinity }}>🐾</motion.span>
-            <h1 className="text-2xl sm:text-3xl font-black gradient-text-sparkle">Lollie Life</h1>
-            <motion.span className="text-xl" animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}>🐾</motion.span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <motion.span className="text-lg" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 2, repeat: Infinity }}>🐾</motion.span>
+              <h1 className="text-xl font-black gradient-text-sparkle">Lollie Life</h1>
+            </div>
+            <TreatsCounter count={rewards.treats} level={rewards.level} levelName={levelName} />
           </div>
-          <p className="text-[11px] text-purple-400 font-medium mt-0.5">
-            Danielle&apos;s sparkly life companion
-          </p>
         </motion.header>
 
-        {/* Animated Pug */}
+        {/* Animated Pug + Speech Bubble */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center mb-3"
         >
-          <AnimatedPug mood={pugMood} size={130} onClick={handlePugClick} />
-          {/* Speech bubble */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pugMessage}
-              initial={{ opacity: 0, y: 8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.95 }}
-              transition={{ duration: 0.25 }}
-              className="glass-card rounded-2xl px-4 py-2 max-w-[280px] text-center mt-1 relative"
-            >
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-purple-800/40 rotate-45 border-l border-t border-purple-400/20" />
-              <p className="text-xs font-semibold text-purple-200 relative z-10">{pugMessage}</p>
-            </motion.div>
-          </AnimatePresence>
+          <AnimatedPug
+            mood={pugMood}
+            size={activeTab === "dashboard" ? 120 : 80}
+            onClick={handlePugClick}
+            outfit={rewards.equippedOutfit}
+          />
+          <div className="mt-1">
+            <LollieSpeechBubble message={lollie.message} isTyping={lollie.isTyping} />
+          </div>
         </motion.div>
 
         {/* Tab Content */}
@@ -181,14 +293,33 @@ export default function Home() {
           >
             {activeTab === "dashboard" && (
               <DashboardView
-                tasks={tasks}
-                onMoodChange={handleMoodChange}
+                completedTasks={dailyReset.completedTasks}
+                badDayMode={dailyReset.badDayMode}
+                onToggleTask={handleToggleResetTask}
+                onActivateBadDay={handleActivateBadDay}
+                dayProgress={dailyReset.dayProgress}
+                waterPercent={water.percent}
+                waterCount={water.count}
+                streak={streak.current}
+                todayMood={mood.todayMood?.mood || null}
+                onLogMood={handleLogMood}
+                treats={rewards.treats}
+                onSwitchTab={handleTabChange}
                 playSound={handlePlaySound}
-                onDailyReset={handleDailyReset}
               />
             )}
+
             {activeTab === "tasks" && (
               <TasksView
+                completedResetTasks={dailyReset.completedTasks}
+                badDayMode={dailyReset.badDayMode}
+                badDayCompletedTasks={dailyReset.state?.badDayCompletedTasks || []}
+                onToggleResetTask={handleToggleResetTask}
+                onActivateBadDay={handleActivateBadDay}
+                onDeactivateBadDay={handleDeactivateBadDay}
+                currentSectionId={dailyReset.currentSection?.id || null}
+                dayProgress={dailyReset.dayProgress}
+                getSectionProgress={dailyReset.getSectionProgress}
                 tasks={tasks}
                 setTasks={setTasks}
                 onMoodChange={handleMoodChange}
@@ -196,14 +327,41 @@ export default function Home() {
                 onStreakUpdate={handleStreakUpdate}
               />
             )}
-            {activeTab === "weight" && (
-              <WeightView
+
+            {activeTab === "track" && (
+              <TrackView
                 onMoodChange={handleMoodChange}
                 playSound={handlePlaySound}
+                waterTotalOz={water.totalOz}
+                waterGoalOz={water.goalOz}
+                waterPercent={water.percent}
+                waterCount={water.count}
+                waterGoalReached={water.goalReached}
+                onAddDrink={handleAddDrink}
+                onRemoveLastDrink={handleRemoveLastDrink}
+                moodLast30={mood.last30Days()}
+                moodWeekAvg={mood.weekAverage()}
+                todayMood={mood.todayMood?.mood || null}
+                onLogMood={handleLogMood}
               />
             )}
-            {activeTab === "motivation" && (
-              <MotivationView streak={streak} />
+
+            {activeTab === "rewards" && rewards.state && (
+              <RewardsView
+                state={rewards.state}
+                onEquipOutfit={handleEquipOutfit}
+                onUnlockOutfit={handleUnlockOutfit}
+              />
+            )}
+
+            {activeTab === "more" && (
+              <MoreView
+                streak={streak}
+                favorites={favorites}
+                onToggleFavorite={handleToggleFavorite}
+                muted={muted}
+                onToggleMute={toggleMute}
+              />
             )}
           </motion.div>
         </AnimatePresence>

@@ -7,14 +7,16 @@ import StreakDisplay from "./StreakDisplay";
 
 interface MotivationViewProps {
   streak: StreakData;
+  favorites: string[];
+  onToggleFavorite: (message: string) => void;
 }
 
-export default function MotivationView({ streak }: MotivationViewProps) {
+export default function MotivationView({ streak, favorites, onToggleFavorite }: MotivationViewProps) {
   return (
     <div className="space-y-3 animate-slide-up">
       <DailyAffirmation />
       <StreakDisplay streak={streak} />
-      <EncouragementWall />
+      <EncouragementWall favorites={favorites} onToggleFavorite={onToggleFavorite} />
     </div>
   );
 }

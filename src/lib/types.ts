@@ -9,7 +9,7 @@ export type Category =
   | "fun"
   | "pugcare";
 
-export type AppTab = "dashboard" | "tasks" | "weight" | "motivation";
+export type AppTab = "dashboard" | "tasks" | "track" | "rewards" | "more";
 
 export type PugMood =
   | "sleeping"
@@ -28,12 +28,24 @@ export type SoundEffect =
   | "task-delete"
   | "button-hover"
   | "pug-toot"
+  | "pug-woof"
+  | "pug-snort"
+  | "pug-whimper"
+  | "pug-bark"
+  | "pug-snore"
+  | "pug-yip"
+  | "pug-chomp"
   | "celebration"
   | "milestone"
   | "tab-switch"
   | "weight-log"
-  | "sparkle";
+  | "sparkle"
+  | "water-gulp"
+  | "level-up"
+  | "achievement"
+  | "confetti-pop";
 
+// ── Tasks ──
 export interface Task {
   id: string;
   title: string;
@@ -46,6 +58,7 @@ export interface Task {
   dueDate?: string;
 }
 
+// ── Weight ──
 export interface WeightEntry {
   id: string;
   date: string;
@@ -68,6 +81,97 @@ export interface WeightMilestone {
   celebrated: boolean;
 }
 
+// ── Daily Reset System ──
+export type ResetSectionId = "morning" | "midday" | "pre-dinner" | "dinner" | "evening" | "daily-win";
+
+export interface ResetTaskDef {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+export interface ResetSectionDef {
+  id: ResetSectionId;
+  title: string;
+  emoji: string;
+  timeRange: string;
+  startHour: number;
+  tasks: ResetTaskDef[];
+}
+
+export interface DailyResetState {
+  date: string;
+  completedTasks: string[]; // task IDs
+  badDayMode: boolean;
+  badDayCompletedTasks: string[];
+}
+
+// ── Water Tracking ──
+export type DrinkType = "water" | "coffee" | "shake" | "chocolate-milk";
+
+export interface WaterEntry {
+  id: string;
+  type: DrinkType;
+  oz: number;
+  timestamp: string;
+}
+
+export interface WaterDayData {
+  date: string;
+  entries: WaterEntry[];
+  goalOz: number;
+}
+
+// ── Mood Tracking ──
+export type MoodLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface MoodEntry {
+  date: string;
+  mood: MoodLevel;
+  timestamp: string;
+}
+
+export const MOOD_CONFIG: Record<MoodLevel, { label: string; emoji: string; color: string }> = {
+  5: { label: "Amazing", emoji: "🤩", color: "#a855f7" },
+  4: { label: "Good", emoji: "😊", color: "#c084fc" },
+  3: { label: "Okay", emoji: "😐", color: "#d8b4fe" },
+  2: { label: "Rough", emoji: "😔", color: "#f0abfc" },
+  1: { label: "Bad Day", emoji: "😢", color: "#f472b6" },
+};
+
+// ── Rewards / Gamification ──
+export interface RewardsState {
+  treats: number;
+  totalTreatsEarned: number;
+  level: number;
+  achievements: string[]; // achievement IDs that are unlocked
+  equippedOutfit: string | null;
+  unlockedOutfits: string[];
+}
+
+export interface AchievementDef {
+  id: string;
+  name: string;
+  description: string;
+  emoji: string;
+  condition: string; // human-readable
+}
+
+export interface LollieOutfitDef {
+  id: string;
+  name: string;
+  emoji: string;
+  treatsRequired: number;
+}
+
+export interface LevelDef {
+  level: number;
+  name: string;
+  emoji: string;
+  treatsRequired: number;
+}
+
+// ── Streaks ──
 export interface StreakData {
   current: number;
   lastDate: string;
@@ -75,12 +179,21 @@ export interface StreakData {
   milestonesCelebrated: number[];
 }
 
+// ── Motivation ──
 export interface DailyMotivation {
   quote: string;
   author: string;
   category: "encouragement" | "persistence" | "self-love" | "strength" | "humor";
 }
 
+// ── Encouragement Wall ──
+export interface EncouragementCard {
+  message: string;
+  emoji: string;
+  backMessage?: string;
+}
+
+// ── Step Goal (legacy, kept for compat) ──
 export interface StepGoal {
   dailyTarget: number;
   currentSteps: number;
@@ -88,12 +201,20 @@ export interface StepGoal {
   history: { date: string; steps: number }[];
 }
 
-export interface DailyResetData {
-  lastResetDate: string;
-  badDayCount: number;
-  comfortModeActive: boolean;
-}
+// ── Weekly Focus ──
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
+export const WEEKLY_FOCUS: Record<DayOfWeek, { area: string; emoji: string }> = {
+  0: { area: "Rest / Reset", emoji: "🛋️" },
+  1: { area: "Kitchen", emoji: "🍳" },
+  2: { area: "Living Room", emoji: "🛋️" },
+  3: { area: "Bathrooms", emoji: "🚿" },
+  4: { area: "Bedrooms", emoji: "🛏️" },
+  5: { area: "Catch-up", emoji: "✨" },
+  6: { area: "Rest / Reset", emoji: "🛋️" },
+};
+
+// ── Configs ──
 export const PRIORITY_CONFIG: Record<
   Priority,
   { label: string; emoji: string; color: string; className: string }
@@ -117,9 +238,10 @@ export const CATEGORY_CONFIG: Record<
   pugcare: { label: "Lollie Care", emoji: "🐶", gradient: "from-amber-400 to-purple-400" },
 };
 
-export const TAB_CONFIG: Record<AppTab, { label: string; emoji: string }> = {
-  dashboard: { label: "Home", emoji: "🏠" },
-  tasks: { label: "Tasks", emoji: "✅" },
-  weight: { label: "Weight", emoji: "⚖️" },
-  motivation: { label: "Vibes", emoji: "💜" },
+export const TAB_CONFIG: Record<AppTab, { label: string; emoji: string; icon: string }> = {
+  dashboard: { label: "Home", emoji: "🏠", icon: "home" },
+  tasks: { label: "Tasks", emoji: "✅", icon: "tasks" },
+  track: { label: "Track", emoji: "📊", icon: "track" },
+  rewards: { label: "Rewards", emoji: "⭐", icon: "rewards" },
+  more: { label: "More", emoji: "💜", icon: "more" },
 };

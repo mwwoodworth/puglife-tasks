@@ -3,14 +3,30 @@
 import { useState, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { Task, Priority, Category, SoundEffect } from "@/lib/types";
+import { Task, Priority, Category, SoundEffect, ResetSectionId } from "@/lib/types";
+import { RESET_SECTIONS } from "@/lib/daily-reset-plan";
 import TaskItem from "./TaskItem";
 import AddTaskForm from "./AddTaskForm";
 import ProgressBone from "./ProgressBone";
 import FilterBar from "./FilterBar";
 import GlassCard from "@/components/ui/GlassCard";
+import ResetSection from "./ResetSection";
+import DailyWinCheck from "./DailyWinCheck";
+import BadDayMode from "./BadDayMode";
+import WeeklyFocus from "./WeeklyFocus";
 
 interface TasksViewProps {
+  // Daily Reset props
+  completedResetTasks: string[];
+  badDayMode: boolean;
+  badDayCompletedTasks: string[];
+  onToggleResetTask: (taskId: string) => void;
+  onActivateBadDay: () => void;
+  onDeactivateBadDay: () => void;
+  currentSectionId: string | null;
+  dayProgress: { total: number; done: number; percent: number };
+  getSectionProgress: (id: ResetSectionId) => { total: number; done: number; percent: number };
+  // Custom tasks props
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   onMoodChange: (mood: string, message: string) => void;
@@ -24,36 +40,17 @@ function fireConfetti() {
   confetti({ particleCount: 40, spread: 360, origin: { x: 0.7, y: 0.6 }, colors, gravity: 0.5, decay: 0.94, startVelocity: 30, ticks: 100 });
 }
 
-function fireBigConfetti() {
-  const colors = ["#8b5cf6", "#a855f7", "#c084fc", "#ec4899", "#fbbf24"];
-  const end = Date.now() + 2000;
-  (function frame() {
-    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors });
-    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors });
-    if (Date.now() < end) requestAnimationFrame(frame);
-  })();
-}
-
-const PUG_COMPLETE = [
-  "AMAZING Danielle! You did it!", "That deserves a treat!", "WOOO! Lollie is doing zoomies!",
-  "Task crushed! Unstoppable!", "Lollie is SO proud of you!", "YES! Gold star!",
-];
-const PUG_ALL_DONE = [
-  "ALL DONE! Danielle, you're a legend!", "Everything complete! Snuggle time with Lollie!",
-  "Zero tasks left! Productivity queen!",
-];
-const PUG_BUSY = [
-  "You've got this, Danielle!", "Look at you being productive!", "So many things to do!",
-  "Productivity level: MAXIMUM PUG!", "Every task = celebration treat!",
-];
-const PUG_ENCOURAGE = [
-  "Stay pawsitive!", "You're paw-some, Danielle!", "Fur real, you're doing great!",
-  "You're the leader of the pack!", "Howl yeah, let's do this!",
-];
-
+const PUG_COMPLETE = ["AMAZING Danielle! You did it!", "That deserves a treat!", "WOOO! Lollie is doing zoomies!"];
+const PUG_ENCOURAGE = ["Stay pawsitive!", "You're paw-some, Danielle!", "Fur real, you're doing great!"];
 function rand(arr: string[]) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-export default function TasksView({ tasks, setTasks, onMoodChange, playSound, onStreakUpdate }: TasksViewProps) {
+export default function TasksView({
+  completedResetTasks, badDayMode, badDayCompletedTasks,
+  onToggleResetTask, onActivateBadDay, onDeactivateBadDay,
+  currentSectionId, dayProgress, getSectionProgress,
+  tasks, setTasks, onMoodChange, playSound, onStreakUpdate,
+}: TasksViewProps) {
+  const [showCustomTasks, setShowCustomTasks] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [activePriority, setActivePriority] = useState<Priority | "all">("all");
@@ -70,7 +67,6 @@ export default function TasksView({ tasks, setTasks, onMoodChange, playSound, on
     onStreakUpdate();
     playSound("task-add");
     onMoodChange("love", "Ooh, a new task! Exciting!");
-    setTimeout(() => onMoodChange("happy", rand(PUG_ENCOURAGE)), 2000);
   }, [setTasks, onMoodChange, playSound, onStreakUpdate]);
 
   const toggleTask = useCallback((id: string) => {
@@ -83,8 +79,7 @@ export default function TasksView({ tasks, setTasks, onMoodChange, playSound, on
         fireConfetti();
         playSound("task-complete");
         onMoodChange("celebrating", rand(PUG_COMPLETE));
-        if (updated.every((t) => t.completed)) setTimeout(fireBigConfetti, 500);
-        setTimeout(() => onMoodChange("happy", rand(PUG_BUSY)), 3000);
+        setTimeout(() => onMoodChange("happy", rand(PUG_ENCOURAGE)), 3000);
       }
       return updated;
     });
@@ -94,17 +89,11 @@ export default function TasksView({ tasks, setTasks, onMoodChange, playSound, on
     setTasks((prev) => prev.filter((t) => t.id !== id));
     playSound("task-delete");
     onMoodChange("sad", "Bye bye task...");
-    setTimeout(() => onMoodChange("idle", rand(PUG_ENCOURAGE)), 2000);
   }, [setTasks, playSound, onMoodChange]);
 
   const editTask = useCallback((id: string, updates: Partial<Task>) => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
   }, [setTasks]);
-
-  const clearCompleted = useCallback(() => {
-    setTasks((prev) => prev.filter((t) => !t.completed));
-    onMoodChange("love", "Fresh start! Let's go!");
-  }, [setTasks, onMoodChange]);
 
   const priorityOrder: Record<Priority, number> = { zoomies: 0, treat: 1, bone: 2, paw: 3 };
 
@@ -140,71 +129,114 @@ export default function TasksView({ tasks, setTasks, onMoodChange, playSound, on
     return counts;
   }, [tasks]);
 
-  const completedCount = tasks.filter((t) => t.completed).length;
+  // ── Bad Day Mode ──
+  if (badDayMode) {
+    return (
+      <div className="space-y-3 animate-slide-up">
+        <BadDayMode
+          completedTasks={badDayCompletedTasks}
+          onToggleTask={onToggleResetTask}
+          onDeactivate={onDeactivateBadDay}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3 animate-slide-up">
-      {tasks.length > 0 && (
-        <GlassCard className="p-4"><ProgressBone completed={completedCount} total={tasks.length} /></GlassCard>
-      )}
+      {/* Weekly Focus */}
+      <WeeklyFocus />
 
-      <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg">🔍</span>
-        <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search tasks..."
-          className="w-full bg-purple-900/30 rounded-2xl pl-11 pr-10 py-3 text-sm font-medium border border-purple-500/20"
-        />
-        {searchQuery && (
-          <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 text-sm p-1">✕</button>
-        )}
-      </div>
-
-      <AddTaskForm onAdd={addTask} />
-
-      {tasks.length > 0 && (
-        <GlassCard className="p-3">
-          <FilterBar
-            activeCategory={activeCategory} activePriority={activePriority}
-            showCompleted={showCompleted} sortBy={sortBy}
-            onCategoryChange={setActiveCategory} onPriorityChange={setActivePriority}
-            onShowCompletedChange={setShowCompleted} onSortChange={setSortBy} taskCounts={taskCounts}
+      {/* Day Progress */}
+      <div className="flex items-center gap-3 px-1">
+        <div className="flex-1 h-2.5 rounded-full bg-purple-900/50 overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-full"
+            animate={{ width: `${dayProgress.percent}%` }}
+            transition={{ duration: 0.5 }}
           />
-        </GlassCard>
-      )}
-
-      <div className="space-y-2.5">
-        <AnimatePresence mode="popLayout">
-          {filteredTasks.map((task, i) => (
-            <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} onEdit={editTask} index={i} />
-          ))}
-        </AnimatePresence>
-
-        {filteredTasks.length === 0 && tasks.length > 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
-            <span className="text-4xl mb-2 block">🔍</span>
-            <p className="text-purple-400 font-medium text-sm">No tasks match</p>
-            <button onClick={() => { setActiveCategory("all"); setActivePriority("all"); setShowCompleted(true); setSearchQuery(""); }}
-              className="mt-2 text-xs text-purple-300 font-bold"
-            >Clear filters</button>
-          </motion.div>
-        )}
-
-        {tasks.length === 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-center py-10">
-            <motion.span className="text-5xl mb-3 block" animate={{ y: [0, -8, 0] }} transition={{ duration: 2, repeat: Infinity }}>🐾</motion.span>
-            <p className="text-purple-200 font-bold text-base mb-1">No tasks yet!</p>
-            <p className="text-purple-400 text-sm">Add your first task above, Danielle!</p>
-          </motion.div>
-        )}
+        </div>
+        <span className="text-xs font-bold text-purple-300">{dayProgress.percent}%</span>
       </div>
 
-      {completedCount > 0 && (
-        <div className="text-center pt-2">
-          <button onClick={clearCompleted}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-800/30 rounded-full text-xs font-bold text-purple-300 active:bg-purple-700/40 transition-all border border-purple-500/20"
-          >Clear {completedCount} done</button>
-        </div>
-      )}
+      {/* Reset Sections */}
+      <div className="space-y-2">
+        {RESET_SECTIONS.filter((s) => s.id !== "daily-win").map((section) => (
+          <ResetSection
+            key={section.id}
+            section={section}
+            completedTasks={completedResetTasks}
+            onToggleTask={(taskId) => {
+              onToggleResetTask(taskId);
+              playSound("task-complete");
+            }}
+            isCurrentSection={section.id === currentSectionId}
+            sectionProgress={getSectionProgress(section.id as ResetSectionId)}
+          />
+        ))}
+      </div>
+
+      {/* Daily Win Check */}
+      <DailyWinCheck
+        completedTasks={completedResetTasks}
+        onToggle={(taskId) => {
+          onToggleResetTask(taskId);
+          playSound("sparkle");
+        }}
+      />
+
+      {/* Bad Day Button */}
+      <motion.button
+        onClick={onActivateBadDay}
+        className="w-full py-3 rounded-2xl bg-purple-900/20 border border-purple-500/15 text-xs font-bold text-purple-400 active:bg-purple-800/30 transition-all"
+        whileTap={{ scale: 0.98 }}
+      >
+        💜 Having a bad day? Switch to survival mode
+      </motion.button>
+
+      {/* Custom Tasks Section (collapsible) */}
+      <div className="border-t border-purple-500/15 pt-3">
+        <button
+          onClick={() => setShowCustomTasks(!showCustomTasks)}
+          className="w-full flex items-center justify-between px-2 py-2"
+        >
+          <span className="text-xs font-bold text-purple-300">Custom Tasks ({tasks.length})</span>
+          <span className="text-purple-400 text-xs">{showCustomTasks ? "▲" : "▼"}</span>
+        </button>
+
+        {showCustomTasks && (
+          <div className="space-y-3 mt-2">
+            <AddTaskForm onAdd={addTask} />
+
+            {tasks.length > 0 && (
+              <>
+                <GlassCard className="p-4"><ProgressBone completed={tasks.filter(t => t.completed).length} total={tasks.length} /></GlassCard>
+
+                <GlassCard className="p-3">
+                  <FilterBar
+                    activeCategory={activeCategory} activePriority={activePriority}
+                    showCompleted={showCompleted} sortBy={sortBy}
+                    onCategoryChange={setActiveCategory} onPriorityChange={setActivePriority}
+                    onShowCompletedChange={setShowCompleted} onSortChange={setSortBy} taskCounts={taskCounts}
+                  />
+                </GlassCard>
+              </>
+            )}
+
+            <div className="space-y-2.5">
+              <AnimatePresence mode="popLayout">
+                {filteredTasks.map((task, i) => (
+                  <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} onEdit={editTask} index={i} />
+                ))}
+              </AnimatePresence>
+
+              {tasks.length === 0 && (
+                <p className="text-center text-xs text-purple-400 py-4">No custom tasks yet. Add one above!</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
