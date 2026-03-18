@@ -1,510 +1,205 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import confetti from "canvas-confetti";
-
-import { Task, Priority, Category } from "@/lib/types";
-import { loadTasks, saveTasks, updateStreak, getStreak } from "@/lib/storage";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Task, AppTab, PugMood, SoundEffect } from "@/lib/types";
+import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab } from "@/lib/storage";
 import {
-  PUG_IDLE_MESSAGES,
-  PUG_BUSY_MESSAGES,
-  PUG_COMPLETE_MESSAGES,
-  PUG_ALL_DONE_MESSAGES,
-  PUG_ENCOURAGEMENTS,
-  getRandomMessage,
-  getPugMoodEmoji,
+  PUG_IDLE_MESSAGES, PUG_ENCOURAGEMENTS, PUG_WEIGHT_MESSAGES,
+  PUG_MOTIVATION_MESSAGES, getRandomMessage,
 } from "@/lib/pug-wisdom";
+import { useSound } from "@/hooks/useSound";
 
-import PugMascot from "@/components/PugMascot";
-import TaskItem from "@/components/TaskItem";
-import AddTaskForm from "@/components/AddTaskForm";
-import ProgressBone from "@/components/ProgressBone";
-import FilterBar from "@/components/FilterBar";
-import SparkleEffect from "@/components/SparkleEffect";
-
-type PugMoodType = "sleeping" | "idle" | "happy" | "excited" | "celebrating" | "love";
-
-function fireConfetti() {
-  const defaults = {
-    spread: 360,
-    ticks: 100,
-    gravity: 0.5,
-    decay: 0.94,
-    startVelocity: 30,
-    colors: ["#ff8fab", "#c77dff", "#ffd60a", "#90e0ef", "#ff6b6b", "#95d5b2"],
-  };
-
-  confetti({ ...defaults, particleCount: 40, origin: { x: 0.3, y: 0.6 } });
-  confetti({ ...defaults, particleCount: 40, origin: { x: 0.7, y: 0.6 } });
-
-  // Paw print shaped burst
-  setTimeout(() => {
-    confetti({
-      ...defaults,
-      particleCount: 25,
-      origin: { x: 0.5, y: 0.5 },
-      shapes: ["circle"],
-      scalar: 1.2,
-    });
-  }, 200);
-}
-
-function fireBigConfetti() {
-  const duration = 2000;
-  const end = Date.now() + duration;
-  const colors = ["#ff8fab", "#c77dff", "#ffd60a", "#90e0ef", "#ff6b6b"];
-
-  (function frame() {
-    confetti({
-      particleCount: 5,
-      angle: 60,
-      spread: 55,
-      origin: { x: 0 },
-      colors,
-    });
-    confetti({
-      particleCount: 5,
-      angle: 120,
-      spread: 55,
-      origin: { x: 1 },
-      colors,
-    });
-    if (Date.now() < end) requestAnimationFrame(frame);
-  })();
-}
+import AnimatedPug from "@/components/pug/AnimatedPug";
+import TabBar from "@/components/TabBar";
+import SparkleEffect from "@/components/ui/SparkleEffect";
+import SoundToggle from "@/components/ui/SoundToggle";
+import TasksView from "@/components/tasks/TasksView";
+import WeightView from "@/components/weight/WeightView";
+import MotivationView from "@/components/motivation/MotivationView";
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [pugMood, setPugMood] = useState<PugMoodType>("sleeping");
+  const [activeTab, setActiveTab] = useState<AppTab>("tasks");
+  const [pugMood, setPugMood] = useState<PugMood>("sleeping");
   const [pugMessage, setPugMessage] = useState("Loading... *yawns*");
-  const [streak, setStreak] = useState(0);
+  const [streak, setStreak] = useState(getStreak());
   const [isLoaded, setIsLoaded] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Filters
-  const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
-  const [activePriority, setActivePriority] = useState<Priority | "all">("all");
-  const [showCompleted, setShowCompleted] = useState(true);
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "priority" | "due">("newest");
+  const { muted, toggleMute, play } = useSound();
 
   // Load on mount
   useEffect(() => {
-    const loaded = loadTasks();
-    setTasks(loaded);
-    const s = getStreak();
-    setStreak(s.current);
+    setTasks(loadTasks());
+    setStreak(getStreak());
+    setActiveTab(loadActiveTab());
     setIsLoaded(true);
   }, []);
 
-  // Save on change
+  // Save tasks on change
   useEffect(() => {
     if (isLoaded) saveTasks(tasks);
   }, [tasks, isLoaded]);
 
-  // Update pug mood based on tasks
+  // Update pug mood based on context
   useEffect(() => {
     if (!isLoaded) return;
-
     const total = tasks.length;
     const completed = tasks.filter((t) => t.completed).length;
 
-    if (total === 0) {
-      setPugMood("sleeping");
-      setPugMessage(getRandomMessage(PUG_IDLE_MESSAGES));
-    } else if (completed === total) {
-      setPugMood("celebrating");
-      setPugMessage(getRandomMessage(PUG_ALL_DONE_MESSAGES));
-    } else if (completed > total * 0.5) {
-      setPugMood("excited");
-      setPugMessage(getRandomMessage(PUG_BUSY_MESSAGES));
-    } else if (completed > 0) {
-      setPugMood("happy");
-      setPugMessage(getRandomMessage(PUG_BUSY_MESSAGES));
-    } else {
-      setPugMood("idle");
-      setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
-    }
-  }, [tasks, isLoaded]);
-
-  const addTask = useCallback(
-    (taskData: {
-      title: string;
-      priority: Priority;
-      category: Category;
-      notes?: string;
-      dueDate?: string;
-    }) => {
-      const newTask: Task = {
-        id: crypto.randomUUID(),
-        title: taskData.title,
-        completed: false,
-        priority: taskData.priority,
-        category: taskData.category,
-        createdAt: new Date().toISOString(),
-        notes: taskData.notes,
-        dueDate: taskData.dueDate,
-      };
-      setTasks((prev) => [newTask, ...prev]);
-      const newStreak = updateStreak();
-      setStreak(newStreak);
-      setPugMood("love");
-      setPugMessage("Ooh, a new task! Exciting! 🎉");
-      setTimeout(() => {
+    // Only set default mood if not already in a temporary mood
+    if (pugMood === "sleeping" || pugMood === "idle") {
+      if (total === 0) {
+        setPugMood("sleeping");
+        setPugMessage(getRandomMessage(PUG_IDLE_MESSAGES));
+      } else if (completed === total) {
+        setPugMood("celebrating");
+        setPugMessage("ALL DONE! You're a legend! 👑");
+      } else if (completed > 0) {
         setPugMood("happy");
         setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
-      }, 2000);
-    },
-    []
-  );
-
-  const toggleTask = useCallback((id: string) => {
-    setTasks((prev) => {
-      const updated = prev.map((t) => {
-        if (t.id !== id) return t;
-        const nowCompleted = !t.completed;
-        return {
-          ...t,
-          completed: nowCompleted,
-          completedAt: nowCompleted ? new Date().toISOString() : undefined,
-        };
-      });
-
-      const task = updated.find((t) => t.id === id);
-      if (task?.completed) {
-        fireConfetti();
-        const allDone = updated.every((t) => t.completed);
-        if (allDone && updated.length > 0) {
-          setTimeout(fireBigConfetti, 500);
-        }
+      } else {
+        setPugMood("idle");
+        setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
       }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks, isLoaded]);
 
-      return updated;
-    });
+  const handleTabChange = useCallback((tab: AppTab) => {
+    setActiveTab(tab);
+    saveActiveTab(tab);
+    play("tab-switch");
 
-    // Set celebration message
-    setTasks((prev) => {
-      const task = prev.find((t) => t.id === id);
-      if (task?.completed) {
-        setPugMood("celebrating");
-        setPugMessage(getRandomMessage(PUG_COMPLETE_MESSAGES));
-        setTimeout(() => {
-          setPugMood("happy");
-          setPugMessage(getRandomMessage(PUG_BUSY_MESSAGES));
-        }, 3000);
-      }
-      return prev;
-    });
-  }, []);
-
-  const deleteTask = useCallback((id: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
-  const editTask = useCallback((id: string, updates: Partial<Task>) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
-  }, []);
-
-  const clearCompleted = useCallback(() => {
-    setTasks((prev) => prev.filter((t) => !t.completed));
-    setPugMood("love");
-    setPugMessage("Fresh start! Let's go! 🌟");
-  }, []);
-
-  // Filtered and sorted tasks
-  const filteredTasks = useMemo(() => {
-    const priorityOrder: Record<Priority, number> = {
-      zoomies: 0,
-      treat: 1,
-      bone: 2,
-      paw: 3,
+    const tabMessages: Record<AppTab, { mood: PugMood; getMessage: () => string }> = {
+      tasks: { mood: "idle", getMessage: () => getRandomMessage(PUG_ENCOURAGEMENTS) },
+      weight: { mood: "happy", getMessage: () => getRandomMessage(PUG_WEIGHT_MESSAGES) },
+      motivation: { mood: "love", getMessage: () => getRandomMessage(PUG_MOTIVATION_MESSAGES) },
     };
+    const config = tabMessages[tab];
+    setPugMood(config.mood);
+    setPugMessage(config.getMessage());
+  }, [play]);
 
-    return tasks
-      .filter((t) => {
-        if (!showCompleted && t.completed) return false;
-        if (activeCategory !== "all" && t.category !== activeCategory) return false;
-        if (activePriority !== "all" && t.priority !== activePriority) return false;
-        if (
-          searchQuery &&
-          !t.title.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-          return false;
-        return true;
-      })
-      .sort((a, b) => {
-        // Always put incomplete tasks first
-        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+  const handleMoodChange = useCallback((mood: string, message: string) => {
+    setPugMood(mood as PugMood);
+    setPugMessage(message);
+  }, []);
 
-        switch (sortBy) {
-          case "newest":
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          case "oldest":
-            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          case "priority":
-            return priorityOrder[a.priority] - priorityOrder[b.priority];
-          case "due": {
-            if (!a.dueDate && !b.dueDate) return 0;
-            if (!a.dueDate) return 1;
-            if (!b.dueDate) return -1;
-            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-          }
-          default:
-            return 0;
-        }
-      });
-  }, [tasks, activeCategory, activePriority, showCompleted, sortBy, searchQuery]);
+  const handleStreakUpdate = useCallback(() => {
+    const updated = updateStreak();
+    setStreak(updated);
+  }, []);
 
-  // Task counts
-  const taskCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: tasks.filter((t) => !t.completed).length };
-    tasks.forEach((t) => {
-      if (!t.completed) {
-        counts[t.category] = (counts[t.category] || 0) + 1;
-      }
-    });
-    return counts;
-  }, [tasks]);
+  const handlePlaySound = useCallback((effect: SoundEffect) => {
+    play(effect);
+  }, [play]);
 
-  const completedCount = tasks.filter((t) => t.completed).length;
-  const moodEmoji = getPugMoodEmoji(tasks.length, completedCount);
+  const handlePugClick = useCallback(() => {
+    play("pug-toot");
+    setPugMood("excited");
+    setPugMessage("*TOOT* 💨 Hehe excuse me!");
+    setTimeout(() => {
+      setPugMood("happy");
+      setPugMessage(getRandomMessage(PUG_ENCOURAGEMENTS));
+    }, 2500);
+  }, [play]);
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
-        >
-          <motion.span
-            className="text-7xl block mb-4"
-            animate={{ rotate: [0, -10, 10, 0] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          >
+      <div className="min-h-dvh flex items-center justify-center">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
+          <motion.span className="text-6xl block mb-3" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 1, repeat: Infinity }}>
             🐶
           </motion.span>
-          <p className="text-pug-dark/60 font-semibold">Loading PugLife...</p>
+          <p className="text-purple-400 font-bold">Loading PugLife...</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-dvh relative">
       <SparkleEffect />
+      <SoundToggle muted={muted} onToggle={toggleMute} />
 
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-6 pb-20">
+      <div className="relative z-10 max-w-lg mx-auto px-4 pt-4 pb-safe">
         {/* Header */}
         <motion.header
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-6"
+          className="text-center mb-2"
         >
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <motion.span
-              className="text-3xl"
-              animate={{ rotate: [0, -5, 5, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              🐾
-            </motion.span>
-            <h1 className="text-3xl sm:text-4xl font-black gradient-text-sparkle">
-              PugLife Tasks
-            </h1>
-            <motion.span
-              className="text-3xl"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-            >
-              🐾
-            </motion.span>
+          <div className="flex items-center justify-center gap-2">
+            <motion.span className="text-xl" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 2, repeat: Infinity }}>🐾</motion.span>
+            <h1 className="text-2xl sm:text-3xl font-black gradient-text-sparkle">PugLife</h1>
+            <motion.span className="text-xl" animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}>🐾</motion.span>
           </div>
-          <p className="text-sm text-pug-dark/50 font-medium">
-            The cutest way to get stuff done {moodEmoji}
+          <p className="text-[11px] text-purple-400 font-medium mt-0.5">
+            Your sparkly life companion 💜
           </p>
         </motion.header>
 
-        {/* Pug Mascot */}
+        {/* Animated Pug */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex justify-center mb-6"
+          className="flex flex-col items-center mb-3"
         >
-          <PugMascot mood={pugMood} message={pugMessage} streak={streak} />
-        </motion.div>
-
-        {/* Progress */}
-        {tasks.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="glass-card rounded-2xl p-4 mb-4"
-          >
-            <ProgressBone completed={completedCount} total={tasks.length} />
-          </motion.div>
-        )}
-
-        {/* Search */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="mb-4"
-        >
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg">
-              🔍
-            </span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tasks..."
-              className="w-full bg-white/50 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium border border-pug-tan/10 placeholder:text-pug-dark/30 transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-pug-dark/40 hover:text-pug-dark/60 text-sm"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Add Task */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-4"
-        >
-          <AddTaskForm onAdd={addTask} />
-        </motion.div>
-
-        {/* Filters */}
-        {tasks.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="glass-card rounded-2xl p-4 mb-4"
-          >
-            <FilterBar
-              activeCategory={activeCategory}
-              activePriority={activePriority}
-              showCompleted={showCompleted}
-              sortBy={sortBy}
-              onCategoryChange={setActiveCategory}
-              onPriorityChange={setActivePriority}
-              onShowCompletedChange={setShowCompleted}
-              onSortChange={setSortBy}
-              taskCounts={taskCounts}
-            />
-          </motion.div>
-        )}
-
-        {/* Task List */}
-        <div className="space-y-3 mb-6">
-          <AnimatePresence mode="popLayout">
-            {filteredTasks.map((task, index) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onToggle={toggleTask}
-                onDelete={deleteTask}
-                onEdit={editTask}
-                index={index}
-              />
-            ))}
+          <AnimatedPug mood={pugMood} size={110} onClick={handlePugClick} />
+          {/* Speech bubble */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pugMessage}
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.95 }}
+              transition={{ duration: 0.25 }}
+              className="glass-card rounded-2xl px-4 py-2 max-w-[260px] text-center mt-1 relative"
+            >
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white/55 rotate-45 border-l border-t border-purple-200/12" />
+              <p className="text-xs font-semibold text-purple-700 relative z-10">{pugMessage}</p>
+            </motion.div>
           </AnimatePresence>
+        </motion.div>
 
-          {/* Empty state */}
-          {filteredTasks.length === 0 && tasks.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-10"
-            >
-              <span className="text-5xl mb-3 block">🔍</span>
-              <p className="text-pug-dark/40 font-medium text-sm">
-                No tasks match your filters
-              </p>
-              <button
-                onClick={() => {
-                  setActiveCategory("all");
-                  setActivePriority("all");
-                  setShowCompleted(true);
-                  setSearchQuery("");
-                }}
-                className="mt-2 text-xs text-pug-purple font-semibold hover:underline"
-              >
-                Clear all filters
-              </button>
-            </motion.div>
-          )}
-
-          {tasks.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-center py-12"
-            >
-              <motion.span
-                className="text-6xl mb-4 block"
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                🐾
-              </motion.span>
-              <p className="text-pug-dark/50 font-semibold text-lg mb-1">
-                No tasks yet!
-              </p>
-              <p className="text-pug-dark/30 text-sm">
-                Add your first task and let&apos;s get productive together!
-              </p>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Clear completed button */}
-        {completedCount > 0 && (
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center"
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
           >
-            <button
-              onClick={clearCompleted}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/50 rounded-full text-xs font-semibold text-pug-dark/50 hover:bg-white/70 hover:text-pug-coral transition-all"
-            >
-              🧹 Clear {completedCount} completed task
-              {completedCount > 1 ? "s" : ""}
-            </button>
+            {activeTab === "tasks" && (
+              <TasksView
+                tasks={tasks}
+                setTasks={setTasks}
+                onMoodChange={handleMoodChange}
+                playSound={handlePlaySound}
+                onStreakUpdate={handleStreakUpdate}
+              />
+            )}
+            {activeTab === "weight" && (
+              <WeightView
+                onMoodChange={handleMoodChange}
+                playSound={handlePlaySound}
+              />
+            )}
+            {activeTab === "motivation" && (
+              <MotivationView streak={streak} />
+            )}
           </motion.div>
-        )}
+        </AnimatePresence>
 
         {/* Footer */}
-        <motion.footer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="text-center mt-10 mb-4"
-        >
-          <p className="text-[11px] text-pug-dark/25 font-medium">
-            Made with 💖 and pug snuggles
-          </p>
-          <p className="text-[10px] text-pug-dark/15 mt-0.5">
-            PugLife Tasks v1.0 — Your tasks are stored locally on this device
-          </p>
+        <motion.footer initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-center mt-8 mb-4">
+          <p className="text-[10px] text-purple-300 font-medium">Made with 💜 and pug snuggles</p>
+          <p className="text-[9px] text-purple-200 mt-0.5">All data stored locally on your device</p>
         </motion.footer>
       </div>
+
+      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 }
