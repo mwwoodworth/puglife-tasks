@@ -12,7 +12,7 @@ interface Sparkle {
   delay: number;
 }
 
-const SPARKLE_EMOJIS = ["✨", "💜", "⭐", "🌟", "💫", "🐾", "💕", "💎", "🦋", "🔮"];
+const SPARKLE_EMOJIS = ["✨", "💜", "⭐", "🌟", "💫", "🐾", "💕", "💎", "🦋", "🔮", "🌙", "💖"];
 
 export default function SparkleEffect() {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
@@ -21,16 +21,16 @@ export default function SparkleEffect() {
     id: Date.now() + Math.random(),
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: 12 + Math.random() * 18,
+    size: 10 + Math.random() * 16,
     emoji: SPARKLE_EMOJIS[Math.floor(Math.random() * SPARKLE_EMOJIS.length)],
     delay: Math.random() * 2,
   }), []);
 
   useEffect(() => {
-    setSparkles(Array.from({ length: 15 }, () => createSparkle()));
+    setSparkles(Array.from({ length: 20 }, () => createSparkle()));
     const interval = setInterval(() => {
-      setSparkles((prev) => [...prev.slice(-18), createSparkle()]);
-    }, 1500);
+      setSparkles((prev) => [...prev.slice(-22), createSparkle()]);
+    }, 1200);
     return () => clearInterval(interval);
   }, [createSparkle]);
 
@@ -43,8 +43,8 @@ export default function SparkleEffect() {
             className="absolute"
             style={{ left: `${s.x}%`, top: `${s.y}%`, fontSize: `${s.size}px` }}
             initial={{ opacity: 0, scale: 0, rotate: 0 }}
-            animate={{ opacity: [0, 0.5, 0], scale: [0, 1, 0], rotate: [0, 180] }}
-            transition={{ duration: 4, delay: s.delay, ease: "easeInOut" }}
+            animate={{ opacity: [0, 0.4, 0], scale: [0, 1, 0], rotate: [0, 180] }}
+            transition={{ duration: 4.5, delay: s.delay, ease: "easeInOut" }}
           >
             {s.emoji}
           </motion.div>

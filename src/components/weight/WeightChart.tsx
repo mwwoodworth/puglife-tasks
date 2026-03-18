@@ -36,49 +36,42 @@ export default function WeightChart({ entries, goal }: WeightChartProps) {
   }));
 
   const linePath = scaledPoints.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
-
   const goalY = goalW ? padding * 0.5 + ((maxW - goalW) / range) * chartH : null;
-
-  // Y-axis labels
   const ySteps = 5;
   const yLabels = Array.from({ length: ySteps + 1 }, (_, i) => Math.round(maxW - (range / ySteps) * i));
 
   return (
     <div className="glass-card rounded-2xl p-4">
-      <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-2">
+      <h3 className="text-sm font-bold text-purple-200 mb-3 flex items-center gap-2">
         <span>📈</span> Weight Journey
       </h3>
       <div className="overflow-x-auto">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full" style={{ minWidth: 280 }}>
-          {/* Grid lines */}
           {yLabels.map((label, i) => {
             const y = padding * 0.5 + (i / ySteps) * chartH;
             return (
               <g key={label}>
-                <line x1={padding} y1={y} x2={width - padding} y2={y} stroke="#e9d5ff" strokeWidth={0.5} />
+                <line x1={padding} y1={y} x2={width - padding} y2={y} stroke="rgba(139,92,246,0.2)" strokeWidth={0.5} />
                 <text x={padding - 6} y={y + 3} textAnchor="end" fontSize={8} fill="#a78bfa" fontWeight={600}>{label}</text>
               </g>
             );
           })}
 
-          {/* Goal line */}
           {goalY !== null && goalY >= padding * 0.5 && goalY <= padding * 0.5 + chartH && (
             <>
-              <line x1={padding} y1={goalY} x2={width - padding} y2={goalY} stroke="#f472b6" strokeWidth={1} strokeDasharray="4,3" />
-              <text x={width - padding + 4} y={goalY + 3} fontSize={7} fill="#f472b6" fontWeight={700}>Goal</text>
+              <line x1={padding} y1={goalY} x2={width - padding} y2={goalY} stroke="#ec4899" strokeWidth={1} strokeDasharray="4,3" />
+              <text x={width - padding + 4} y={goalY + 3} fontSize={7} fill="#ec4899" fontWeight={700}>Goal</text>
             </>
           )}
 
-          {/* Area fill */}
           <motion.path
             d={`${linePath} L${scaledPoints[scaledPoints.length - 1].x},${padding * 0.5 + chartH} L${scaledPoints[0].x},${padding * 0.5 + chartH} Z`}
             fill="url(#areaGrad)"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.3 }}
+            animate={{ opacity: 0.25 }}
             transition={{ duration: 1 }}
           />
 
-          {/* Line */}
           <motion.path
             d={linePath}
             fill="none"
@@ -91,14 +84,13 @@ export default function WeightChart({ entries, goal }: WeightChartProps) {
             transition={{ duration: 1.5, ease: "easeOut" }}
           />
 
-          {/* Points */}
           {scaledPoints.map((p, i) => (
             <motion.circle
               key={i}
               cx={p.x}
               cy={p.y}
               r={3.5}
-              fill="white"
+              fill="#2e1065"
               stroke="#a855f7"
               strokeWidth={2}
               initial={{ scale: 0 }}
@@ -107,29 +99,27 @@ export default function WeightChart({ entries, goal }: WeightChartProps) {
             />
           ))}
 
-          {/* Latest weight label */}
           {scaledPoints.length > 0 && (
             <text
               x={scaledPoints[scaledPoints.length - 1].x}
               y={scaledPoints[scaledPoints.length - 1].y - 10}
               textAnchor="middle"
               fontSize={9}
-              fill="#7e22ce"
+              fill="#d8b4fe"
               fontWeight={800}
             >
               {scaledPoints[scaledPoints.length - 1].weight}
             </text>
           )}
 
-          {/* Gradient defs */}
           <defs>
             <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#a855f7" />
-              <stop offset="100%" stopColor="#f472b6" />
+              <stop offset="100%" stopColor="#ec4899" />
             </linearGradient>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#a855f7" />
-              <stop offset="100%" stopColor="#faf5ff" />
+              <stop offset="100%" stopColor="#2e1065" />
             </linearGradient>
           </defs>
         </svg>

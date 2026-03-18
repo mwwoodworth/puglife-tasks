@@ -9,7 +9,7 @@ export type Category =
   | "fun"
   | "pugcare";
 
-export type AppTab = "tasks" | "weight" | "motivation";
+export type AppTab = "dashboard" | "tasks" | "weight" | "motivation";
 
 export type PugMood =
   | "sleeping"
@@ -81,30 +81,44 @@ export interface DailyMotivation {
   category: "encouragement" | "persistence" | "self-love" | "strength" | "humor";
 }
 
+export interface StepGoal {
+  dailyTarget: number;
+  currentSteps: number;
+  date: string;
+  history: { date: string; steps: number }[];
+}
+
+export interface DailyResetData {
+  lastResetDate: string;
+  badDayCount: number;
+  comfortModeActive: boolean;
+}
+
 export const PRIORITY_CONFIG: Record<
   Priority,
   { label: string; emoji: string; color: string; className: string }
 > = {
-  paw: { label: "Chill Pug", emoji: "🐾", color: "#b8a9e8", className: "priority-paw" },
-  bone: { label: "Good Boy", emoji: "🦴", color: "#a78bfa", className: "priority-bone" },
-  treat: { label: "Treat Time", emoji: "🍖", color: "#c084fc", className: "priority-treat" },
-  zoomies: { label: "ZOOMIES!", emoji: "💨", color: "#e879f9", className: "priority-zoomies" },
+  paw: { label: "Chill Pug", emoji: "🐾", color: "#8b5cf6", className: "priority-paw" },
+  bone: { label: "Good Boy", emoji: "🦴", color: "#7c3aed", className: "priority-bone" },
+  treat: { label: "Treat Time", emoji: "🍖", color: "#9333ea", className: "priority-treat" },
+  zoomies: { label: "ZOOMIES!", emoji: "💨", color: "#c026d3", className: "priority-zoomies" },
 };
 
 export const CATEGORY_CONFIG: Record<
   Category,
   { label: string; emoji: string; gradient: string }
 > = {
-  personal: { label: "Personal", emoji: "💖", gradient: "from-pink-300 to-fuchsia-300" },
-  work: { label: "Work", emoji: "💼", gradient: "from-violet-300 to-purple-400" },
-  shopping: { label: "Shopping", emoji: "🛍️", gradient: "from-fuchsia-300 to-pink-300" },
-  home: { label: "Home", emoji: "🏠", gradient: "from-purple-200 to-violet-300" },
-  health: { label: "Health", emoji: "🧘‍♀️", gradient: "from-indigo-300 to-purple-300" },
-  fun: { label: "Fun", emoji: "🎉", gradient: "from-purple-300 to-fuchsia-400" },
-  pugcare: { label: "Pug Care", emoji: "🐶", gradient: "from-amber-200 to-purple-200" },
+  personal: { label: "Personal", emoji: "💖", gradient: "from-pink-400 to-fuchsia-500" },
+  work: { label: "Work", emoji: "💼", gradient: "from-violet-500 to-purple-600" },
+  shopping: { label: "Shopping", emoji: "🛍️", gradient: "from-fuchsia-400 to-pink-500" },
+  home: { label: "Home", emoji: "🏠", gradient: "from-purple-400 to-violet-500" },
+  health: { label: "Health", emoji: "🧘‍♀️", gradient: "from-indigo-400 to-purple-500" },
+  fun: { label: "Fun", emoji: "🎉", gradient: "from-purple-500 to-fuchsia-500" },
+  pugcare: { label: "Lollie Care", emoji: "🐶", gradient: "from-amber-400 to-purple-400" },
 };
 
 export const TAB_CONFIG: Record<AppTab, { label: string; emoji: string }> = {
+  dashboard: { label: "Home", emoji: "🏠" },
   tasks: { label: "Tasks", emoji: "✅" },
   weight: { label: "Weight", emoji: "⚖️" },
   motivation: { label: "Vibes", emoji: "💜" },

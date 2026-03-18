@@ -15,20 +15,20 @@ export default function ProgressBone({ completed, total }: ProgressBoneProps) {
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Progress</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-pug-dark/70">{completed}/{total}</span>
+          <span className="text-xs font-bold text-purple-200">{completed}/{total}</span>
           <motion.span key={pct} initial={{ scale: 0.5 }} animate={{ scale: 1 }}
-            className="text-xs font-extrabold text-transparent bg-gradient-to-r from-purple-500 to-fuchsia-500 bg-clip-text"
+            className="text-xs font-extrabold gradient-text"
           >{pct}%</motion.span>
         </div>
       </div>
-      <div className="relative h-5 bg-purple-100/60 rounded-full overflow-hidden border border-purple-200/30">
+      <div className="relative h-5 bg-purple-900/40 rounded-full overflow-hidden border border-purple-500/20">
         <motion.div
           className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-purple-400 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
         </motion.div>
         {pct > 0 && (
           <motion.span
@@ -41,7 +41,7 @@ export default function ProgressBone({ completed, total }: ProgressBoneProps) {
       {total > 0 && (
         <div className="flex justify-between mt-1 px-0.5">
           {[0, 25, 50, 75, 100].map((m) => (
-            <span key={m} className={`text-xs ${pct >= m ? "opacity-100" : "opacity-20"}`}>
+            <span key={m} className={`text-xs ${pct >= m ? "opacity-100" : "opacity-30"}`}>
               {m === 100 ? "🏆" : m >= 75 ? "🍖" : m >= 50 ? "🦴" : m >= 25 ? "🐾" : "🐕"}
             </span>
           ))}

@@ -37,7 +37,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, index }: Ta
       exit={{ opacity: 0, x: 20, scale: 0.95, height: 0, marginBottom: 0 }}
       transition={{ duration: 0.3, delay: index * 0.04, layout: { duration: 0.25 } }}
       className={`glass-card rounded-2xl p-3.5 relative overflow-hidden ${
-        task.completed ? "opacity-60" : ""
+        task.completed ? "opacity-50" : ""
       } ${isOverdue ? "animate-rainbow-border" : ""}`}
     >
       {/* Priority stripe */}
@@ -62,29 +62,29 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, index }: Ta
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setIsEditing(false); }}
-                className="w-full bg-white/50 rounded-xl px-3 py-2 text-sm border border-purple-200/40 font-medium"
+                className="w-full bg-purple-900/40 rounded-xl px-3 py-2 text-sm border border-purple-500/30 font-medium"
                 autoFocus
               />
               <textarea
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
                 placeholder="Add notes..."
-                className="w-full bg-white/50 rounded-xl px-3 py-2 text-xs border border-purple-200/40 resize-none h-16"
+                className="w-full bg-purple-900/40 rounded-xl px-3 py-2 text-xs border border-purple-500/30 resize-none h-16"
               />
               <div className="flex gap-2">
                 <button onClick={handleSave} className="text-xs bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-3 py-1.5 rounded-full font-semibold">
                   Save 🐾
                 </button>
                 <button onClick={() => { setIsEditing(false); setEditTitle(task.title); setEditNotes(task.notes || ""); }}
-                  className="text-xs bg-white/60 px-3 py-1.5 rounded-full font-medium"
+                  className="text-xs bg-purple-800/40 px-3 py-1.5 rounded-full font-medium text-purple-300"
                 >Cancel</button>
               </div>
             </div>
           ) : (
             <>
-              <span className={`text-sm font-semibold leading-tight block ${task.completed ? "line-through text-pug-dark/35" : ""}`}>
+              <span className={`text-sm font-semibold leading-tight block ${task.completed ? "line-through text-purple-500" : "text-purple-100"}`}>
                 {task.title}
-                {task.completed && <span className="ml-1.5">✅</span>}
+                {task.completed && <span className="ml-1.5">🐾</span>}
               </span>
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full text-white ${priority.className}`}>
@@ -94,19 +94,19 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, index }: Ta
                   {category.emoji} {category.label}
                 </span>
                 {task.dueDate && (
-                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${isOverdue ? "bg-red-100 text-red-600" : "bg-purple-50 text-purple-400"}`}>
-                    {isOverdue ? "⚠️" : "📅"} {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${isOverdue ? "bg-red-500/30 text-red-300" : "bg-purple-800/40 text-purple-300"}`}>
+                    {isOverdue ? "!!" : ""} {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
                 )}
               </div>
               {task.notes && (
-                <button onClick={() => setShowNotes(!showNotes)} className="text-[11px] text-purple-400 mt-1 hover:text-purple-600 transition-colors">
-                  {showNotes ? "Hide notes ▲" : "📝 Notes ▼"}
+                <button onClick={() => setShowNotes(!showNotes)} className="text-[11px] text-purple-400 mt-1 hover:text-purple-300 transition-colors">
+                  {showNotes ? "Hide notes" : "Notes..."}
                 </button>
               )}
               {showNotes && task.notes && (
                 <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-                  className="text-xs text-pug-dark/50 mt-1 pl-2 border-l-2 border-purple-200"
+                  className="text-xs text-purple-300/70 mt-1 pl-2 border-l-2 border-purple-500/30"
                 >{task.notes}</motion.p>
               )}
             </>
@@ -115,8 +115,8 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, index }: Ta
 
         {!isEditing && (
           <div className="flex items-center gap-0.5 shrink-0">
-            <button onClick={() => setIsEditing(true)} className="p-2 rounded-full active:bg-purple-100 transition-colors text-sm" aria-label="Edit">✏️</button>
-            <button onClick={() => onDelete(task.id)} className="p-2 rounded-full active:bg-red-50 transition-colors text-sm" aria-label="Delete">🗑️</button>
+            <button onClick={() => setIsEditing(true)} className="p-2 rounded-full active:bg-purple-700/30 transition-colors text-sm" aria-label="Edit">✏️</button>
+            <button onClick={() => onDelete(task.id)} className="p-2 rounded-full active:bg-red-500/20 transition-colors text-sm" aria-label="Delete">🗑️</button>
           </div>
         )}
       </div>

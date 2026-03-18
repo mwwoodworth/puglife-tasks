@@ -1,4 +1,4 @@
-import { Task, WeightEntry, WeightGoalData, WeightMilestone, StreakData, AppTab } from "./types";
+import { Task, WeightEntry, WeightGoalData, WeightMilestone, StreakData, AppTab, StepGoal, DailyResetData } from "./types";
 
 const TASKS_KEY = "puglife-tasks";
 const STREAK_KEY = "puglife-streak";
@@ -9,6 +9,9 @@ const WEIGHT_GOAL_KEY = "puglife-weight-goal";
 const WEIGHT_MILESTONES_KEY = "puglife-weight-milestones";
 const SOUND_MUTED_KEY = "puglife-sound-muted";
 const ACTIVE_TAB_KEY = "puglife-active-tab";
+const STEP_GOAL_KEY = "puglife-step-goal";
+const DAILY_RESET_KEY = "puglife-daily-reset";
+const BAD_DAY_KEY = "puglife-bad-day";
 
 function safeGet<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -33,7 +36,6 @@ export function saveTasks(tasks: Task[]) { safeSet(TASKS_KEY, tasks); }
 export function getStreak(): StreakData {
   const data = safeGet<StreakData | null>(STREAK_DATA_KEY, null);
   if (data) return data;
-  // Migrate from old format
   const current = safeGet(STREAK_KEY, 0);
   const lastDate = typeof window !== "undefined" ? localStorage.getItem(LAST_ACTIVE_KEY) || "" : "";
   return { current, lastDate, longest: current, milestonesCelebrated: [] };
@@ -75,5 +77,39 @@ export function loadSoundMuted(): boolean { return safeGet(SOUND_MUTED_KEY, fals
 export function saveSoundMuted(muted: boolean) { safeSet(SOUND_MUTED_KEY, muted); }
 
 // Active tab
-export function loadActiveTab(): AppTab { return safeGet(ACTIVE_TAB_KEY, "tasks" as AppTab); }
+export function loadActiveTab(): AppTab { return safeGet(ACTIVE_TAB_KEY, "dashboard" as AppTab); }
 export function saveActiveTab(tab: AppTab) { safeSet(ACTIVE_TAB_KEY, tab); }
+
+// Step goals
+export function loadStepGoal(): StepGoal {
+  const today = new Date().toISOString().split("T")[0];
+  const data = safeGet<StepGoal | null>(STEP_GOAL_KEY, null);
+  if (data) {
+    if (data.date !== today) {
+      const history = [...data.history, { date: data.date, steps: data.currentSteps }].slice(-30);
+      return { ...data, currentSteps: 0, date: today, history };
+    }
+    return data;
+  }
+  return { dailyTarget: 10000, currentSteps: 0, date: today, history: [] };
+}
+export function saveStepGoal(data: StepGoal) { safeSet(STEP_GOAL_KEY, data); }
+
+// Daily reset
+export function loadDailyReset(): DailyResetData {
+  const data = safeGet<DailyResetData | null>(DAILY_RESET_KEY, null);
+  if (data) return data;
+  return { lastResetDate: "", badDayCount: 0, comfortModeActive: false };
+}
+export function saveDailyReset(data: DailyResetData) { safeSet(DAILY_RESET_KEY, data); }
+
+// Bad day state
+export function loadBadDayActive(): boolean {
+  const today = new Date().toISOString().split("T")[0];
+  const data = safeGet<{ date: string; active: boolean } | null>(BAD_DAY_KEY, null);
+  return data?.date === today ? data.active : false;
+}
+export function saveBadDayActive(active: boolean) {
+  const today = new Date().toISOString().split("T")[0];
+  safeSet(BAD_DAY_KEY, { date: today, active });
+}

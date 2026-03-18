@@ -55,8 +55,8 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
               <input
                 ref={inputRef}
                 type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-                placeholder="What needs doing? 🐶"
-                className="w-full bg-white/60 rounded-xl px-4 py-3 text-sm font-medium border border-purple-200/30 placeholder:text-purple-300"
+                placeholder="What needs doing, Danielle?"
+                className="w-full bg-purple-900/40 rounded-xl px-4 py-3 text-sm font-medium border border-purple-500/30"
                 autoFocus
               />
             </div>
@@ -68,7 +68,7 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
                   <button
                     key={key} type="button" onClick={() => setPriority(key)}
                     className={`flex flex-col items-center gap-0.5 p-2 rounded-xl text-xs font-semibold transition-all ${
-                      priority === key ? `${config.className} text-white shadow-lg scale-105` : "bg-white/50 text-purple-400 active:bg-white/70"
+                      priority === key ? `${config.className} text-white shadow-lg scale-105` : "bg-purple-800/30 text-purple-300 active:bg-purple-700/40"
                     }`}
                   >
                     <span className="text-base">{config.emoji}</span>
@@ -85,7 +85,7 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
                   <button
                     key={key} type="button" onClick={() => setCategory(key)}
                     className={`category-pill inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-                      category === key ? `bg-gradient-to-r ${config.gradient} text-white shadow-md active` : "bg-white/50 text-purple-400"
+                      category === key ? `bg-gradient-to-r ${config.gradient} text-white shadow-md active` : "bg-purple-800/30 text-purple-300"
                     }`}
                   >
                     <span>{config.emoji}</span><span>{config.label}</span>
@@ -98,13 +98,13 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
               <div>
                 <label className="text-[10px] font-bold text-purple-400 mb-1 block uppercase tracking-wider">Due Date</label>
                 <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full bg-white/60 rounded-xl px-3 py-2 text-sm border border-purple-200/20"
+                  className="w-full bg-purple-900/40 rounded-xl px-3 py-2 text-sm border border-purple-500/30"
                 />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-purple-400 mb-1 block uppercase tracking-wider">Notes</label>
                 <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Details..."
-                  className="w-full bg-white/60 rounded-xl px-3 py-2 text-sm border border-purple-200/20 placeholder:text-purple-200"
+                  className="w-full bg-purple-900/40 rounded-xl px-3 py-2 text-sm border border-purple-500/30"
                 />
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
               >Add Task 🐾</button>
               <button type="button"
                 onClick={() => { setIsOpen(false); setTitle(""); setNotes(""); setDueDate(""); }}
-                className="px-5 py-3 bg-white/50 rounded-xl text-sm font-medium text-purple-400 active:bg-white/70 transition-all"
+                className="px-5 py-3 bg-purple-800/40 rounded-xl text-sm font-medium text-purple-300 active:bg-purple-700/50 transition-all"
               >Cancel</button>
             </div>
           </motion.form>

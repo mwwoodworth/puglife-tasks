@@ -30,7 +30,7 @@ export default function WeightEntryForm({ onAdd }: WeightEntryFormProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <h3 className="text-sm font-bold text-purple-600 flex items-center gap-2">
+      <h3 className="text-sm font-bold text-purple-200 flex items-center gap-2">
         <span className="text-base">⚖️</span> Log Today&apos;s Weight
       </h3>
       <div className="grid grid-cols-2 gap-2">
@@ -42,7 +42,7 @@ export default function WeightEntryForm({ onAdd }: WeightEntryFormProps) {
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
             placeholder="150.0"
-            className="w-full bg-white/60 rounded-xl px-3 py-2.5 text-sm font-semibold border border-purple-200/30 placeholder:text-purple-200"
+            className="w-full bg-purple-900/40 rounded-xl px-3 py-2.5 text-sm font-semibold border border-purple-500/30"
             inputMode="decimal"
           />
         </div>
@@ -53,7 +53,7 @@ export default function WeightEntryForm({ onAdd }: WeightEntryFormProps) {
             value={date}
             max={today}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full bg-white/60 rounded-xl px-3 py-2.5 text-sm border border-purple-200/30"
+            className="w-full bg-purple-900/40 rounded-xl px-3 py-2.5 text-sm border border-purple-500/30"
           />
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function WeightEntryForm({ onAdd }: WeightEntryFormProps) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="How are you feeling? (optional)"
-        className="w-full bg-white/60 rounded-xl px-3 py-2.5 text-sm border border-purple-200/30 placeholder:text-purple-200"
+        className="w-full bg-purple-900/40 rounded-xl px-3 py-2.5 text-sm border border-purple-500/30"
       />
       <button
         type="submit"

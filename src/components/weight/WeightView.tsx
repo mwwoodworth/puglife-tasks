@@ -24,20 +24,19 @@ export default function WeightView({ onMoodChange, playSound }: WeightViewProps)
   const handleAdd = (date: string, weight: number, note?: string) => {
     addEntry(date, weight, note);
     playSound("weight-log");
-    onMoodChange("eating", "Logged! The pug is keeping track!");
-    setTimeout(() => onMoodChange("happy", "You're doing amazing! 💜"), 2500);
+    onMoodChange("eating", "Logged! Lollie is keeping track for you!");
+    setTimeout(() => onMoodChange("happy", "Lollie says: You're doing amazing, Danielle!"), 2500);
   };
 
   const handleMilestoneDismiss = () => {
     dismissMilestone();
-    onMoodChange("happy", "Keep going, you're incredible! 🌟");
+    onMoodChange("happy", "Lollie says: Keep going, you're incredible!");
   };
 
   if (!isLoaded) return null;
 
   return (
     <div className="space-y-3 animate-slide-up">
-      {/* Milestone celebration overlay */}
       <AnimatePresence>
         {newMilestone && (
           <MilestoneOverlay milestone={newMilestone} onDismiss={handleMilestoneDismiss} playSound={playSound} />
@@ -49,13 +48,12 @@ export default function WeightView({ onMoodChange, playSound }: WeightViewProps)
       <WeightChart entries={entries} goal={goal} />
       <WeightStats entries={entries} goal={goal} onDeleteEntry={deleteEntry} />
 
-      {/* Milestones achieved */}
       {milestones.length > 0 && (
         <div className="glass-card rounded-2xl p-4">
-          <h3 className="text-sm font-bold text-purple-600 mb-2 flex items-center gap-2"><span>🏆</span> Milestones</h3>
+          <h3 className="text-sm font-bold text-purple-200 mb-2 flex items-center gap-2"><span>🏆</span> Milestones</h3>
           <div className="flex flex-wrap gap-2">
             {milestones.map((m, i) => (
-              <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white">
+              <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-md shadow-purple-500/20">
                 {m.type === "goal-reached" ? "🏆" : m.type === "halfway" ? "🎯" : m.type === "new-low" ? "⭐" : "🎉"}
                 {m.type.replace("-", " ")}
               </span>
@@ -76,7 +74,7 @@ function MilestoneOverlay({ milestone, onDismiss, playSound }: { milestone: Weig
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-purple-900/30 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-purple-950/60 backdrop-blur-sm p-4"
       onClick={onDismiss}
     >
       <motion.div
@@ -90,7 +88,7 @@ function MilestoneOverlay({ milestone, onDismiss, playSound }: { milestone: Weig
           🏆
         </motion.span>
         <h2 className="text-xl font-black gradient-text-sparkle mb-2">MILESTONE!</h2>
-        <p className="text-purple-700 font-bold mb-4">{getRandomMessage(messages)}</p>
+        <p className="text-purple-200 font-bold mb-4">{getRandomMessage(messages)}</p>
         <button onClick={onDismiss}
           className="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white font-bold py-3 px-8 rounded-full text-sm shadow-lg active:scale-95 transition-all"
         >Yay! 🐾</button>

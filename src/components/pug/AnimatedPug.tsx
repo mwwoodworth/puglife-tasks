@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type TargetAndTransition } from "framer-motion";
 import { PugMood } from "@/lib/types";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface AnimatedPugProps {
   mood: PugMood;
@@ -10,264 +11,149 @@ interface AnimatedPugProps {
   onClick?: () => void;
 }
 
+const PUG_IMAGES: Record<PugMood, string> = {
+  idle: "/pugs/pug-idle.webp",
+  sleeping: "/pugs/pug-sleeping.webp",
+  happy: "/pugs/pug-happy.webp",
+  excited: "/pugs/pug-excited.webp",
+  celebrating: "/pugs/pug-celebrating.webp",
+  sad: "/pugs/pug-sad.webp",
+  love: "/pugs/pug-love.webp",
+  eating: "/pugs/pug-eating.webp",
+  "working-out": "/pugs/pug-workout.webp",
+};
+
+const PUG_FALLBACKS: Record<PugMood, string> = {
+  idle: "/pugs/pug-idle.png",
+  sleeping: "/pugs/pug-sleeping.png",
+  happy: "/pugs/pug-happy.png",
+  excited: "/pugs/pug-excited.png",
+  celebrating: "/pugs/pug-celebrating.png",
+  sad: "/pugs/pug-sad.png",
+  love: "/pugs/pug-love.png",
+  eating: "/pugs/pug-eating.png",
+  "working-out": "/pugs/pug-workout.png",
+};
+
+const bodyVariants: Record<PugMood, TargetAndTransition> = {
+  sleeping: { y: [0, -3, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } },
+  idle: { y: [0, -5, 0], scale: [1, 1.02, 1], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } },
+  happy: { y: [0, -8, 0], transition: { duration: 1.2, repeat: Infinity, ease: "easeInOut" as const } },
+  excited: { y: [0, -14, 0], scale: [1, 1.06, 1], rotate: [0, -2, 2, 0], transition: { duration: 0.6, repeat: Infinity, ease: "easeInOut" as const } },
+  celebrating: { y: [0, -16, 0], rotate: [0, -4, 4, 0], scale: [1, 1.08, 1], transition: { duration: 0.5, repeat: Infinity, ease: "easeInOut" as const } },
+  sad: { y: [0, -2, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } },
+  eating: { y: [0, 3, 0, 3, 0], transition: { duration: 0.4, repeat: Infinity, ease: "easeInOut" as const } },
+  "working-out": { y: [0, -10, 0], scale: [1, 1.07, 1], transition: { duration: 0.7, repeat: Infinity, ease: "easeInOut" as const } },
+  love: { y: [0, -6, 0], scale: [1, 1.04, 1], transition: { duration: 1, repeat: Infinity, ease: "easeInOut" as const } },
+};
+
 export default function AnimatedPug({ mood, size = 120, onClick }: AnimatedPugProps) {
-  const [hearts, setHearts] = useState<number[]>([]);
+  const [particles, setParticles] = useState<{ id: number; emoji: string; x: number; delay: number }[]>([]);
 
   useEffect(() => {
-    if (mood === "celebrating" || mood === "love") {
-      setHearts(Array.from({ length: 5 }, (_, i) => i));
-      const t = setTimeout(() => setHearts([]), 2000);
+    const emojis: Record<string, string[]> = {
+      celebrating: ["🎉", "🎊", "⭐", "✨", "💜"],
+      love: ["💜", "💕", "💖", "💗", "✨"],
+      excited: ["✨", "⭐", "💫", "💜", "🌟"],
+      happy: ["✨", "💜", "🌟"],
+    };
+    const set = emojis[mood];
+    if (set) {
+      setParticles(set.map((emoji, i) => ({ id: Date.now() + i, emoji, x: (i - 2) * 22, delay: i * 0.1 })));
+      const t = setTimeout(() => setParticles([]), 2500);
       return () => clearTimeout(t);
     }
   }, [mood]);
 
-  const s = size;
-  const cx = s / 2;
-  const cy = s / 2;
-  const bodyR = s * 0.32;
-
-  const bodyVariants = {
-    sleeping: { y: [0, -2, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } },
-    idle: { y: [0, -4, 0], scale: [1, 1.01, 1], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } },
-    happy: { y: [0, -6, 0], transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" as const } },
-    excited: { y: [0, -12, 0], scale: [1, 1.05, 1], transition: { duration: 0.7, repeat: Infinity, ease: "easeInOut" as const } },
-    celebrating: { y: [0, -15, 0], rotate: [0, -3, 3, 0], transition: { duration: 0.6, repeat: Infinity, ease: "easeInOut" as const } },
-    sad: { y: [0, -2, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } },
-    eating: { y: [0, 2, 0, 2, 0], transition: { duration: 0.4, repeat: Infinity, ease: "easeInOut" as const } },
-    "working-out": { y: [0, -8, 0], scale: [1, 1.06, 1], transition: { duration: 0.8, repeat: Infinity, ease: "easeInOut" as const } },
-    love: { y: [0, -5, 0], scale: [1, 1.03, 1], transition: { duration: 1.2, repeat: Infinity, ease: "easeInOut" as const } },
-  };
-
-  const isAsleep = mood === "sleeping";
-  const isSad = mood === "sad";
-  const isHappy = mood === "happy" || mood === "excited" || mood === "celebrating" || mood === "love";
-  const isExcited = mood === "excited" || mood === "celebrating";
-  const showTongue = mood === "happy" || mood === "eating" || mood === "excited";
-  const showPartyHat = mood === "celebrating";
-  const showDumbbell = mood === "working-out";
-
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: s, height: s + 20 }}>
-      {/* Floating hearts */}
+    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size + 20 }}>
+      {/* Floating particles */}
       <AnimatePresence>
-        {hearts.map((i) => (
+        {particles.map((p) => (
           <motion.span
-            key={`h-${i}-${mood}`}
-            className="absolute text-lg pointer-events-none z-20"
-            initial={{ opacity: 0, y: 0, x: (i - 2) * 20 }}
-            animate={{ opacity: [0, 1, 0], y: -50, x: (i - 2) * 25 + (Math.random() - 0.5) * 15 }}
+            key={p.id}
+            className="absolute text-base pointer-events-none z-20"
+            initial={{ opacity: 0, y: 0, x: p.x }}
+            animate={{ opacity: [0, 1, 0], y: -55, x: p.x + (Math.random() - 0.5) * 20 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, delay: i * 0.12 }}
-            style={{ top: "10%" }}
+            transition={{ duration: 1.8, delay: p.delay }}
+            style={{ top: "5%" }}
           >
-            {["💜", "✨", "💖", "⭐", "💕"][i]}
+            {p.emoji}
           </motion.span>
         ))}
       </AnimatePresence>
 
-      <motion.svg
-        viewBox={`0 0 ${s} ${s + 10}`}
-        width={s}
-        height={s + 10}
+      {/* Pug glow */}
+      <motion.div
+        className="absolute rounded-full"
+        style={{
+          width: size * 0.85,
+          height: size * 0.85,
+          background: mood === "love" ? "radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)"
+            : mood === "celebrating" ? "radial-gradient(circle, rgba(250,204,21,0.2) 0%, transparent 70%)"
+            : "radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)",
+        }}
+        animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+
+      {/* Animated Pug Image */}
+      <motion.div
         animate={bodyVariants[mood]}
         onClick={onClick}
-        className="cursor-pointer select-none drop-shadow-lg"
+        className="cursor-pointer select-none relative z-10"
         whileTap={{ scale: 1.15 }}
+        style={{ width: size, height: size }}
       >
-        {/* Shadow */}
-        <ellipse cx={cx} cy={s - 4} rx={bodyR * 0.7} ry={4} fill="rgba(88, 28, 135, 0.08)" />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={mood}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.25 }}
+            className="w-full h-full"
+          >
+            <picture>
+              <source srcSet={PUG_IMAGES[mood]} type="image/webp" />
+              <Image
+                src={PUG_FALLBACKS[mood]}
+                alt={`Lollie the pug - ${mood}`}
+                width={512}
+                height={512}
+                className="w-full h-full object-contain drop-shadow-xl"
+                priority
+                unoptimized
+              />
+            </picture>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
-        {/* Tail */}
-        {isExcited && (
-          <motion.path
-            d={`M${cx + bodyR * 0.7},${cy + bodyR * 0.3} Q${cx + bodyR * 1.2},${cy - bodyR * 0.3} ${cx + bodyR * 0.9},${cy - bodyR * 0.5}`}
-            stroke="#D4A574"
-            strokeWidth={4}
-            strokeLinecap="round"
-            fill="none"
-            animate={{ d: [
-              `M${cx + bodyR * 0.7},${cy + bodyR * 0.3} Q${cx + bodyR * 1.2},${cy - bodyR * 0.3} ${cx + bodyR * 0.9},${cy - bodyR * 0.5}`,
-              `M${cx + bodyR * 0.7},${cy + bodyR * 0.3} Q${cx + bodyR * 1.3},${cy} ${cx + bodyR * 1.1},${cy - bodyR * 0.2}`,
-              `M${cx + bodyR * 0.7},${cy + bodyR * 0.3} Q${cx + bodyR * 1.2},${cy - bodyR * 0.3} ${cx + bodyR * 0.9},${cy - bodyR * 0.5}`,
-            ] }}
-            transition={{ duration: 0.3, repeat: Infinity }}
-          />
-        )}
-
-        {/* Back legs */}
-        <ellipse cx={cx - bodyR * 0.45} cy={cy + bodyR * 0.85} rx={bodyR * 0.22} ry={bodyR * 0.3} fill="#D4A574" />
-        <ellipse cx={cx + bodyR * 0.45} cy={cy + bodyR * 0.85} rx={bodyR * 0.22} ry={bodyR * 0.3} fill="#D4A574" />
-
-        {/* Body */}
-        <ellipse cx={cx} cy={cy + bodyR * 0.1} rx={bodyR} ry={bodyR * 0.85} fill="#E8C99B" />
-        {/* Belly */}
-        <ellipse cx={cx} cy={cy + bodyR * 0.25} rx={bodyR * 0.6} ry={bodyR * 0.55} fill="#F5E6D0" />
-
-        {/* Front paws */}
-        <ellipse cx={cx - bodyR * 0.4} cy={cy + bodyR * 0.75} rx={bodyR * 0.18} ry={bodyR * 0.12} fill="#D4A574" />
-        <ellipse cx={cx + bodyR * 0.4} cy={cy + bodyR * 0.75} rx={bodyR * 0.18} ry={bodyR * 0.12} fill="#D4A574" />
-
-        {/* Head */}
-        <circle cx={cx} cy={cy - bodyR * 0.35} r={bodyR * 0.72} fill="#E8C99B" />
-
-        {/* Ears */}
-        <motion.ellipse
-          cx={cx - bodyR * 0.55}
-          cy={cy - bodyR * 0.7}
-          rx={bodyR * 0.28}
-          ry={bodyR * 0.35}
-          fill="#8B6914"
-          transform={`rotate(-15, ${cx - bodyR * 0.55}, ${cy - bodyR * 0.7})`}
-          animate={isSad ? { ry: bodyR * 0.25, cy: cy - bodyR * 0.55 } : {}}
-        />
-        <motion.ellipse
-          cx={cx + bodyR * 0.55}
-          cy={cy - bodyR * 0.7}
-          rx={bodyR * 0.28}
-          ry={bodyR * 0.35}
-          fill="#8B6914"
-          transform={`rotate(15, ${cx + bodyR * 0.55}, ${cy - bodyR * 0.7})`}
-          animate={isSad ? { ry: bodyR * 0.25, cy: cy - bodyR * 0.55 } : {}}
-        />
-
-        {/* Face mask (dark area) */}
-        <ellipse cx={cx} cy={cy - bodyR * 0.15} rx={bodyR * 0.45} ry={bodyR * 0.38} fill="#3D2C0E" opacity={0.8} />
-
-        {/* Eyes */}
-        {mood === "love" ? (
-          <>
-            <text x={cx - bodyR * 0.2} y={cy - bodyR * 0.3} fontSize={bodyR * 0.32} textAnchor="middle">💜</text>
-            <text x={cx + bodyR * 0.2} y={cy - bodyR * 0.3} fontSize={bodyR * 0.32} textAnchor="middle">💜</text>
-          </>
-        ) : isAsleep ? (
-          <>
-            <line x1={cx - bodyR * 0.3} y1={cy - bodyR * 0.35} x2={cx - bodyR * 0.1} y2={cy - bodyR * 0.35} stroke="white" strokeWidth={2.5} strokeLinecap="round" />
-            <line x1={cx + bodyR * 0.1} y1={cy - bodyR * 0.35} x2={cx + bodyR * 0.3} y2={cy - bodyR * 0.35} stroke="white" strokeWidth={2.5} strokeLinecap="round" />
-          </>
-        ) : (
-          <>
-            <motion.g animate={!isSad ? { scaleY: [1, 1, 0.1, 1, 1] } : {}} transition={{ duration: 4, repeat: Infinity, times: [0, 0.92, 0.95, 0.98, 1] }}>
-              <circle cx={cx - bodyR * 0.2} cy={cy - bodyR * 0.35} r={isHappy ? bodyR * 0.11 : bodyR * 0.09} fill="white" />
-              <circle cx={cx + bodyR * 0.2} cy={cy - bodyR * 0.35} r={isHappy ? bodyR * 0.11 : bodyR * 0.09} fill="white" />
-              <circle cx={cx - bodyR * 0.2} cy={cy - bodyR * 0.35} r={bodyR * 0.055} fill="#2D1B4E" />
-              <circle cx={cx + bodyR * 0.2} cy={cy - bodyR * 0.35} r={bodyR * 0.055} fill="#2D1B4E" />
-              {/* Sparkle in eyes */}
-              <circle cx={cx - bodyR * 0.18} cy={cy - bodyR * 0.37} r={bodyR * 0.02} fill="white" />
-              <circle cx={cx + bodyR * 0.22} cy={cy - bodyR * 0.37} r={bodyR * 0.02} fill="white" />
-            </motion.g>
-            {isSad && (
-              <>
-                <circle cx={cx - bodyR * 0.15} cy={cy - bodyR * 0.2} r={bodyR * 0.035} fill="#90cdf4" opacity={0.7} />
-                <circle cx={cx + bodyR * 0.25} cy={cy - bodyR * 0.22} r={bodyR * 0.03} fill="#90cdf4" opacity={0.7} />
-              </>
-            )}
-          </>
-        )}
-
-        {/* Nose */}
-        <ellipse cx={cx} cy={cy - bodyR * 0.13} rx={bodyR * 0.1} ry={bodyR * 0.07} fill="#1a1a1a" />
-
-        {/* Mouth */}
-        {isHappy ? (
-          <path
-            d={`M${cx - bodyR * 0.12},${cy - bodyR * 0.04} Q${cx},${cy + bodyR * 0.08} ${cx + bodyR * 0.12},${cy - bodyR * 0.04}`}
-            stroke="#1a1a1a"
-            strokeWidth={1.5}
-            fill="none"
-            strokeLinecap="round"
-          />
-        ) : isSad ? (
-          <path
-            d={`M${cx - bodyR * 0.1},${cy - bodyR * 0.01} Q${cx},${cy - bodyR * 0.08} ${cx + bodyR * 0.1},${cy - bodyR * 0.01}`}
-            stroke="#1a1a1a"
-            strokeWidth={1.5}
-            fill="none"
-            strokeLinecap="round"
-          />
-        ) : !isAsleep ? (
-          <path
-            d={`M${cx - bodyR * 0.08},${cy - bodyR * 0.04} L${cx},${cy} L${cx + bodyR * 0.08},${cy - bodyR * 0.04}`}
-            stroke="#1a1a1a"
-            strokeWidth={1.5}
-            fill="none"
-            strokeLinecap="round"
-          />
-        ) : null}
-
-        {/* Tongue */}
-        {showTongue && (
-          <motion.ellipse
-            cx={cx + bodyR * 0.04}
-            cy={cy + bodyR * 0.03}
-            rx={bodyR * 0.06}
-            ry={bodyR * 0.09}
-            fill="#F472B6"
-            animate={{ ry: [bodyR * 0.09, bodyR * 0.11, bodyR * 0.09] }}
-            transition={{ duration: 0.8, repeat: Infinity }}
-          />
-        )}
-
-        {/* Cheek blush */}
-        {isHappy && (
-          <>
-            <circle cx={cx - bodyR * 0.35} cy={cy - bodyR * 0.18} r={bodyR * 0.08} fill="#F9A8D4" opacity={0.5} />
-            <circle cx={cx + bodyR * 0.35} cy={cy - bodyR * 0.18} r={bodyR * 0.08} fill="#F9A8D4" opacity={0.5} />
-          </>
-        )}
-
-        {/* Zzz for sleeping */}
-        {isAsleep && (
-          <>
-            <motion.text
-              x={cx + bodyR * 0.5} y={cy - bodyR * 0.6}
-              fontSize={bodyR * 0.22} fill="#a78bfa" fontWeight="bold"
-              animate={{ opacity: [0, 1, 0], y: [cy - bodyR * 0.6, cy - bodyR * 0.9] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >z</motion.text>
-            <motion.text
-              x={cx + bodyR * 0.65} y={cy - bodyR * 0.85}
-              fontSize={bodyR * 0.28} fill="#c084fc" fontWeight="bold"
-              animate={{ opacity: [0, 1, 0], y: [cy - bodyR * 0.85, cy - bodyR * 1.15] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-            >Z</motion.text>
-            <motion.text
-              x={cx + bodyR * 0.8} y={cy - bodyR * 1.1}
-              fontSize={bodyR * 0.35} fill="#9333ea" fontWeight="bold"
-              animate={{ opacity: [0, 1, 0], y: [cy - bodyR * 1.1, cy - bodyR * 1.4] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-            >Z</motion.text>
-          </>
-        )}
-
-        {/* Party hat */}
-        {showPartyHat && (
-          <>
-            <polygon
-              points={`${cx - bodyR * 0.18},${cy - bodyR * 0.85} ${cx},${cy - bodyR * 1.35} ${cx + bodyR * 0.18},${cy - bodyR * 0.85}`}
-              fill="url(#partyGrad)"
-              stroke="#fbbf24"
-              strokeWidth={1.5}
-            />
-            <circle cx={cx} cy={cy - bodyR * 1.35} r={bodyR * 0.06} fill="#fbbf24" />
-            <defs>
-              <linearGradient id="partyGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="50%" stopColor="#f472b6" />
-                <stop offset="100%" stopColor="#fbbf24" />
-              </linearGradient>
-            </defs>
-          </>
-        )}
-
-        {/* Dumbbells for working out */}
-        {showDumbbell && (
-          <motion.g animate={{ rotate: [0, -15, 0, 15, 0] }} transition={{ duration: 0.8, repeat: Infinity }}>
-            <rect x={cx - bodyR * 1.05} y={cy + bodyR * 0.35} width={bodyR * 0.12} height={bodyR * 0.25} rx={2} fill="#9333ea" />
-            <rect x={cx - bodyR * 1.05 + bodyR * 0.12} y={cy + bodyR * 0.42} width={bodyR * 0.5} height={bodyR * 0.1} rx={2} fill="#7e22ce" />
-            <rect x={cx - bodyR * 1.05 + bodyR * 0.62} y={cy + bodyR * 0.35} width={bodyR * 0.12} height={bodyR * 0.25} rx={2} fill="#9333ea" />
-          </motion.g>
-        )}
-      </motion.svg>
+      {/* Sleeping zzz overlay */}
+      {mood === "sleeping" && (
+        <div className="absolute top-0 right-0 z-20 pointer-events-none">
+          <motion.span
+            className="absolute text-lg font-bold text-purple-400"
+            style={{ right: -5, top: 10 }}
+            animate={{ opacity: [0, 1, 0], y: [0, -20], x: [0, 8] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >z</motion.span>
+          <motion.span
+            className="absolute text-xl font-bold text-purple-500"
+            style={{ right: -12, top: -5 }}
+            animate={{ opacity: [0, 1, 0], y: [0, -25], x: [0, 10] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          >Z</motion.span>
+          <motion.span
+            className="absolute text-2xl font-bold text-purple-600"
+            style={{ right: -18, top: -20 }}
+            animate={{ opacity: [0, 1, 0], y: [0, -30], x: [0, 12] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+          >Z</motion.span>
+        </div>
+      )}
     </div>
   );
 }
