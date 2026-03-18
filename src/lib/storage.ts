@@ -36,8 +36,14 @@ function safeGet<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
     const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
+    if (!data) return fallback;
+    const parsed = JSON.parse(data);
+    // Basic type validation
+    if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+    if (fallback !== null && typeof fallback === "object" && !Array.isArray(fallback) && typeof parsed !== "object") return fallback;
+    return parsed;
   } catch {
+    try { localStorage.removeItem(key); } catch { /* ignore */ }
     return fallback;
   }
 }
@@ -275,6 +281,63 @@ export function saveNotificationPrefs(prefs: NotificationPrefs) {
 // ── Data Migration (v4 → v5) ──
 const MIGRATION_KEY = "puglife-v5-migrated";
 
+// ── Data Export/Import ──
+const EXPORT_VERSION = 1;
+const ALL_STORAGE_KEYS = [
+  TASKS_KEY, STREAK_DATA_KEY, WEIGHT_ENTRIES_KEY, WEIGHT_GOAL_KEY,
+  WEIGHT_MILESTONES_KEY, SOUND_MUTED_KEY, ACTIVE_TAB_KEY, STEP_GOAL_KEY,
+  DAILY_RESET_KEY, WATER_DATA_KEY, WATER_HISTORY_KEY, MOOD_KEY,
+  MOOD_HISTORY_KEY, REWARDS_KEY, FAVORITES_KEY, STATS_KEY,
+  CHAT_HISTORY_KEY, DRESSUP_STATE_KEY, ALCOHOL_DATA_KEY,
+  ALCOHOL_HISTORY_KEY, NOTIFICATION_PREFS_KEY,
+];
+
+export interface ExportData {
+  version: number;
+  exportedAt: string;
+  data: Record<string, unknown>;
+}
+
+export function exportAllData(): ExportData {
+  const data: Record<string, unknown> = {};
+  for (const key of ALL_STORAGE_KEYS) {
+    const raw = localStorage.getItem(key);
+    if (raw !== null) {
+      try { data[key] = JSON.parse(raw); } catch { data[key] = raw; }
+    }
+  }
+  return { version: EXPORT_VERSION, exportedAt: new Date().toISOString(), data };
+}
+
+export function importAllData(exported: ExportData): { success: boolean; error?: string } {
+  if (!exported?.version || !exported?.data) {
+    return { success: false, error: "Invalid backup file format" };
+  }
+  try {
+    for (const [key, value] of Object.entries(exported.data)) {
+      if (ALL_STORAGE_KEYS.includes(key)) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    }
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: `Import failed: ${e}` };
+  }
+}
+
+export function getStorageUsage(): { usedBytes: number; percentFull: number } {
+  let total = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key) {
+      total += key.length + (localStorage.getItem(key)?.length || 0);
+    }
+  }
+  const limitBytes = 5 * 1024 * 1024;
+  return { usedBytes: total * 2, percentFull: Math.round((total * 2 / limitBytes) * 100) };
+}
+
+// ── Data Migration (v4 → v5) ──
 export function migrateV4ToV5() {
   if (typeof window === "undefined") return;
   if (safeGet(MIGRATION_KEY, false)) return;

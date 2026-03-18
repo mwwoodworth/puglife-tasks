@@ -19,10 +19,11 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Lollie Life | Danielle's Sparkly Life Companion",
-  description: "A gorgeous purple, pug-powered life companion for Danielle — tasks, weight tracking, daily dashboard, and motivation from Lollie the pug!",
+  description: "A gorgeous purple, pug-powered life companion for Danielle — tasks, water tracking, daily dashboard, and motivation from Lollie the pug!",
+  manifest: "/manifest.json",
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐶</text></svg>",
-    apple: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐶</text></svg>",
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
   },
   appleWebApp: {
     capable: true,

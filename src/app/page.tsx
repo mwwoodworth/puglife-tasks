@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Task, AppTab, PugMood, SoundEffect, MoodLevel, AlcoholDrinkType } from "@/lib/types";
-import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats, migrateV4ToV5 } from "@/lib/storage";
+import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats, migrateV4ToV5, getStorageUsage } from "@/lib/storage";
 import { PUG_ENCOURAGEMENTS, getRandomMessage } from "@/lib/pug-wisdom";
-import { TREAT_VALUES } from "@/lib/rewards-engine";
+import { TREAT_VALUES, checkNewAchievements, ACHIEVEMENTS } from "@/lib/rewards-engine";
 import { buildSystemPrompt, getTimeOfDay } from "@/lib/chat-context";
 import { useSound } from "@/hooks/useSound";
 import { useDailyReset } from "@/hooks/useDailyReset";
@@ -86,6 +86,44 @@ export default function Home() {
     prevWaterGoalRef.current = water.goalReached;
   }, [water.goalReached, water.isLoaded]);
 
+  // ── Achievement auto-detection ──
+  useEffect(() => {
+    if (!rewards.state || !isLoaded) return;
+    const stats = loadStats();
+    const newAchievements = checkNewAchievements(rewards.state, {
+      streakDays: streak.current,
+      waterGoalDays: stats.waterGoalDays,
+      moodLogDays: stats.moodLogDays,
+      fullDaysCompleted: stats.fullDaysCompleted,
+      resetSectionsCompleted: stats.resetSectionsCompleted,
+      badDaysSurvived: stats.badDaysSurvived,
+      earlyMorningResets: stats.earlyMorningResets,
+      lateEveningResets: stats.lateEveningResets,
+    });
+    for (const id of newAchievements) {
+      rewards.unlockAchievement(id);
+      play("achievement");
+      confetti.achievementUnlock();
+      const achievement = ACHIEVEMENTS.find(a => a.id === id);
+      if (achievement) {
+        toast.show(`${achievement.emoji} ${achievement.name}!`, "success");
+      }
+    }
+  }, [rewards.state?.totalTreatsEarned, rewards.state?.level, streak.current, isLoaded]);
+
+  // ── Storage quota check on startup ──
+  useEffect(() => {
+    if (!isLoaded) return;
+    const usage = getStorageUsage();
+    if (usage.percentFull > 80) {
+      toast.show("Storage getting full! Back up your data in Settings.", "info");
+    }
+    // Register service worker for PWA
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, [isLoaded]);
+
   // ── Tab change ──
   const handleTabChange = useCallback((tab: AppTab) => {
     setActiveTab(tab);
@@ -145,6 +183,15 @@ export default function Home() {
             play("celebration");
             const stats = loadStats();
             stats.resetSectionsCompleted += 1;
+            // Track early-bird (morning section before 8am)
+            const hour = new Date().getHours();
+            if (section.id === "morning" && hour < 8) {
+              stats.earlyMorningResets += 1;
+            }
+            // Track night-owl (evening section after 9pm)
+            if (section.id === "evening" && hour >= 21) {
+              stats.lateEveningResets += 1;
+            }
             saveStats(stats);
             break;
           }

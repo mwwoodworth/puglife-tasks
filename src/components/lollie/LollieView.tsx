@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { PugMood, DressUpSlot, SoundEffect, LollieSubTab, ChatMessage, StreakData, SavedLook } from "@/lib/types";
+import { exportAllData, importAllData, getStorageUsage, ExportData } from "@/lib/storage";
 import ChatView from "../chat/ChatView";
 import WardrobeView from "../dressup/WardrobeView";
 import StreakDisplay from "../motivation/StreakDisplay";
@@ -59,6 +60,44 @@ const SUB_TABS: { id: LollieSubTab; label: string; icon: string }[] = [
 export default function LollieView({ chat, wardrobe, settings, pugMood, playSound }: LollieViewProps) {
   const [subTab, setSubTab] = useState<LollieSubTab>("chat");
   const [showSettings, setShowSettings] = useState(false);
+  const [importStatus, setImportStatus] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = useCallback(() => {
+    const data = exportAllData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lollie-life-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setImportStatus("Backup downloaded!");
+    setTimeout(() => setImportStatus(null), 3000);
+  }, []);
+
+  const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string) as ExportData;
+        const result = importAllData(data);
+        if (result.success) {
+          setImportStatus("Data restored! Refreshing...");
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          setImportStatus(result.error || "Import failed");
+        }
+      } catch {
+        setImportStatus("Invalid backup file");
+      }
+      setTimeout(() => setImportStatus(null), 4000);
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
 
   return (
     <div className="space-y-3 animate-slide-up">
@@ -157,13 +196,64 @@ export default function LollieView({ chat, wardrobe, settings, pugMood, playSoun
           <DailyAffirmation />
           <EncouragementWall favorites={settings.favorites} onToggleFavorite={settings.onToggleFavorite} />
 
+          {/* Data Management */}
+          <div className="rounded-2xl bg-purple-900/30 border border-purple-500/20 p-4">
+            <h3 className="text-sm font-bold text-purple-200 mb-3 flex items-center gap-2">
+              <span>💾</span> Your Data
+            </h3>
+            {/* Storage usage */}
+            {(() => {
+              const usage = typeof window !== "undefined" ? getStorageUsage() : { usedBytes: 0, percentFull: 0 };
+              return (
+                <div className="mb-3">
+                  <div className="flex items-center justify-between text-[10px] text-purple-400 mb-1">
+                    <span>Storage used</span>
+                    <span>{usage.percentFull}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-purple-900/50 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        usage.percentFull > 90 ? "bg-red-400" : usage.percentFull > 70 ? "bg-yellow-400" : "bg-purple-400"
+                      }`}
+                      style={{ width: `${Math.min(100, usage.percentFull)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+            <div className="flex gap-2">
+              <button
+                onClick={handleExport}
+                className="flex-1 px-3 py-2 rounded-xl bg-purple-700/40 border border-purple-500/20 text-xs font-bold text-purple-200 active:scale-95 transition-transform"
+              >
+                Export Backup
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 px-3 py-2 rounded-xl bg-purple-700/40 border border-purple-500/20 text-xs font-bold text-purple-200 active:scale-95 transition-transform"
+              >
+                Import Backup
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </div>
+            {importStatus && (
+              <p className="text-[10px] text-purple-300 mt-2 text-center">{importStatus}</p>
+            )}
+          </div>
+
           {/* About */}
           <div className="rounded-2xl bg-purple-900/20 border border-purple-500/10 p-4">
             <p className="text-xs text-purple-300 leading-relaxed">
               Made with all the love for Danielle — from Lollie (and Matt) with snuggles. 💜
             </p>
             <p className="text-[10px] text-purple-500 mt-2">
-              v5.1 &middot; Lollie Life
+              v6.0 &middot; Lollie Life
             </p>
           </div>
         </motion.div>

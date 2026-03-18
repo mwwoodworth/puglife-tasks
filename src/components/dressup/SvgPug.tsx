@@ -21,6 +21,23 @@ interface SvgPugProps {
   showParticles?: boolean;
 }
 
+// ── Flat color palette (clean cartoon style) ──
+const C = {
+  body: "#F5E6D0",        // Cream/ivory fur
+  bodyDark: "#E8D1B0",    // Slightly darker fur for shading
+  mask: "#3A3A3A",        // Dark charcoal muzzle
+  outline: "#1A1A1A",     // Bold black outlines
+  nose: "#1A1A1A",        // Black nose
+  eyeWhite: "#FFFFFF",    // Pure white eyes
+  iris: "#2A1A10",        // Dark brown iris
+  tongue: "#F08B9C",      // Pink tongue
+  cheek: "#FFB0B0",       // Blush pink
+  wrinkle: "#D4B896",     // Tan wrinkle lines
+  earInner: "#6B4455",    // Dark pink inner ear
+  pawPad: "#8B7355",      // Brown paw pads
+  jawLine: "#D4B896",     // Neck fold color
+} as const;
+
 export default function SvgPug({
   mood,
   equipped,
@@ -33,7 +50,7 @@ export default function SvgPug({
   const [blinking, setBlinking] = useState(false);
   const [tapReaction, setTapReaction] = useState<string | null>(null);
 
-  // Auto-blink: 100ms close, 50ms open — snappy and natural
+  // Auto-blink
   useEffect(() => {
     if (mood === "sleeping") return;
     const blink = () => {
@@ -52,12 +69,10 @@ export default function SvgPug({
     setTimeout(() => setTapReaction(null), 600);
   }, [interactive, onClick]);
 
-  // Scale animation values by pug size for perceptible motion
-  const s = size / 120; // scale factor relative to default
-
+  const s = size / 120;
   const easeIO = "easeInOut" as const;
 
-  // Disney principle: head leads, body follows (staggered timing)
+  // ── Body animations (Disney: head leads, body follows) ──
   const bodyAnimation: Record<PugMood, TargetAndTransition> = {
     sleeping: {
       scaleY: [1, 1.03, 1],
@@ -107,7 +122,7 @@ export default function SvgPug({
     },
   };
 
-  // Ears flop with delay after head movement (overlapping action)
+  // ── Ear animations (overlapping action — delayed after head) ──
   const earAnimation: Record<PugMood, TargetAndTransition> = {
     sleeping: { rotate: -8, transition: { duration: 1 } },
     idle: { rotate: [0, -2, 2, 0], transition: { duration: 4, repeat: Infinity, ease: easeIO } },
@@ -120,6 +135,7 @@ export default function SvgPug({
     "working-out": { rotate: [0, 6, -6, 0], transition: { duration: 0.4, repeat: Infinity } },
   };
 
+  // ── Tail animations ──
   const tailAnimation: Record<PugMood, TargetAndTransition> = {
     sleeping: { rotate: 0 },
     idle: { rotate: [0, 8, -8, 0], transition: { duration: 2.5, repeat: Infinity, ease: easeIO } },
@@ -155,7 +171,7 @@ export default function SvgPug({
       animate={tapAnim}
       transition={tapReaction ? { duration: 0.5, ease: easeIO } : undefined}
     >
-      {/* Purple glow background */}
+      {/* Soft glow background */}
       <div
         className="absolute inset-0 rounded-full animate-glow-pulse opacity-40"
         style={{
@@ -171,68 +187,18 @@ export default function SvgPug({
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Fawn pug body gradient — warm apricot */}
-          <radialGradient id="pug-body-grad" cx="50%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#F0C896" />
-            <stop offset="50%" stopColor="#E5AA70" />
-            <stop offset="100%" stopColor="#D4956A" />
-          </radialGradient>
-          {/* Head gradient — slightly lighter at top */}
-          <radialGradient id="pug-head-grad" cx="50%" cy="40%" r="55%">
-            <stop offset="0%" stopColor="#F0C896" />
-            <stop offset="60%" stopColor="#E5AA70" />
-            <stop offset="100%" stopColor="#D4956A" />
-          </radialGradient>
-          {/* Black mask gradient — smooth transition */}
-          <radialGradient id="pug-mask-grad" cx="50%" cy="55%" r="50%">
-            <stop offset="0%" stopColor="#1A1A1A" />
-            <stop offset="70%" stopColor="#2A2A2A" />
-            <stop offset="100%" stopColor="#3D3020" stopOpacity="0" />
-          </radialGradient>
-          {/* Nose — wet shine effect */}
-          <radialGradient id="nose-shine" cx="35%" cy="25%" r="45%">
-            <stop offset="0%" stopColor="#444" />
-            <stop offset="50%" stopColor="#1a1a1a" />
-            <stop offset="100%" stopColor="#0D0D0D" />
-          </radialGradient>
-          {/* Belly highlight */}
-          <radialGradient id="belly-light" cx="50%" cy="45%" r="50%">
-            <stop offset="0%" stopColor="#F5DEB3" />
-            <stop offset="100%" stopColor="#E5AA70" stopOpacity="0" />
-          </radialGradient>
           {/* Shadow under pug */}
           <radialGradient id="shadow-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(0,0,0,0.18)" />
+            <stop offset="0%" stopColor="rgba(0,0,0,0.15)" />
             <stop offset="100%" stopColor="rgba(0,0,0,0)" />
           </radialGradient>
-          {/* Eye sheen */}
-          <radialGradient id="eye-sheen" cx="40%" cy="35%" r="50%">
-            <stop offset="0%" stopColor="#5C4030" />
-            <stop offset="100%" stopColor="#2A1A10" />
-          </radialGradient>
-          {/* Coat sheen highlight band */}
-          <linearGradient id="coat-sheen" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="40%" stopColor="white" stopOpacity="0.08" />
-            <stop offset="60%" stopColor="white" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-          {/* Epic glow filter for special items */}
+          {/* Epic glow filter for special dress-up items */}
           <filter id="epic-glow">
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
-          </filter>
-          {/* Soft inner shadow for depth */}
-          <filter id="inner-shadow">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
-            <feOffset dx="0" dy="2" />
-            <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" />
-            <feFlood floodColor="#8B6914" floodOpacity="0.15" />
-            <feComposite in2="SourceGraphic" operator="in" />
-            <feComposite in="SourceGraphic" />
           </filter>
         </defs>
 
@@ -246,240 +212,205 @@ export default function SvgPug({
           animate={bodyAnimation[mood]}
         />
 
-        {/* === Layer 3: Curly tail (behind body, at hip) === */}
+        {/* === Layer 3: Curly tail === */}
         <motion.g
           style={{ originX: "195px", originY: "248px" }}
           animate={tailAnimation[mood]}
         >
-          {/* Tail base */}
           <path
             d="M195,248 Q220,225 228,238 Q235,252 225,258 Q218,245 215,252 Q212,260 208,255"
-            fill="url(#pug-body-grad)"
-            stroke="#C4956A"
-            strokeWidth="1.5"
+            fill={C.body}
+            stroke={C.outline}
+            strokeWidth="2"
+            strokeLinejoin="round"
           />
-          {/* Tight curl */}
-          <circle cx="226" cy="242" r="10" fill="url(#pug-body-grad)" stroke="#C4956A" strokeWidth="1" />
-          <circle cx="226" cy="242" r="5" fill="#D4956A" opacity="0.3" />
+          <circle cx="226" cy="242" r="9" fill={C.body} stroke={C.outline} strokeWidth="2" />
         </motion.g>
 
         {/* === Layer 4: Outfit behind body (wings, cape) === */}
         {equipped.accessory && <AccessoryLayer id={equipped.accessory} position="behind" />}
         {equipped.outfit && <OutfitLayer id={equipped.outfit} position="behind" />}
 
-        {/* === Layer 5: BODY — round, cuddly, chubby === */}
+        {/* === Layer 5: BODY === */}
         <motion.g animate={bodyAnimation[mood]}>
-          {/* Main body — round bean shape */}
-          <ellipse cx="150" cy="262" rx="68" ry="62" fill="url(#pug-body-grad)" />
-          {/* Body outline for definition */}
-          <ellipse cx="150" cy="262" rx="68" ry="62" fill="none" stroke="#C4956A" strokeWidth="1.2" />
-          {/* Belly — lighter center area */}
-          <ellipse cx="150" cy="272" rx="44" ry="40" fill="url(#belly-light)" opacity="0.6" />
-          {/* Coat sheen band across shoulders */}
-          <ellipse cx="150" cy="240" rx="55" ry="20" fill="url(#coat-sheen)" />
-          {/* Chest — broader front area */}
-          <ellipse cx="150" cy="238" rx="50" ry="22" fill="#E5AA70" opacity="0.3" />
+          {/* Main body */}
+          <ellipse cx="150" cy="262" rx="68" ry="62" fill={C.body} stroke={C.outline} strokeWidth="2.5" />
+          {/* Belly — lighter center */}
+          <ellipse cx="150" cy="272" rx="40" ry="36" fill={C.bodyDark} opacity="0.25" />
 
-          {/* Short sturdy front legs */}
-          <ellipse cx="112" cy="310" rx="20" ry="14" fill="url(#pug-body-grad)" stroke="#C4956A" strokeWidth="1" />
-          <ellipse cx="188" cy="310" rx="20" ry="14" fill="url(#pug-body-grad)" stroke="#C4956A" strokeWidth="1" />
-          {/* Paw pads — dark ovals */}
-          <ellipse cx="107" cy="314" rx="5" ry="3" fill="#665544" opacity="0.5" />
-          <ellipse cx="112" cy="316" rx="4" ry="2.5" fill="#665544" opacity="0.4" />
-          <ellipse cx="117" cy="314" rx="5" ry="3" fill="#665544" opacity="0.5" />
-          <ellipse cx="183" cy="314" rx="5" ry="3" fill="#665544" opacity="0.5" />
-          <ellipse cx="188" cy="316" rx="4" ry="2.5" fill="#665544" opacity="0.4" />
-          <ellipse cx="193" cy="314" rx="5" ry="3" fill="#665544" opacity="0.5" />
+          {/* Front legs */}
+          <ellipse cx="112" cy="310" rx="20" ry="14" fill={C.body} stroke={C.outline} strokeWidth="2" />
+          <ellipse cx="188" cy="310" rx="20" ry="14" fill={C.body} stroke={C.outline} strokeWidth="2" />
+          {/* Paw pads — simple dots */}
+          <circle cx="105" cy="314" r="3.5" fill={C.pawPad} opacity="0.6" />
+          <circle cx="112" cy="316" r="3" fill={C.pawPad} opacity="0.5" />
+          <circle cx="119" cy="314" r="3.5" fill={C.pawPad} opacity="0.6" />
+          <circle cx="181" cy="314" r="3.5" fill={C.pawPad} opacity="0.6" />
+          <circle cx="188" cy="316" r="3" fill={C.pawPad} opacity="0.5" />
+          <circle cx="195" cy="314" r="3.5" fill={C.pawPad} opacity="0.6" />
 
           {/* === Outfit on body === */}
           {equipped.outfit && <OutfitLayer id={equipped.outfit} position="front" />}
 
-          {/* === HEAD — large, massive, round === */}
+          {/* === HEAD === */}
           <g>
-            {/* Neck — short thick connection */}
-            <ellipse cx="150" cy="210" rx="38" ry="18" fill="url(#pug-body-grad)" />
+            {/* Neck */}
+            <ellipse cx="150" cy="210" rx="38" ry="18" fill={C.body} stroke={C.outline} strokeWidth="2" />
 
-            {/* Main head circle — big round pug head */}
-            <circle cx="150" cy="150" r="88" fill="url(#pug-head-grad)" />
-            <circle cx="150" cy="150" r="88" fill="none" stroke="#C4956A" strokeWidth="1.2" />
+            {/* Main head circle */}
+            <circle cx="150" cy="150" r="88" fill={C.body} stroke={C.outline} strokeWidth="2.5" />
 
-            {/* === BLACK MASK — signature fawn pug feature === */}
-            {/* Mask covers muzzle area and around eyes */}
-            <ellipse cx="150" cy="172" rx="52" ry="42" fill="#2A2A2A" opacity="0.85" />
-            {/* Mask extends between eyes/up forehead */}
-            <path d="M120,140 Q150,125 180,140 L175,160 Q150,155 125,160 Z" fill="#2A2A2A" opacity="0.5" />
-            {/* Mask gradient edges — smooth blend into fawn */}
-            <ellipse cx="150" cy="172" rx="58" ry="48" fill="url(#pug-mask-grad)" opacity="0.3" />
+            {/* === BLACK MASK === */}
+            <ellipse cx="150" cy="172" rx="52" ry="42" fill={C.mask} stroke={C.outline} strokeWidth="2" />
+            {/* Mask bridge between eyes */}
+            <path d="M122,142 Q150,128 178,142 L174,158 Q150,153 126,158 Z" fill={C.mask} />
 
-            {/* === WRINKLES — deep, visible, signature pug trait === */}
-            {/* Forehead diamond/thumbmark pattern */}
-            <path d="M150,108 L140,120 L150,132 L160,120 Z" fill="none" stroke="#C4865A" strokeWidth="1.5" opacity="0.55" />
-            {/* Horizontal wrinkles */}
-            <path d="M112,118 Q150,112 188,118" fill="none" stroke="#C4865A" strokeWidth="1.3" opacity="0.5" />
-            <path d="M118,128 Q150,122 182,128" fill="none" stroke="#C4865A" strokeWidth="1.2" opacity="0.45" />
-            <path d="M122,137 Q150,133 178,137" fill="none" stroke="#C4865A" strokeWidth="1" opacity="0.35" />
-            {/* Wrinkle highlights (3D crease effect) */}
-            <path d="M113,120 Q150,114 187,120" fill="none" stroke="#F0C896" strokeWidth="0.8" opacity="0.3" />
-            <path d="M119,130 Q150,124 181,130" fill="none" stroke="#F0C896" strokeWidth="0.7" opacity="0.25" />
+            {/* === WRINKLES — clean curved lines === */}
+            <path d="M115,116 Q150,110 185,116" fill="none" stroke={C.wrinkle} strokeWidth="2" strokeLinecap="round" />
+            <path d="M120,126 Q150,120 180,126" fill="none" stroke={C.wrinkle} strokeWidth="1.8" strokeLinecap="round" />
+            <path d="M125,135 Q150,130 175,135" fill="none" stroke={C.wrinkle} strokeWidth="1.5" strokeLinecap="round" />
 
-            {/* Under-eye cushioning (puffy cheek pads) */}
-            <ellipse cx="122" cy="162" rx="18" ry="10" fill="#E5AA70" opacity="0.4" />
-            <ellipse cx="178" cy="162" rx="18" ry="10" fill="#E5AA70" opacity="0.4" />
-
-            {/* === EARS — black velvet, button style, floppy === */}
+            {/* === EARS — dark floppy === */}
             <motion.g animate={earAnimation[mood]}>
-              {/* Left ear — rounded floppy, drops to eye level */}
+              {/* Left ear */}
               <motion.g style={{ originX: "85px", originY: "120px" }}>
                 <path
                   d="M80,105 Q65,85 70,110 Q72,130 85,140 Q95,135 98,120 Q100,105 90,98 Z"
-                  fill="#1A1A1A"
-                  stroke="#111"
-                  strokeWidth="0.8"
+                  fill={C.outline}
+                  stroke={C.outline}
+                  strokeWidth="2"
+                  strokeLinejoin="round"
                 />
-                {/* Inner ear — subtle pink when perked */}
-                <path
-                  d="M82,108 Q72,95 76,115 Q78,128 86,134"
-                  fill="#553344"
-                  opacity="0.15"
-                />
+                <ellipse cx="82" cy="118" rx="6" ry="10" fill={C.earInner} opacity="0.2" />
               </motion.g>
-              {/* Right ear — mirror */}
+              {/* Right ear */}
               <motion.g style={{ originX: "215px", originY: "120px" }}>
                 <path
                   d="M220,105 Q235,85 230,110 Q228,130 215,140 Q205,135 202,120 Q200,105 210,98 Z"
-                  fill="#1A1A1A"
-                  stroke="#111"
-                  strokeWidth="0.8"
+                  fill={C.outline}
+                  stroke={C.outline}
+                  strokeWidth="2"
+                  strokeLinejoin="round"
                 />
-                <path
-                  d="M218,108 Q228,95 224,115 Q222,128 214,134"
-                  fill="#553344"
-                  opacity="0.15"
-                />
+                <ellipse cx="218" cy="118" rx="6" ry="10" fill={C.earInner} opacity="0.2" />
               </motion.g>
             </motion.g>
 
-            {/* === EYES — very large, bold, prominent, globular === */}
+            {/* === EYES === */}
             <g>
               {isHeartEyes ? (
                 <>
-                  {/* Heart eyes — SVG hearts, not emoji */}
+                  {/* Heart eyes */}
                   <motion.g
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 0.8, repeat: Infinity }}
                   >
-                    <path d="M115,148 C115,140 106,138 106,145 C106,152 115,160 115,160 C115,160 124,152 124,145 C124,138 115,140 115,148 Z" fill="#ec4899" />
-                    <circle cx="111" cy="144" r="1.5" fill="white" opacity="0.5" />
+                    <path d="M115,148 C115,140 106,138 106,145 C106,152 115,160 115,160 C115,160 124,152 124,145 C124,138 115,140 115,148 Z" fill="#ec4899" stroke={C.outline} strokeWidth="1.5" />
+                    <circle cx="111" cy="144" r="2" fill="white" opacity="0.6" />
                   </motion.g>
                   <motion.g
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 0.8, repeat: Infinity, delay: 0.1 }}
                   >
-                    <path d="M185,148 C185,140 176,138 176,145 C176,152 185,160 185,160 C185,160 194,152 194,145 C194,138 185,140 185,148 Z" fill="#ec4899" />
-                    <circle cx="181" cy="144" r="1.5" fill="white" opacity="0.5" />
+                    <path d="M185,148 C185,140 176,138 176,145 C176,152 185,160 185,160 C185,160 194,152 194,145 C194,138 185,140 185,148 Z" fill="#ec4899" stroke={C.outline} strokeWidth="1.5" />
+                    <circle cx="181" cy="144" r="2" fill="white" opacity="0.6" />
                   </motion.g>
                 </>
               ) : (
                 <>
-                  {/* Left eye — white, large, expressive */}
+                  {/* Left eye — big, round, clean */}
                   <g>
-                    <circle cx="125" cy="150" r="17" fill="#F5F0E8" stroke="#3D2B1F" strokeWidth="1.5" />
+                    <circle cx="125" cy="150" r="18" fill={C.eyeWhite} stroke={C.outline} strokeWidth="2.5" />
                     {isClosed ? (
-                      <path d="M112,150 Q125,156 138,150" fill="none" stroke="#2A1A10" strokeWidth="2.5" strokeLinecap="round" />
+                      <path d="M111,150 Q125,158 139,150" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
                     ) : (
                       <>
-                        {/* Iris */}
-                        <circle cx="127" cy="149" r="10" fill="url(#eye-sheen)" />
-                        {/* Pupil */}
-                        <circle cx="128" cy="148" r="5.5" fill="#0D0805" />
-                        {/* Catchlight — large top-left (Pixar trick) */}
-                        <circle cx="122" cy="144" r="4" fill="white" opacity="0.85" />
-                        {/* Catchlight — small bottom-right */}
-                        <circle cx="131" cy="153" r="1.8" fill="white" opacity="0.55" />
+                        <circle cx="127" cy="149" r="11" fill={C.iris} />
+                        <circle cx="128" cy="148" r="6" fill="#0D0805" />
+                        {/* Single highlight dot */}
+                        <circle cx="121" cy="144" r="4.5" fill="white" />
                       </>
                     )}
                   </g>
 
                   {/* Right eye */}
                   <g>
-                    <circle cx="175" cy="150" r="17" fill="#F5F0E8" stroke="#3D2B1F" strokeWidth="1.5" />
+                    <circle cx="175" cy="150" r="18" fill={C.eyeWhite} stroke={C.outline} strokeWidth="2.5" />
                     {isClosed ? (
-                      <path d="M162,150 Q175,156 188,150" fill="none" stroke="#2A1A10" strokeWidth="2.5" strokeLinecap="round" />
+                      <path d="M161,150 Q175,158 189,150" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
                     ) : (
                       <>
-                        <circle cx="173" cy="149" r="10" fill="url(#eye-sheen)" />
-                        <circle cx="172" cy="148" r="5.5" fill="#0D0805" />
-                        <circle cx="169" cy="144" r="4" fill="white" opacity="0.85" />
-                        <circle cx="177" cy="153" r="1.8" fill="white" opacity="0.55" />
+                        <circle cx="173" cy="149" r="11" fill={C.iris} />
+                        <circle cx="172" cy="148" r="6" fill="#0D0805" />
+                        <circle cx="168" cy="144" r="4.5" fill="white" />
                       </>
                     )}
                   </g>
 
-                  {/* Sad droopy eyebrows */}
+                  {/* Sad eyebrows */}
                   {isSad && (
                     <>
-                      <path d="M108,134 Q125,128 142,136" fill="none" stroke="#3D2B1F" strokeWidth="2.5" strokeLinecap="round" />
-                      <path d="M158,136 Q175,128 192,134" fill="none" stroke="#3D2B1F" strokeWidth="2.5" strokeLinecap="round" />
+                      <path d="M108,134 Q125,128 142,136" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
+                      <path d="M158,136 Q175,128 192,134" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
                     </>
                   )}
                 </>
               )}
             </g>
 
-            {/* === MUZZLE — broad, blunt, prominent === */}
-            <ellipse cx="150" cy="178" rx="30" ry="22" fill="#2A2A2A" opacity="0.75" />
-
-            {/* === NOSE — black, broad, flat, wet-looking === */}
-            <ellipse cx="150" cy="174" rx="18" ry="13" fill="url(#nose-shine)" />
-            {/* Nose bridge highlight — wet nose effect */}
-            <ellipse cx="144" cy="170" rx="5" ry="3.5" fill="white" opacity="0.15" />
+            {/* === NOSE — flat, bold, clean === */}
+            <ellipse cx="150" cy="178" rx="30" ry="22" fill={C.mask} stroke={C.outline} strokeWidth="2" />
+            <ellipse cx="150" cy="174" rx="18" ry="12" fill={C.nose} stroke={C.outline} strokeWidth="1.5" />
+            {/* Nose shine — single spot */}
+            <ellipse cx="144" cy="170" rx="4" ry="3" fill="white" opacity="0.25" />
             {/* Nostrils */}
             <ellipse cx="142" cy="176" rx="4.5" ry="3" fill="#0A0A0A" />
             <ellipse cx="158" cy="176" rx="4.5" ry="3" fill="#0A0A0A" />
-            {/* Nose top line — bisects center of eyes */}
-            <path d="M146,168 Q150,166 154,168" fill="none" stroke="#333" strokeWidth="0.8" opacity="0.5" />
 
             {/* === MOUTH === */}
             <g>
               {isTalkingMouth ? (
                 <motion.g>
-                  {/* Open mouth */}
                   <motion.ellipse
-                    cx="150" cy="195" rx="14" ry="9"
+                    cx="150" cy="196" rx="14" ry="9"
                     fill="#2A1A1A"
+                    stroke={C.outline}
+                    strokeWidth="1.5"
                     animate={{ ry: [7, 12, 7], rx: [12, 16, 12] }}
                     transition={{ duration: 0.3, repeat: Infinity }}
                   />
-                  {/* Tongue */}
                   <motion.ellipse
-                    cx="152" cy="199" rx="8" ry="5"
-                    fill="#E88B9C"
+                    cx="152" cy="200" rx="8" ry="5"
+                    fill={C.tongue}
+                    stroke={C.outline}
+                    strokeWidth="1"
                     animate={{ ry: [4, 6, 4] }}
                     transition={{ duration: 0.3, repeat: Infinity }}
                   />
                 </motion.g>
               ) : isSad ? (
-                <path d="M137,196 Q150,189 163,196" fill="none" stroke="#3D2B1F" strokeWidth="2" strokeLinecap="round" />
+                <path d="M135,197 Q150,189 165,197" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
               ) : (
                 <>
                   {/* Nose-to-lip line */}
-                  <path d="M150,185 L150,192" stroke="#3D2B1F" strokeWidth="1.5" />
-                  {/* Smile curves */}
-                  <path d="M136,192 Q150,203 164,192" fill="none" stroke="#3D2B1F" strokeWidth="1.8" strokeLinecap="round" />
-                  {/* Tongue peek when happy/excited */}
+                  <path d="M150,185 L150,192" stroke={C.outline} strokeWidth="2" />
+                  {/* BIG adorable smile */}
+                  <path d="M130,192 Q150,210 170,192" fill="none" stroke={C.outline} strokeWidth="2.5" strokeLinecap="round" />
+                  {/* Tongue peek — bigger and cuter */}
                   {(mood === "happy" || mood === "excited" || mood === "celebrating") && (
-                    <ellipse cx="153" cy="200" rx="7" ry="5" fill="#E88B9C" />
+                    <ellipse cx="153" cy="202" rx="9" ry="7" fill={C.tongue} stroke={C.outline} strokeWidth="1.5" />
                   )}
                 </>
               )}
             </g>
 
-            {/* === CHEEKS — round, puffy, substantial === */}
-            <circle cx="104" cy="170" r="14" fill="#F5A0A0" opacity={mood === "love" || mood === "happy" ? "0.35" : "0.18"} />
-            <circle cx="196" cy="170" r="14" fill="#F5A0A0" opacity={mood === "love" || mood === "happy" ? "0.35" : "0.18"} />
+            {/* === CHEEKS — cute blush circles === */}
+            <circle cx="104" cy="170" r="13" fill={C.cheek} opacity={mood === "love" || mood === "happy" ? "0.4" : "0.2"} />
+            <circle cx="196" cy="170" r="13" fill={C.cheek} opacity={mood === "love" || mood === "happy" ? "0.4" : "0.2"} />
 
-            {/* Jaw shadow under chin */}
-            <ellipse cx="150" cy="208" rx="35" ry="8" fill="#C4956A" opacity="0.25" />
+            {/* === NECK FOLDS — signature pug feature === */}
+            <path d="M116,208 Q150,216 184,208" fill="none" stroke={C.jawLine} strokeWidth="2" strokeLinecap="round" />
+            <path d="M120,215 Q150,222 180,215" fill="none" stroke={C.jawLine} strokeWidth="1.5" strokeLinecap="round" />
 
             {/* === Glasses layer === */}
             {equipped.glasses && <GlassesLayer id={equipped.glasses} />}
