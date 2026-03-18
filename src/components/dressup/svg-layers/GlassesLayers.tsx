@@ -8,86 +8,130 @@ export function GlassesLayer({ id }: { id: string }) {
   switch (id) {
     case "glasses-sun":
       return (
-        <motion.g {...equipAnim}>
+        <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.3))">
+          <defs>
+            <linearGradient id="lens-dark" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#334155" />
+              <stop offset="100%" stopColor="#0F172A" />
+            </linearGradient>
+            <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+              <stop offset="30%" stopColor="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
           {/* Bridge */}
-          <path d="M135,150 Q150,145 165,150" fill="none" stroke="#1e293b" strokeWidth="2" />
+          <path d="M135,152 Q150,146 165,152" fill="none" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
           {/* Left lens */}
-          <ellipse cx="120" cy="152" rx="18" ry="14" fill="#1e293b" opacity="0.85" stroke="#0f172a" strokeWidth="1.5" />
+          <ellipse cx="118" cy="154" rx="20" ry="16" fill="url(#lens-dark)" stroke="#020617" strokeWidth="2" />
+          <ellipse cx="118" cy="154" rx="20" ry="16" fill="url(#glare)" />
           {/* Right lens */}
-          <ellipse cx="180" cy="152" rx="18" ry="14" fill="#1e293b" opacity="0.85" stroke="#0f172a" strokeWidth="1.5" />
+          <ellipse cx="182" cy="154" rx="20" ry="16" fill="url(#lens-dark)" stroke="#020617" strokeWidth="2" />
+          <ellipse cx="182" cy="154" rx="20" ry="16" fill="url(#glare)" />
           {/* Arms */}
-          <line x1="102" y1="150" x2="88" y2="145" stroke="#1e293b" strokeWidth="2" />
-          <line x1="198" y1="150" x2="212" y2="145" stroke="#1e293b" strokeWidth="2" />
-          {/* Shine */}
-          <ellipse cx="112" cy="148" rx="5" ry="3" fill="white" opacity="0.15" />
-          <ellipse cx="172" cy="148" rx="5" ry="3" fill="white" opacity="0.15" />
+          <line x1="98" y1="152" x2="84" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          <line x1="202" y1="152" x2="216" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
         </motion.g>
       );
     case "glasses-heart":
       return (
-        <motion.g {...equipAnim}>
-          <path d="M135,150 Q150,146 165,150" fill="none" stroke="#ec4899" strokeWidth="2" />
+        <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(236,72,153,0.3))">
+          <defs>
+            <linearGradient id="lens-pink" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#F472B6" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#BE185D" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          <path d="M135,152 Q150,146 165,152" fill="none" stroke="#BE185D" strokeWidth="3" strokeLinecap="round" />
           {/* Left heart lens */}
-          <path d="M120,145 Q108,132 108,148 Q108,158 120,165 Q132,158 132,148 Q132,132 120,145" fill="#f472b6" opacity="0.75" stroke="#ec4899" strokeWidth="1.5" />
+          <path d="M118,146 Q106,133 106,149 Q106,159 118,166 Q130,159 130,149 Q130,133 118,146" fill="url(#lens-pink)" stroke="#9D174D" strokeWidth="2" />
+          <path d="M110,146 Q115,140 120,146" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
           {/* Right heart lens */}
-          <path d="M180,145 Q168,132 168,148 Q168,158 180,165 Q192,158 192,148 Q192,132 180,145" fill="#f472b6" opacity="0.75" stroke="#ec4899" strokeWidth="1.5" />
-          <line x1="108" y1="148" x2="90" y2="143" stroke="#ec4899" strokeWidth="2" />
-          <line x1="192" y1="148" x2="210" y2="143" stroke="#ec4899" strokeWidth="2" />
+          <path d="M182,146 Q170,133 170,149 Q170,159 182,166 Q194,159 194,149 Q194,133 182,146" fill="url(#lens-pink)" stroke="#9D174D" strokeWidth="2" />
+          <path d="M174,146 Q179,140 184,146" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+          {/* Arms */}
+          <line x1="106" y1="149" x2="88" y2="146" stroke="#9D174D" strokeWidth="3" strokeLinecap="round" />
+          <line x1="194" y1="149" x2="212" y2="146" stroke="#9D174D" strokeWidth="3" strokeLinecap="round" />
         </motion.g>
       );
     case "glasses-star":
       return (
-        <motion.g {...equipAnim}>
-          <path d="M135,150 Q150,146 165,150" fill="none" stroke="#eab308" strokeWidth="2" />
-          {/* Left star — simplified 5-point */}
-          <polygon points="120,138 124,148 135,148 126,154 130,165 120,158 110,165 114,154 105,148 116,148" fill="#fbbf24" opacity="0.8" stroke="#eab308" strokeWidth="1" />
+        <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(234,179,8,0.3))">
+          <defs>
+            <linearGradient id="lens-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FDE047" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#CA8A04" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          <path d="M135,152 Q150,146 165,152" fill="none" stroke="#A16207" strokeWidth="3" strokeLinecap="round" />
+          {/* Left star */}
+          <polygon points="118,138 122,148 133,148 124,154 128,165 118,158 108,165 112,154 103,148 114,148" fill="url(#lens-gold)" stroke="#A16207" strokeWidth="2" strokeLinejoin="round" />
           {/* Right star */}
-          <polygon points="180,138 184,148 195,148 186,154 190,165 180,158 170,165 174,154 165,148 176,148" fill="#fbbf24" opacity="0.8" stroke="#eab308" strokeWidth="1" />
-          <line x1="105" y1="148" x2="90" y2="143" stroke="#eab308" strokeWidth="2" />
-          <line x1="195" y1="148" x2="210" y2="143" stroke="#eab308" strokeWidth="2" />
+          <polygon points="182,138 186,148 197,148 188,154 192,165 182,158 172,165 176,154 167,148 178,148" fill="url(#lens-gold)" stroke="#A16207" strokeWidth="2" strokeLinejoin="round" />
+          {/* Arms */}
+          <line x1="103" y1="148" x2="88" y2="146" stroke="#A16207" strokeWidth="3" strokeLinecap="round" />
+          <line x1="197" y1="148" x2="212" y2="146" stroke="#A16207" strokeWidth="3" strokeLinecap="round" />
         </motion.g>
       );
     case "glasses-reading":
       return (
-        <motion.g {...equipAnim}>
-          <path d="M135,152 Q150,148 165,152" fill="none" stroke="#78716c" strokeWidth="1.5" />
-          <rect x="105" y="143" width="30" height="20" rx="3" fill="none" stroke="#78716c" strokeWidth="1.5" />
-          <rect x="165" y="143" width="30" height="20" rx="3" fill="none" stroke="#78716c" strokeWidth="1.5" />
-          <line x1="105" y1="150" x2="90" y2="147" stroke="#78716c" strokeWidth="1.5" />
-          <line x1="195" y1="150" x2="210" y2="147" stroke="#78716c" strokeWidth="1.5" />
+        <motion.g {...equipAnim} filter="drop-shadow(0px 2px 1px rgba(0,0,0,0.15))">
+          <path d="M135,152 Q150,148 165,152" fill="none" stroke="#44403C" strokeWidth="2.5" />
+          <rect x="103" y="143" width="32" height="22" rx="4" fill="rgba(255,255,255,0.1)" stroke="#44403C" strokeWidth="2.5" />
+          <rect x="165" y="143" width="32" height="22" rx="4" fill="rgba(255,255,255,0.1)" stroke="#44403C" strokeWidth="2.5" />
+          <line x1="103" y1="152" x2="86" y2="148" stroke="#44403C" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="197" y1="152" x2="214" y2="148" stroke="#44403C" strokeWidth="2.5" strokeLinecap="round" />
           {/* Lens glare */}
-          <line x1="110" y1="148" x2="115" y2="145" stroke="white" strokeWidth="0.5" opacity="0.3" />
-          <line x1="170" y1="148" x2="175" y2="145" stroke="white" strokeWidth="0.5" opacity="0.3" />
+          <path d="M108,146 L120,160 M113,146 L125,160" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+          <path d="M170,146 L182,160 M175,146 L187,160" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
         </motion.g>
       );
     case "glasses-aviator":
       return (
-        <motion.g {...equipAnim}>
-          <path d="M135,150 Q150,146 165,150" fill="none" stroke="#d4af37" strokeWidth="2" />
-          {/* Teardrop shape lenses */}
-          <path d="M105,145 Q120,135 135,145 Q135,162 120,168 Q105,162 105,145" fill="#4a3728" opacity="0.7" stroke="#d4af37" strokeWidth="1.5" />
-          <path d="M165,145 Q180,135 195,145 Q195,162 180,168 Q165,162 165,145" fill="#4a3728" opacity="0.7" stroke="#d4af37" strokeWidth="1.5" />
-          <line x1="105" y1="148" x2="88" y2="142" stroke="#d4af37" strokeWidth="1.5" />
-          <line x1="195" y1="148" x2="212" y2="142" stroke="#d4af37" strokeWidth="1.5" />
+        <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.25))">
+          <defs>
+            <linearGradient id="lens-aviator" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#78350F" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#451A03" stopOpacity="0.8" />
+            </linearGradient>
+            <linearGradient id="frame-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FDE047" />
+              <stop offset="100%" stopColor="#CA8A04" />
+            </linearGradient>
+          </defs>
+          {/* Top bar & Bridge */}
+          <path d="M110,145 Q150,142 190,145" fill="none" stroke="url(#frame-gold)" strokeWidth="2" />
+          <path d="M135,152 Q150,148 165,152" fill="none" stroke="url(#frame-gold)" strokeWidth="2" />
+          
+          {/* Teardrop lenses */}
+          <path d="M102,145 Q118,135 135,145 Q135,164 118,170 Q102,164 102,145" fill="url(#lens-aviator)" stroke="url(#frame-gold)" strokeWidth="2" />
+          <path d="M165,145 Q182,135 198,145 Q198,164 182,170 Q165,164 165,145" fill="url(#lens-aviator)" stroke="url(#frame-gold)" strokeWidth="2" />
+          
+          {/* Arms */}
+          <line x1="102" y1="148" x2="84" y2="144" stroke="url(#frame-gold)" strokeWidth="2" strokeLinecap="round" />
+          <line x1="198" y1="148" x2="216" y2="144" stroke="url(#frame-gold)" strokeWidth="2" strokeLinecap="round" />
+          
           {/* Gradient shine */}
-          <ellipse cx="115" cy="148" rx="6" ry="4" fill="white" opacity="0.1" />
-          <ellipse cx="175" cy="148" rx="6" ry="4" fill="white" opacity="0.1" />
+          <path d="M108,145 Q118,142 125,148" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
+          <path d="M171,145 Q181,142 188,148" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
         </motion.g>
       );
     case "glasses-nerd":
       return (
-        <motion.g {...equipAnim}>
-          <path d="M135,152 Q150,148 165,152" fill="none" stroke="#1e293b" strokeWidth="2.5" />
+        <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.2))">
+          <path d="M135,154 Q150,148 165,154" fill="none" stroke="#0F172A" strokeWidth="3" />
           {/* Thick round frames */}
-          <circle cx="120" cy="152" r="17" fill="none" stroke="#1e293b" strokeWidth="3" />
-          <circle cx="180" cy="152" r="17" fill="none" stroke="#1e293b" strokeWidth="3" />
-          <line x1="103" y1="150" x2="88" y2="145" stroke="#1e293b" strokeWidth="2.5" />
-          <line x1="197" y1="150" x2="212" y2="145" stroke="#1e293b" strokeWidth="2.5" />
-          {/* Lens shine */}
-          <ellipse cx="113" cy="148" rx="4" ry="6" fill="white" opacity="0.08" />
-          <ellipse cx="173" cy="148" rx="4" ry="6" fill="white" opacity="0.08" />
+          <circle cx="118" cy="154" r="18" fill="rgba(255,255,255,0.05)" stroke="#0F172A" strokeWidth="4" />
+          <circle cx="182" cy="154" r="18" fill="rgba(255,255,255,0.05)" stroke="#0F172A" strokeWidth="4" />
+          
+          <line x1="100" y1="152" x2="84" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          <line x1="200" y1="152" x2="216" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          
           {/* Tape on bridge */}
-          <rect x="146" y="146" width="8" height="5" rx="1" fill="#fde68a" opacity="0.6" />
+          <rect x="144" y="148" width="12" height="6" rx="1" fill="#FDE047" opacity="0.9" stroke="#CA8A04" strokeWidth="0.5" />
+          
+          {/* Swirl glare */}
+          <path d="M108,144 A 8,8 0 0,1 122,144" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+          <path d="M172,144 A 8,8 0 0,1 186,144" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
         </motion.g>
       );
     default:
