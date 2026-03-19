@@ -147,12 +147,15 @@ export default function DashboardView({
       <div className="rounded-2xl bg-purple-900/30 border border-purple-500/20 p-4">
         {status === "unauthenticated" ? (
           <div className="text-center">
-            <h3 className="text-sm font-bold text-purple-200 mb-2">Google Integration</h3>
-            <p className="text-[10px] text-purple-400 mb-4">Connect to see your schedule and steps seamlessly.</p>
+            <h3 className="text-sm font-bold text-purple-200 mb-2">Google & Health Integration</h3>
+            <p className="text-[10px] text-purple-400 mb-3">Connect your Google account to sync your Calendar and daily steps.</p>
+            <p className="text-[9px] text-fuchsia-300/80 mb-4 bg-fuchsia-900/20 p-2 rounded-lg inline-block border border-fuchsia-500/10">
+              💡 <strong>Samsung Health Users:</strong> Enable syncing to "Health Connect" in your Samsung Health app, and connect Google Fit to Health Connect. Your steps will automatically appear here!
+            </p>
             <motion.button
               onClick={() => signIn("google")}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-xs font-bold shadow-lg shadow-purple-500/20"
+              className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-xs font-bold shadow-lg shadow-purple-500/20 w-full"
             >
               Connect Google Ecosystem
             </motion.button>
