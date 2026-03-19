@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 
 // Ensure this route can handle file uploads efficiently
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
-const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY || '';
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || '',
+});
+
+function fallbackResponse(reason: string) {
+  return NextResponse.json({ text: "", fallback: true, reason });
+}
 
 export async function POST(req: NextRequest) {
-  if (!API_KEY) {
-    return NextResponse.json({ error: 'Gemini API key missing' }, { status: 503 });
+  if (!process.env.OPENAI_API_KEY) {
+    return fallbackResponse('provider_unavailable');
   }
 
   try {
@@ -20,32 +29,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
     }
 
-    // Convert the Blob to base64
+    if (file.size === 0) {
+      return fallbackResponse('empty_audio');
+    }
+
+    // Convert Blob to Buffer
     const arrayBuffer = await file.arrayBuffer();
-    const base64Audio = Buffer.from(arrayBuffer).toString('base64');
+    const buffer = Buffer.from(arrayBuffer);
 
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    // Use gemini-2.5-flash for audio transcription as it handles multi-modal extremely well
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    // Whisper requires a file-like object with a name and extension.
+    // The easiest way in Node is to write to a temp file and create a ReadStream.
+    const tempDir = os.tmpdir();
+    const tempFilePath = path.join(tempDir, `upload-${Date.now()}.webm`);
+    await fs.writeFile(tempFilePath, buffer);
 
-    console.log(`Sending audio to Gemini for STT (size: ${file.size} bytes)`);
+    console.log(`Sending audio to OpenAI Whisper for STT (size: ${file.size} bytes)`);
 
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          mimeType: 'audio/webm',
-          data: base64Audio
-        }
-      },
-      "Please transcribe this audio exactly as it is spoken. Do not add any extra commentary or formatting. If it's empty, return nothing."
-    ]);
+    const transcription = await openai.audio.transcriptions.create({
+      file: require('fs').createReadStream(tempFilePath),
+      model: 'whisper-1',
+    });
 
-    const text = result.response.text().trim();
+    // Cleanup temp file
+    await fs.unlink(tempFilePath).catch(console.error);
 
+    const text = transcription.text.trim();
     return NextResponse.json({ text });
+
   } catch (error: unknown) {
-    console.error('Gemini Transcription Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Transcription failed';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('OpenAI Whisper Transcription Error:', error);
+    return fallbackResponse('provider_error');
   }
 }

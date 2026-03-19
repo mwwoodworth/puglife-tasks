@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AlcoholDayData, AlcoholDrinkType, AlcoholEntry } from "@/lib/types";
 import { loadAlcoholData, saveAlcoholData, loadAlcoholHistory } from "@/lib/storage";
+import { getRelativeLocalDateString } from "@/lib/date";
 
 const STANDARD_DRINKS: Record<AlcoholDrinkType, number> = {
   beer: 1,
@@ -50,9 +51,7 @@ export function useAlcoholTracker() {
     const history = loadAlcoholHistory();
     const days: { date: string; count: number }[] = [];
     for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = getRelativeLocalDateString(-i);
       const dayData = i === 0
         ? data
         : history.find((h) => h.date === dateStr);

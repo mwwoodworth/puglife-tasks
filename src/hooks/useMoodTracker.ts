@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { MoodLevel, MoodEntry, MOOD_CONFIG } from "@/lib/types";
 import { loadTodayMood, saveTodayMood, loadMoodHistory } from "@/lib/storage";
+import { getLocalDateString, getRelativeLocalDateString, parseLocalDateString } from "@/lib/date";
 
 export function useMoodTracker() {
   const [todayMood, setTodayMood] = useState<MoodEntry | null>(() => {
@@ -22,7 +23,7 @@ export function useMoodTracker() {
 
   const logMood = useCallback((mood: MoodLevel) => {
     saveTodayMood(mood);
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
     const entry: MoodEntry = { date: today, mood, timestamp: new Date().toISOString() };
     setTodayMood(entry);
     setHistory(loadMoodHistory());
@@ -42,9 +43,7 @@ export function useMoodTracker() {
   const last30Days = useCallback(() => {
     const days: { date: string; mood: MoodLevel | null }[] = [];
     for (let i = 29; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = getRelativeLocalDateString(-i);
       const entry = history.find((e) => e.date === dateStr);
       days.push({ date: dateStr, mood: entry?.mood || null });
     }
@@ -56,7 +55,8 @@ export function useMoodTracker() {
     const now = new Date();
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - now.getDay());
-    const weekEntries = history.filter((e) => new Date(e.date) >= weekStart);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEntries = history.filter((e) => parseLocalDateString(e.date) >= weekStart);
     if (weekEntries.length === 0) return null;
     const sum = weekEntries.reduce((acc, e) => acc + e.mood, 0);
     return Math.round((sum / weekEntries.length) * 10) / 10;
@@ -65,11 +65,8 @@ export function useMoodTracker() {
   // Consecutive mood log days (for achievements)
   const consecutiveMoodDays = useCallback(() => {
     let count = 0;
-    const today = new Date();
     for (let i = 0; i < 90; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = getRelativeLocalDateString(-i);
       if (history.find((e) => e.date === dateStr)) {
         count++;
       } else {

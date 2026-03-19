@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Priority, Category, PRIORITY_CONFIG, CATEGORY_CONFIG } from "@/lib/types";
 
 interface AddTaskFormProps {
-  onAdd: (task: { title: string; priority: Priority; category: Category; notes?: string; dueDate?: string }) => void;
+  onAdd: (task: { title: string; priority: Priority; category: Category; notes?: string; dueDate?: string; isRecurring?: boolean }) => void;
 }
 
 export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
@@ -15,13 +15,14 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
   const [category, setCategory] = useState<Category>("personal");
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onAdd({ title: title.trim(), priority, category, notes: notes.trim() || undefined, dueDate: dueDate || undefined });
-    setTitle(""); setNotes(""); setDueDate("");
+    onAdd({ title: title.trim(), priority, category, notes: notes.trim() || undefined, dueDate: dueDate || undefined, isRecurring });
+    setTitle(""); setNotes(""); setDueDate(""); setIsRecurring(false);
     inputRef.current?.focus();
   };
 
@@ -109,12 +110,17 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
               </div>
             </div>
 
+            <div className="flex items-center gap-2 px-1">
+              <input type="checkbox" id="isRecurring" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="pug-checkbox w-4 h-4 rounded" />
+              <label htmlFor="isRecurring" className="text-xs font-semibold text-purple-300 select-none cursor-pointer">Daily Recurring 🔄</label>
+            </div>
+
             <div className="flex gap-2 pt-1">
               <button type="submit" disabled={!title.trim()}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white font-bold py-3 rounded-xl text-sm active:scale-[0.98] transition-all disabled:opacity-40 shadow-lg"
               >Add Task 🐾</button>
               <button type="button"
-                onClick={() => { setIsOpen(false); setTitle(""); setNotes(""); setDueDate(""); }}
+                onClick={() => { setIsOpen(false); setTitle(""); setNotes(""); setDueDate(""); setIsRecurring(false); }}
                 className="px-5 py-3 bg-purple-800/40 rounded-xl text-sm font-medium text-purple-300 active:bg-purple-700/50 transition-all"
               >Cancel</button>
             </div>

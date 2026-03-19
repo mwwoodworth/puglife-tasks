@@ -1,4 +1,5 @@
 import { MoodLevel } from "./types";
+import { getLocalDateString } from "./date";
 
 // ── Lollie's Personality Engine ──
 // Context-aware messages with priority queue and deduplication
@@ -20,7 +21,7 @@ const shownToday = new Set<string>();
 let lastResetDate = "";
 
 function resetIfNewDay() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   if (today !== lastResetDate) {
     shownToday.clear();
     lastResetDate = today;

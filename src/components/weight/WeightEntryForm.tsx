@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { getLocalDateString } from "@/lib/date";
 
 interface WeightEntryFormProps {
   onAdd: (date: string, weight: number, note?: string) => void;
 }
 
 export default function WeightEntryForm({ onAdd }: WeightEntryFormProps) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const [date, setDate] = useState(today);
   const [weight, setWeight] = useState("");
   const [note, setNote] = useState("");

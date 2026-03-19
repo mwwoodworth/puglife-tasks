@@ -1,4 +1,5 @@
 import { WeightEntry, WeightGoalData, WeightMilestone } from "./types";
+import { getLocalDateString, parseLocalDateString } from "./date";
 
 export function calculateBMI(weightLbs: number, heightInches: number): number {
   if (heightInches <= 0) return 0;
@@ -18,12 +19,12 @@ export function detectNewMilestones(
   existing: WeightMilestone[]
 ): WeightMilestone[] {
   if (entries.length < 2 || !goal) return [];
-  const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...entries].sort((a, b) => parseLocalDateString(a.date).getTime() - parseLocalDateString(b.date).getTime());
   const current = sorted[sorted.length - 1].weight;
   const start = goal.startWeight;
   const lost = start - current;
   const total = start - goal.goalWeight;
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const existingTypes = new Set(existing.map((m) => `${m.type}-${m.weight}`));
   const newMilestones: WeightMilestone[] = [];
 
@@ -61,7 +62,7 @@ export function detectNewMilestones(
 }
 
 export function calculateWeightProgress(entries: WeightEntry[], goal: WeightGoalData) {
-  const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...entries].sort((a, b) => parseLocalDateString(a.date).getTime() - parseLocalDateString(b.date).getTime());
   const current = sorted.length > 0 ? sorted[sorted.length - 1].weight : goal.startWeight;
   const totalToLose = goal.startWeight - goal.goalWeight;
   const lost = goal.startWeight - current;
@@ -71,7 +72,7 @@ export function calculateWeightProgress(entries: WeightEntry[], goal: WeightGoal
   const recent = sorted.slice(-14);
   let avgPerWeek = 0;
   if (recent.length >= 2) {
-    const days = (new Date(recent[recent.length - 1].date).getTime() - new Date(recent[0].date).getTime()) / 86400000;
+    const days = (parseLocalDateString(recent[recent.length - 1].date).getTime() - parseLocalDateString(recent[0].date).getTime()) / 86400000;
     if (days > 0) avgPerWeek = ((recent[0].weight - recent[recent.length - 1].weight) / days) * 7;
   }
 
@@ -101,7 +102,7 @@ export interface ChartPoint {
 }
 
 export function prepareChartData(entries: WeightEntry[], goal: WeightGoalData | null) {
-  const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...entries].sort((a, b) => parseLocalDateString(a.date).getTime() - parseLocalDateString(b.date).getTime());
   if (sorted.length === 0) return { points: [], minW: 0, maxW: 0, goalW: goal?.goalWeight ?? null };
 
   const weights = sorted.map((e) => e.weight);

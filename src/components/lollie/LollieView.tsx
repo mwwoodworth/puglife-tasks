@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { PugMood, DressUpSlot, SoundEffect, LollieSubTab, ChatMessage, StreakData, SavedLook } from "@/lib/types";
 import { exportAllData, importAllData, getStorageUsage, ExportData } from "@/lib/storage";
+import { getLocalDateString } from "@/lib/date";
 import ChatView from "../chat/ChatView";
 import WardrobeView from "../dressup/WardrobeView";
 import StreakDisplay from "../motivation/StreakDisplay";
@@ -69,7 +70,7 @@ export default function LollieView({ chat, wardrobe, settings, pugMood, playSoun
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `lollie-life-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `lollie-life-backup-${getLocalDateString()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     setImportStatus("Backup downloaded!");

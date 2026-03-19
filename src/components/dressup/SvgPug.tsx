@@ -143,6 +143,18 @@ export default function SvgPug({
     "working-out": { rotate: [0, 20, -20, 0], transition: { duration: 0.3, repeat: Infinity } },
   };
 
+  const shadowAnimation: Record<PugMood, TargetAndTransition> = {
+    sleeping: { scaleX: [1, 1.04, 1], scaleY: [1, 0.94, 1], opacity: [0.32, 0.24, 0.32], transition: { duration: 3.5, repeat: Infinity, ease: easeIO } },
+    idle: { y: [0, 2 * s, 0], scaleX: [1, 1.02, 1], opacity: [0.3, 0.26, 0.3], transition: { duration: 3, repeat: Infinity, ease: easeIO } },
+    happy: { y: [0, 5 * s, 0], scaleX: [1, 0.94, 1], opacity: [0.3, 0.22, 0.3], transition: { duration: 0.6, repeat: Infinity, ease: easeIO } },
+    excited: { y: [0, 8 * s, 0], scaleX: [1, 0.88, 1], opacity: [0.28, 0.18, 0.28], transition: { duration: 0.35, repeat: Infinity } },
+    celebrating: { y: [0, 9 * s, 0], scaleX: [1, 0.84, 1], opacity: [0.28, 0.16, 0.28], transition: { duration: 0.45, repeat: Infinity } },
+    sad: { y: [0, -1.5, 0], scaleX: [1, 1.03, 1], opacity: [0.32, 0.34, 0.32], transition: { duration: 4, repeat: Infinity, ease: easeIO } },
+    eating: { y: [0, 2.5 * s, 0], scaleX: [1, 0.96, 1], opacity: [0.3, 0.24, 0.3], transition: { duration: 0.3, repeat: Infinity } },
+    love: { x: [0, -2 * s, 2 * s, 0], scaleX: [1, 0.95, 0.95, 1], opacity: [0.3, 0.24, 0.24, 0.3], transition: { duration: 1.4, repeat: Infinity, ease: easeIO } },
+    "working-out": { y: [0, 4 * s, 0], scaleX: [1, 0.93, 1], opacity: [0.3, 0.22, 0.3], transition: { duration: 0.35, repeat: Infinity } },
+  };
+
   const isHeartEyes = mood === "love";
   const isClosed = mood === "sleeping" || blinking;
   const isSad = mood === "sad";
@@ -220,11 +232,8 @@ export default function SvgPug({
 
         {equipped.background && <BackgroundLayer id={equipped.background} />}
 
-        <motion.ellipse cx="150" cy="326" rx="80" ry="14" fill="url(#shadow-grad)" animate={bodyAnimation[mood]} />
-
-        <motion.g style={{ originX: "205px", originY: "258px" }} animate={tailAnimation[mood]}>
-          <path d="M195,258 Q230,225 245,245 Q255,265 235,275 Q220,255 215,262 Q210,275 200,265" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3.5" strokeLinejoin="round" />
-          <circle cx="242" cy="252" r="12" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
+        <motion.g style={{ originX: "150px", originY: "326px" }} animate={shadowAnimation[mood]}>
+          <ellipse cx="150" cy="326" rx="80" ry="14" fill="url(#shadow-grad)" />
         </motion.g>
 
         {equipped.accessory && <AccessoryLayer id={equipped.accessory} position="behind" />}
@@ -233,6 +242,11 @@ export default function SvgPug({
         {/* ── BODY ── */}
         <motion.g animate={bodyAnimation[mood]}>
           <motion.g animate={mood === "sleeping" ? undefined : breathing}>
+            <motion.g style={{ originX: "205px", originY: "258px" }} animate={tailAnimation[mood]}>
+              <path d="M195,258 Q230,225 245,245 Q255,265 235,275 Q220,255 215,262 Q210,275 200,265" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3.5" strokeLinejoin="round" />
+              <circle cx="242" cy="252" r="12" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
+            </motion.g>
+
             <ellipse cx="150" cy="265" rx="80" ry="68" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
             <ellipse cx="150" cy="275" rx="50" ry="45" fill="#FFFFFF" opacity="0.4" filter="blur(6px)" />
 
@@ -258,10 +272,11 @@ export default function SvgPug({
             <ellipse cx="150" cy="215" rx="46" ry="22" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" />
             <path d="M108,215 Q150,234 192,215" fill="none" stroke="#A87B51" strokeWidth="4" strokeLinecap="round" opacity="0.6" filter="blur(1px)" />
 
-            <ellipse cx="150" cy="155" rx="102" ry="92" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" filter="url(#soft-drop-shadow)" />
-            <ellipse cx="145" cy="105" rx="45" ry="18" fill="#FFFFFF" opacity="0.3" filter="blur(8px)" transform="rotate(-5 145 105)" />
+            <ellipse cx="150" cy="155" rx="85" ry="75" fill="url(#body-grad)" stroke={C.outline} strokeWidth="3" filter="url(#soft-drop-shadow)" />
+            <ellipse cx="145" cy="115" rx="38" ry="15" fill="#FFFFFF" opacity="0.3" filter="blur(8px)" transform="rotate(-5 145 115)" />
 
-            {/* MASK */}
+            <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+              {/* MASK */}
             <g stroke={C.outline} strokeWidth="3">
               <ellipse cx="150" cy="184" rx="64" ry="50" fill="url(#mask-grad)" />
               <path d="M112,146 Q150,130 188,146 L184,168 Q150,158 116,168 Z" fill="url(#mask-grad)" />
@@ -364,24 +379,29 @@ export default function SvgPug({
               {isTalkingMouth ? (
                 <motion.g>
                   {/* Dynamic talking mouth based on lipSyncOffset */}
-                  <motion.path
-                    d={`M128,206 Q150,${215 + lipSyncOffset} 172,206 Z`}
-                    fill="#261017"
-                    stroke={C.outline}
-                    strokeWidth="3"
+                  <motion.g
+                    style={{ originX: "150px", originY: "206px" }}
                     animate={
                       !audioVolumeLevel && isTalking
-                        ? { d: ["M128,206 Q150,218 172,206 Z", "M128,206 Q150,235 172,206 Z", "M128,206 Q150,218 172,206 Z"] }
+                        ? { y: [0, 6, 0], scaleY: [0.9, 1.25, 0.9] }
                         : undefined
                     }
                     transition={{ duration: 0.3, repeat: Infinity }}
-                  />
-                  <motion.ellipse
-                    cx="150" cy="216" rx="12" ry="7"
-                    fill="url(#tongue-grad)"
-                    animate={{ ry: [6, 9, 6], cy: [214, 218, 214] }}
+                  >
+                    <path
+                      d={`M128,206 Q150,${215 + lipSyncOffset} 172,206 Z`}
+                      fill="#261017"
+                      stroke={C.outline}
+                      strokeWidth="3"
+                    />
+                  </motion.g>
+                  <motion.g
+                    style={{ originX: "150px", originY: "216px" }}
+                    animate={{ y: [-2, 2, -2], scaleY: [0.85, 1.2, 0.85] }}
                     transition={{ duration: 0.3, repeat: Infinity }}
-                  />
+                  >
+                    <ellipse cx="150" cy="216" rx="12" ry="7" fill="url(#tongue-grad)" />
+                  </motion.g>
                 </motion.g>
               ) : isSad ? (
                 <path d="M125,212 Q150,198 175,212" fill="none" stroke={C.outline} strokeWidth="4" strokeLinecap="round" />
@@ -403,6 +423,7 @@ export default function SvgPug({
                   )}
                 </>
               )}
+            </g>
             </g>
 
             {equipped.glasses && <GlassesLayer id={equipped.glasses} />}

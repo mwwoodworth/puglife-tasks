@@ -20,6 +20,7 @@
   --pug-brown: #8b6914;
   --pug-dark: #1e0a3c;
   --pug-cream: #f5f0ff;
+  --font-nunito: "Avenir Next", "Nunito Sans", "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 @theme inline {

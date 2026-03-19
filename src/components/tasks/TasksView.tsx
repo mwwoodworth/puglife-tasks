@@ -42,6 +42,8 @@ function fireConfetti() {
 
 const PUG_COMPLETE = ["AMAZING Danielle! You did it!", "That deserves a treat!", "WOOO! Lollie is doing zoomies!"];
 const PUG_ENCOURAGE = ["Stay pawsitive!", "You're paw-some, Danielle!", "Fur real, you're doing great!"];
+const PRIORITY_ORDER: Record<Priority, number> = { zoomies: 0, treat: 1, bone: 2, paw: 3 };
+
 function rand(arr: string[]) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 export default function TasksView({
@@ -58,11 +60,11 @@ export default function TasksView({
   const [showCompleted, setShowCompleted] = useState(true);
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "priority" | "due">("newest");
 
-  const addTask = useCallback((data: { title: string; priority: Priority; category: Category; notes?: string; dueDate?: string }) => {
+  const addTask = useCallback((data: { title: string; priority: Priority; category: Category; notes?: string; dueDate?: string; isRecurring?: boolean }) => {
     const newTask: Task = {
       id: crypto.randomUUID(), title: data.title, completed: false,
       priority: data.priority, category: data.category, createdAt: new Date().toISOString(),
-      notes: data.notes, dueDate: data.dueDate,
+      notes: data.notes, dueDate: data.dueDate, isRecurring: data.isRecurring,
     };
     setTasks((prev) => [newTask, ...prev]);
     onStreakUpdate();
@@ -96,8 +98,6 @@ export default function TasksView({
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
   }, [setTasks]);
 
-  const priorityOrder: Record<Priority, number> = { zoomies: 0, treat: 1, bone: 2, paw: 3 };
-
   const filteredTasks = useMemo(() => {
     return tasks
       .filter((t) => {
@@ -112,7 +112,7 @@ export default function TasksView({
         switch (sortBy) {
           case "newest": return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           case "oldest": return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          case "priority": return priorityOrder[a.priority] - priorityOrder[b.priority];
+          case "priority": return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
           case "due": {
             if (!a.dueDate && !b.dueDate) return 0;
             if (!a.dueDate) return 1;
@@ -122,7 +122,7 @@ export default function TasksView({
           default: return 0;
         }
       });
-  }, [tasks, activeCategory, activePriority, showCompleted, sortBy, searchQuery, priorityOrder]);
+  }, [tasks, activeCategory, activePriority, showCompleted, sortBy, searchQuery]);
 
   const taskCounts = useMemo(() => {
     const counts: Record<string, number> = { all: tasks.filter((t) => !t.completed).length };

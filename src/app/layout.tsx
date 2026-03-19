@@ -1,12 +1,6 @@
+import AuthProvider from "@/components/providers/AuthProvider";
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
 import "./globals.css";
-
-const nunito = Nunito({
-  variable: "--font-nunito",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -39,11 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${nunito.variable} antialiased`}
-        style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-      >
-        {children}
+      <body className="antialiased">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

@@ -9,7 +9,8 @@ export function HatLayer({ id }: { id: string }) {
     case "hat-crown":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 4px 4px rgba(0,0,0,0.3))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="gold-grad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FDE047" />
               <stop offset="50%" stopColor="#F59E0B" />
@@ -46,12 +47,14 @@ export function HatLayer({ id }: { id: string }) {
           
           <circle cx="165" cy="106" r="3.5" fill="url(#gem-green)" stroke="#064E3B" strokeWidth="0.5" />
           <circle cx="164" cy="105" r="1" fill="white" opacity="0.8" />
+          </g>
         </motion.g>
       );
     case "hat-party":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 3px rgba(0,0,0,0.25))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="party-grad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F472B6" />
               <stop offset="100%" stopColor="#C026D3" />
@@ -68,12 +71,14 @@ export function HatLayer({ id }: { id: string }) {
           {/* Fluffy Pom pom */}
           <circle cx="150" cy="45" r="9" fill="#FDE047" />
           <circle cx="147" cy="43" r="3" fill="white" opacity="0.6" />
+          </g>
         </motion.g>
       );
     case "hat-beanie":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 4px 5px rgba(0,0,0,0.3))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="beanie-grad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#A855F7" />
               <stop offset="100%" stopColor="#6B21A8" />
@@ -94,12 +99,14 @@ export function HatLayer({ id }: { id: string }) {
           <path d="M115,65 Q150,55 185,65" fill="none" stroke="#581C87" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
           {/* Pom pom */}
           <circle cx="150" cy="50" r="12" fill="url(#pom-grad)" />
+          </g>
         </motion.g>
       );
     case "hat-cowboy":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 6px 6px rgba(0,0,0,0.35))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <radialGradient id="brim-grad" cx="50%" cy="50%" r="50%">
               <stop offset="70%" stopColor="#A16207" />
               <stop offset="100%" stopColor="#713F12" />
@@ -120,12 +127,14 @@ export function HatLayer({ id }: { id: string }) {
           {/* Band */}
           <path d="M106,105 Q150,115 194,105 L195,112 Q150,122 105,112 Z" fill="#451A03" />
           <rect x="145" y="107" width="10" height="6" rx="1" fill="#FBBF24" />
+          </g>
         </motion.g>
       );
     case "hat-chef":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 4px 4px rgba(0,0,0,0.15))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <radialGradient id="puff-grad" cx="40%" cy="30%" r="60%">
               <stop offset="0%" stopColor="#FFFFFF" />
               <stop offset="80%" stopColor="#F3F4F6" />
@@ -149,12 +158,14 @@ export function HatLayer({ id }: { id: string }) {
           
           {/* Creases */}
           <path d="M125,75 Q135,65 145,80 M175,75 Q165,65 155,80 M150,45 Q150,60 150,70" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" />
+          </g>
         </motion.g>
       );
     case "hat-flower-crown":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.2))">
-          {/* Thick woven vine */}
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            {/* Thick woven vine */}
           <path d="M90,112 Q120,95 150,102 Q180,95 210,112" fill="none" stroke="#15803D" strokeWidth="5" strokeLinecap="round" />
           <path d="M92,110 Q120,102 150,98 Q180,102 208,110" fill="none" stroke="#22C55E" strokeWidth="3" strokeLinecap="round" />
           
@@ -192,12 +203,14 @@ export function HatLayer({ id }: { id: string }) {
           {/* Right Pink */}
           <circle cx="198" cy="106" r="10" fill="url(#fl-pink)" stroke="#9D174D" strokeWidth="0.5" />
           <circle cx="198" cy="106" r="4" fill="#FBBF24" />
+          </g>
         </motion.g>
       );
     case "hat-witch":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 5px 6px rgba(0,0,0,0.4))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="witch-cone" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#312E81" />
               <stop offset="100%" stopColor="#111827" />
@@ -219,12 +232,14 @@ export function HatLayer({ id }: { id: string }) {
           {/* Gold Buckle */}
           <rect x="142" y="102" width="16" height="14" rx="2" fill="none" stroke="#FBBF24" strokeWidth="3" />
           <rect x="146" y="106" width="8" height="6" fill="#1E1B4B" />
+          </g>
         </motion.g>
       );
     case "hat-santa":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 4px 5px rgba(0,0,0,0.3))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="santa-red" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F87171" />
               <stop offset="60%" stopColor="#DC2626" />
@@ -247,12 +262,14 @@ export function HatLayer({ id }: { id: string }) {
           {/* Pom Pom */}
           <circle cx="190" cy="50" r="14" fill="url(#santa-fluff)" />
           <circle cx="186" cy="46" r="4" fill="white" opacity="0.8" />
+          </g>
         </motion.g>
       );
     case "hat-diamond-crown":
       return (
         <motion.g {...equipAnim} filter="url(#epic-glow)">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="plat-grad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
               <stop offset="50%" stopColor="#C7D2FE" />
@@ -294,6 +311,7 @@ export function HatLayer({ id }: { id: string }) {
           <motion.g transform="translate(150, 25)" animate={{ scale: [1, 1.3, 1], rotate: [0, 90, 180] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
              <path d="M0,-10 L2,-2 L10,0 L2,2 L0,10 L-2,2 L-10,0 L-2,-2 Z" fill="#FFFFFF" filter="url(#soft-drop-shadow)" />
           </motion.g>
+          </g>
         </motion.g>
       );
     default:

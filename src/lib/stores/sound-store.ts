@@ -44,7 +44,7 @@ export const useSoundStore = create<SoundState>()(
 if (typeof window !== "undefined") {
   const unsub = useSoundStore.subscribe((state) => {
     if (!state._hydrated) {
-      soundEngine.setMuted(state.muted);
+      soundEngine.setMuted(state.muted, false);
       soundEngine.setVolume(state.volume);
       useSoundStore.setState({ _hydrated: true });
       unsub();

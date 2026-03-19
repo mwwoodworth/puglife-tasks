@@ -1,4 +1,4 @@
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import { SoundEffect } from './types';
 
 /**
@@ -12,6 +12,8 @@ class PugSoundEngine {
   private userVolume = 1;
   private hfAudio: Howl | null = null;
   private hfLoaded = false;
+  private primed = false;
+  private unlockListenersAttached = false;
 
   // Synthesis Fallback State
   private noiseBuffer: AudioBuffer | null = null;
@@ -21,8 +23,18 @@ class PugSoundEngine {
   private reverbBuffer: AudioBuffer | null = null;
 
   constructor() {
+    Howler.autoUnlock = true;
+    Howler.autoSuspend = false;
+    this.attachUnlockListeners();
+
+    // Studio sprite assets are optional. Keep production clean unless they are
+    // explicitly enabled and shipped in public/sounds.
+    if (process.env.NEXT_PUBLIC_ENABLE_STUDIO_AUDIO !== "1") {
+      return;
+    }
+
     // Attempt to load the High-Fidelity Audio Sprite
-    // In production, you would drop 'sprite.mp3' and 'sprite.ogg' into /public/sounds/
+    // If enabled, drop 'sprite.mp3' and 'sprite.ogg' into /public/sounds/
     this.hfAudio = new Howl({
       src: ['/sounds/sprite.mp3', '/sounds/sprite.ogg'],
       sprite: {
@@ -44,11 +56,69 @@ class PugSoundEngine {
     });
   }
 
+  private attachUnlockListeners() {
+    if (this.unlockListenersAttached || typeof window === "undefined") {
+      return;
+    }
+
+    const unlock = () => {
+      this.prime();
+    };
+
+    window.addEventListener("pointerdown", unlock, { passive: true });
+    window.addEventListener("keydown", unlock, { passive: true });
+    window.addEventListener("touchstart", unlock, { passive: true });
+    this.unlockListenersAttached = true;
+  }
+
+  prime() {
+    try {
+      const ctx = this.getCtx();
+      this.syncHowlerState();
+      if (!this.primed) {
+        const click = ctx.createBufferSource();
+        click.buffer = ctx.createBuffer(1, 1, 22050);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        click.connect(gain).connect(this.getDestination(ctx));
+        click.start(ctx.currentTime);
+        click.stop(ctx.currentTime + 0.001);
+        this.primed = true;
+      }
+      if (ctx.state === "suspended") {
+        void ctx.resume();
+      }
+    } catch {
+      // Keep sound failures non-fatal for the app shell.
+    }
+  }
+
   // ── Web Audio Setup (Fallback) ──
   private getCtx(): AudioContext {
-    if (!this.ctx) this.ctx = new AudioContext();
-    if (this.ctx.state === "suspended") this.ctx.resume();
+    if (!this.ctx) {
+      this.ctx = Howler.ctx || new AudioContext();
+    }
+    if (this.ctx.state === "suspended") {
+      void this.ctx.resume();
+    }
     return this.ctx;
+  }
+
+  private getDestination(ctx: AudioContext): AudioNode {
+    return Howler.masterGain || ctx.destination;
+  }
+
+  private hasHowlerBackend() {
+    return Boolean(Howler.ctx || this.hfAudio);
+  }
+
+  private syncHowlerState() {
+    if (!this.hasHowlerBackend()) {
+      return;
+    }
+
+    Howler.volume(this.effectiveVolume());
+    Howler.mute(this.muted);
   }
 
   private circadianMultiplier(): number {
@@ -64,6 +134,7 @@ class PugSoundEngine {
 
   setVolume(v: number) {
     this.userVolume = Math.max(0, Math.min(1, v));
+    this.syncHowlerState();
     
     // Update Howler volume
     if (this.hfAudio) {
@@ -77,9 +148,12 @@ class PugSoundEngine {
     }
   }
 
-  setMuted(m: boolean) { 
+  setMuted(m: boolean, shouldPrime = true) { 
     this.muted = m; 
-    Howler.mute(m);
+    this.syncHowlerState();
+    if (!m && shouldPrime) {
+      this.prime();
+    }
   }
   
   isMuted() { return this.muted; }
@@ -101,7 +175,7 @@ class PugSoundEngine {
       this.duckGain = ctx.createGain();
       this.duckGain.gain.setValueAtTime(1, ctx.currentTime);
       
-      this.compressor.connect(this.duckGain).connect(this.masterGain).connect(ctx.destination);
+      this.compressor.connect(this.duckGain).connect(this.masterGain).connect(this.getDestination(ctx));
     }
     return this.compressor;
   }
@@ -192,6 +266,7 @@ class PugSoundEngine {
   // ── Main Play Dispatcher ──
   play(effect: SoundEffect) {
     if (this.muted) return;
+    this.prime();
 
     // 1. Attempt High-Fidelity Studio Sound
     if (this.hfLoaded && this.hfAudio) {
@@ -227,17 +302,23 @@ class PugSoundEngine {
         this.playFmPling(1046.50, 2, 1.5, 1.0, 0.1);
         setTimeout(() => this.playFallbackBark(), 600);
       },
-      "tab-switch": () => this.playTone(900, "sine", 0.08, 0.04),
+      "tab-switch": () => this.playTone(900, "sine", 0.1, 0.06),
       "weight-log": () => this.playFmPling(880, 2, 2, 0.3, 0.06),
-      "sparkle": () => this.playFmPling(1200 + Math.random() * 1000, 3, 2, 0.15, 0.04),
-      "water-gulp": () => this.playTone(300, "sine", 0.2, 0.1),
+      "sparkle": () => {
+        this.playFmPling(1200 + Math.random() * 1000, 3, 2, 0.16, 0.07);
+        setTimeout(() => this.playFmPling(1800 + Math.random() * 600, 3, 1.5, 0.18, 0.05), 40);
+      },
+      "water-gulp": () => {
+        this.playTone(360, "sine", 0.16, 0.12);
+        setTimeout(() => this.playTone(280, "triangle", 0.18, 0.1), 40);
+      },
       "level-up": () => this.playFmPling(1318.51, 2, 1.5, 1.0, 0.1),
       "achievement": () => this.playFmPling(1567.98, 2, 1.5, 1.0, 0.1),
       "confetti-pop": () => this.playTone(2000, "square", 0.1, 0.05),
-      "chat-send": () => this.playFmPling(1100, 1.5, 1, 0.15, 0.05),
+      "chat-send": () => this.playFmPling(1100, 1.5, 1, 0.15, 0.07),
       "chat-receive": () => {
-        this.playTone(1100, "sine", 0.2, 0.05);
-        setTimeout(() => this.playTone(880, "sine", 0.2, 0.05), 80);
+        this.playTone(1100, "sine", 0.2, 0.07);
+        setTimeout(() => this.playTone(880, "sine", 0.2, 0.07), 80);
       },
       "item-equip": () => this.playFmPling(1200, 3, 2, 0.15, 0.04),
       "item-preview": () => this.playTone(800, "sine", 0.15, 0.04),

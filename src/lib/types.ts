@@ -61,6 +61,7 @@ export interface Task {
   completedAt?: string;
   notes?: string;
   dueDate?: string;
+  isRecurring?: boolean;
 }
 
 // ── Weight ──

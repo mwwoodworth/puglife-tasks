@@ -162,13 +162,15 @@ export function BackgroundLayer({ id }: { id: string }) {
           <motion.path
             d="M0,40 Q75,0 150,35 Q225,70 300,30"
             fill="none" stroke="url(#aurora-1)" strokeWidth="20" filter="blur(8px)"
-            animate={{ d: ["M0,40 Q75,0 150,35 Q225,70 300,30", "M0,35 Q75,20 150,25 Q225,50 300,35", "M0,40 Q75,0 150,35 Q225,70 300,30"] }}
+            style={{ transformOrigin: "150px 35px" }}
+            animate={{ y: [0, -6, 0], scaleY: [1, 0.92, 1], opacity: [0.75, 1, 0.75] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.path
             d="M0,55 Q100,20 200,50 Q250,70 300,45"
             fill="none" stroke="url(#aurora-2)" strokeWidth="15" filter="blur(6px)"
-            animate={{ d: ["M0,55 Q100,20 200,50 Q250,70 300,45", "M0,50 Q100,40 200,40 Q250,50 300,50", "M0,55 Q100,20 200,50 Q250,70 300,45"] }}
+            style={{ transformOrigin: "150px 50px" }}
+            animate={{ y: [0, -4, 0], scaleY: [1, 1.08, 1], opacity: [0.7, 0.95, 0.7] }}
             transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
           />
           {/* Bright twinkling stars */}

@@ -46,7 +46,11 @@ export default function Home() {
   });
   const [activeTab, setActiveTab] = useState<AppTab>(() => typeof window !== "undefined" ? loadActiveTab() : "dashboard");
   const [pugMood, setPugMood] = useState<PugMood>("sleeping");
-  const [streak, setStreak] = useState(() => typeof window !== "undefined" ? getStreak() : { current: 0, best: 0, lastReset: new Date().toISOString() });
+  const [streak, setStreak] = useState(() =>
+    typeof window !== "undefined"
+      ? getStreak()
+      : { current: 0, lastDate: "", longest: 0, milestonesCelebrated: [] }
+  );
   const [isLoaded, setIsLoaded] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => typeof window !== "undefined" ? loadFavorites() : []);
 
@@ -70,7 +74,6 @@ export default function Home() {
 
   // ── Init ──
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 
@@ -91,13 +94,13 @@ export default function Home() {
       saveStats(stats);
     }
     prevWaterGoalRef.current = water.goalReached;
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [water.goalReached, water.isLoaded]);
 
   // ── Voice Chat Handler ──
   const handleVoiceStop = useCallback(async () => {
-    const audioBlob = await mic.stopRecording();
-    if (!audioBlob) return;
+    const recording = await mic.stopRecording();
+    if (!recording?.audioBlob) return;
     
     const systemPrompt = buildSystemPrompt({
       timeOfDay: getTimeOfDay(),
@@ -115,13 +118,13 @@ export default function Home() {
     });
 
     voiceChat.processVoiceInput(
-      audioBlob,
+      recording.audioBlob,
       chat.messages,
       systemPrompt,
       (text) => toast.show(`You: ${text}`, "info"), // Show what Whisper heard
-      (text) => lollie.showMessage(text)            // Put Lollie's reply in her bubble
+      (text) => lollie.showMessage(text),           // Put Lollie's reply in her bubble
+      recording.transcript
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [mic, voiceChat, chat.messages, dailyReset, water, mood, streak, rewards, dressUp.equipped, lollie, toast]);
 
   // ── Achievement auto-detection ──
@@ -147,7 +150,7 @@ export default function Home() {
         toast.show(`${achievement.emoji} ${achievement.name}!`, "success");
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rewards.state?.totalTreatsEarned, rewards.state?.level, streak.current, isLoaded]);
 
   // ── Storage quota check on startup ──
@@ -159,9 +162,11 @@ export default function Home() {
     }
     // Register service worker for PWA
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker.register("/sw.js").then((registration) => {
+        void registration.update();
+      }).catch(() => {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
   // ── Tab change ──
@@ -250,7 +255,7 @@ export default function Home() {
         setPugMood("happy");
       }, 100);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dailyReset, play, confetti, rewards, lollie]);
 
   // ── Water ──
@@ -262,7 +267,6 @@ export default function Home() {
     setPugMood("eating");
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(10);
     setTimeout(() => setPugMood("happy"), 1500);
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [water, play, lollie, rewards]);
 
   const handleRemoveLastDrink = useCallback(() => {
@@ -355,7 +359,6 @@ export default function Home() {
     });
     chat.sendMessage(content, systemPrompt);
     play("chat-send");
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization
   }, [dailyReset, water, mood, streak, rewards, dressUp.equipped, chat, play]);
 
   // ── Dress-Up spend treats ──
@@ -457,7 +460,6 @@ export default function Home() {
                 onToggleTask={handleToggleResetTask}
                 onActivateBadDay={handleActivateBadDay}
                 dayProgress={dailyReset.dayProgress}
-                waterPercent={water.percent}
                 waterCount={water.count}
                 streak={streak.current}
                 todayMood={mood.todayMood?.mood || null}

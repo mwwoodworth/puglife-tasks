@@ -9,7 +9,7 @@ export function useSound() {
   const [muted, setMuted] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = loadSoundMuted();
-      soundEngine.setMuted(saved);
+      soundEngine.setMuted(saved, false);
       return saved;
     }
     return true;

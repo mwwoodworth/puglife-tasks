@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { DailyResetState, ResetSectionId } from "@/lib/types";
 import { loadDailyResetState, saveDailyResetState, loadStats, saveStats } from "@/lib/storage";
 import {
@@ -13,11 +13,6 @@ export function useDailyReset() {
   const [state, setState] = useState<DailyResetState | null>(() => {
     return typeof window !== "undefined" ? loadDailyResetState() : null;
   });
-
-  const save = useCallback((next: DailyResetState) => {
-    setState(next);
-    saveDailyResetState(next);
-  }, []);
 
   const toggleTask = useCallback((taskId: string) => {
     setState((prev) => {

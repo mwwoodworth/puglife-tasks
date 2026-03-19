@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { WeightEntry, WeightGoalData } from "@/lib/types";
 import { calculateBMI, getBMICategory } from "@/lib/weight-utils";
+import { parseLocalDateString } from "@/lib/date";
 
 interface WeightStatsProps {
   entries: WeightEntry[];
@@ -11,7 +12,7 @@ interface WeightStatsProps {
 }
 
 export default function WeightStats({ entries, goal, onDeleteEntry }: WeightStatsProps) {
-  const sorted = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sorted = [...entries].sort((a, b) => parseLocalDateString(b.date).getTime() - parseLocalDateString(a.date).getTime());
   const latest = sorted[0];
 
   const bmi = latest && goal?.heightInches ? calculateBMI(latest.weight, goal.heightInches) : null;
@@ -51,7 +52,7 @@ export default function WeightStats({ entries, goal, onDeleteEntry }: WeightStat
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-purple-400 font-medium w-16">
-                        {new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        {parseLocalDateString(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </span>
                       <span className="text-sm font-bold text-purple-200">{entry.weight} lbs</span>
                       {diff !== 0 && (

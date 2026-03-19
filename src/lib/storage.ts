@@ -1,13 +1,15 @@
 import {
   Task, WeightEntry, WeightGoalData, WeightMilestone, StreakData, AppTab,
-  StepGoal, DailyResetState, WaterEntry, WaterDayData, MoodEntry,
+  StepGoal, DailyResetState, WaterDayData, MoodEntry,
   RewardsState, MoodLevel, ChatMessage, DressUpState, DressUpSlot,
-  AlcoholDayData, AlcoholEntry, NotificationPrefs,
+  AlcoholDayData, NotificationPrefs,
 } from "./types";
 import { createDefaultRewardsState } from "./rewards-engine";
+import { getLocalDateString, getRelativeLocalDateString } from "./date";
 
 // ── Keys ──
 const TASKS_KEY = "puglife-tasks";
+const LAST_TASK_RESET_DATE_KEY = "puglife-last-task-reset-date";
 const STREAK_KEY = "puglife-streak";
 const STREAK_DATA_KEY = "puglife-streak-data";
 const LAST_ACTIVE_KEY = "puglife-last-active";
@@ -54,7 +56,38 @@ function safeSet(key: string, value: unknown) {
 }
 
 // ── Tasks ──
-export function loadTasks(): Task[] { return safeGet(TASKS_KEY, []); }
+export function loadTasks(): Task[] {
+  let tasks = safeGet<Task[]>(TASKS_KEY, []);
+  if (typeof window === "undefined") return tasks;
+
+  const today = getLocalDateString();
+  const lastResetDate = safeGet<string | null>(LAST_TASK_RESET_DATE_KEY, null);
+
+  if (lastResetDate !== today) {
+    let hasChanges = false;
+    tasks = tasks.filter((t) => {
+      if (t.completed) {
+        if (t.isRecurring) {
+          t.completed = false;
+          t.completedAt = undefined;
+          hasChanges = true;
+          return true;
+        } else {
+          hasChanges = true;
+          return false;
+        }
+      }
+      return true;
+    });
+
+    if (hasChanges || lastResetDate !== today) {
+      saveTasks(tasks);
+      safeSet(LAST_TASK_RESET_DATE_KEY, today);
+    }
+  }
+
+  return tasks;
+}
 export function saveTasks(tasks: Task[]) { safeSet(TASKS_KEY, tasks); }
 
 // ── Streak ──
@@ -68,10 +101,10 @@ export function getStreak(): StreakData {
 
 export function updateStreak(): StreakData {
   if (typeof window === "undefined") return { current: 0, lastDate: "", longest: 0, milestonesCelebrated: [] };
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const data = getStreak();
   if (data.lastDate === today) return data;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const yesterday = getRelativeLocalDateString(-1);
   const newCurrent = data.lastDate === yesterday ? data.current + 1 : 1;
   const updated: StreakData = {
     current: newCurrent,
@@ -103,7 +136,7 @@ export function saveActiveTab(tab: AppTab) { safeSet(ACTIVE_TAB_KEY, tab); }
 
 // ── Step Goals (legacy) ──
 export function loadStepGoal(): StepGoal {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const data = safeGet<StepGoal | null>(STEP_GOAL_KEY, null);
   if (data) {
     if (data.date !== today) {
@@ -118,7 +151,7 @@ export function saveStepGoal(data: StepGoal) { safeSet(STEP_GOAL_KEY, data); }
 
 // ── Daily Reset (v2 — preloaded from Danielle's plan) ──
 export function loadDailyResetState(): DailyResetState {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const data = safeGet<DailyResetState | null>(DAILY_RESET_KEY, null);
   if (data && data.date === today) return data;
   // Auto-reset at midnight
@@ -131,7 +164,7 @@ export function saveDailyResetState(state: DailyResetState) {
 
 // ── Water Tracking ──
 export function loadWaterData(): WaterDayData {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const data = safeGet<WaterDayData | null>(WATER_DATA_KEY, null);
   if (data && data.date === today) return data;
   // Archive yesterday if exists
@@ -153,13 +186,13 @@ export function loadWaterHistory(): WaterDayData[] {
 
 // ── Mood Tracking ──
 export function loadTodayMood(): MoodEntry | null {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const data = safeGet<MoodEntry | null>(MOOD_KEY, null);
   return data && data.date === today ? data : null;
 }
 
 export function saveTodayMood(mood: MoodLevel) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const entry: MoodEntry = { date: today, mood, timestamp: new Date().toISOString() };
   safeSet(MOOD_KEY, entry);
   // Also add to history
@@ -249,7 +282,7 @@ export function saveDressUpState(state: DressUpState) {
 
 // ── Alcohol Tracking ──
 export function loadAlcoholData(): AlcoholDayData {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const data = safeGet<AlcoholDayData | null>(ALCOHOL_DATA_KEY, null);
   if (data && data.date === today) return data;
   // Archive yesterday if exists

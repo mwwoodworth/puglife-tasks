@@ -9,7 +9,8 @@ export function GlassesLayer({ id }: { id: string }) {
     case "glasses-sun":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.3))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="lens-dark" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#334155" />
               <stop offset="100%" stopColor="#0F172A" />
@@ -30,12 +31,14 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Arms */}
           <line x1="98" y1="152" x2="84" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
           <line x1="202" y1="152" x2="216" y2="148" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          </g>
         </motion.g>
       );
     case "glasses-heart":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(236,72,153,0.3))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="lens-pink" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F472B6" stopOpacity="0.8" />
               <stop offset="100%" stopColor="#BE185D" stopOpacity="0.8" />
@@ -51,12 +54,14 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Arms */}
           <line x1="106" y1="149" x2="88" y2="146" stroke="#9D174D" strokeWidth="3" strokeLinecap="round" />
           <line x1="194" y1="149" x2="212" y2="146" stroke="#9D174D" strokeWidth="3" strokeLinecap="round" />
+          </g>
         </motion.g>
       );
     case "glasses-star":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(234,179,8,0.3))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="lens-gold" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FDE047" stopOpacity="0.8" />
               <stop offset="100%" stopColor="#CA8A04" stopOpacity="0.8" />
@@ -70,12 +75,14 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Arms */}
           <line x1="103" y1="148" x2="88" y2="146" stroke="#A16207" strokeWidth="3" strokeLinecap="round" />
           <line x1="197" y1="148" x2="212" y2="146" stroke="#A16207" strokeWidth="3" strokeLinecap="round" />
+          </g>
         </motion.g>
       );
     case "glasses-reading":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 2px 1px rgba(0,0,0,0.15))">
-          <path d="M135,152 Q150,148 165,152" fill="none" stroke="#44403C" strokeWidth="2.5" />
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <path d="M135,152 Q150,148 165,152" fill="none" stroke="#44403C" strokeWidth="2.5" />
           <rect x="103" y="143" width="32" height="22" rx="4" fill="rgba(255,255,255,0.1)" stroke="#44403C" strokeWidth="2.5" />
           <rect x="165" y="143" width="32" height="22" rx="4" fill="rgba(255,255,255,0.1)" stroke="#44403C" strokeWidth="2.5" />
           <line x1="103" y1="152" x2="86" y2="148" stroke="#44403C" strokeWidth="2.5" strokeLinecap="round" />
@@ -83,12 +90,14 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Lens glare */}
           <path d="M108,146 L120,160 M113,146 L125,160" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
           <path d="M170,146 L182,160 M175,146 L187,160" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+          </g>
         </motion.g>
       );
     case "glasses-aviator":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.25))">
-          <defs>
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <defs>
             <linearGradient id="lens-aviator" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#78350F" stopOpacity="0.8" />
               <stop offset="100%" stopColor="#451A03" stopOpacity="0.8" />
@@ -113,12 +122,14 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Gradient shine */}
           <path d="M108,145 Q118,142 125,148" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
           <path d="M171,145 Q181,142 188,148" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
+          </g>
         </motion.g>
       );
     case "glasses-nerd":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 3px 2px rgba(0,0,0,0.2))">
-          <path d="M135,154 Q150,148 165,154" fill="none" stroke="#0F172A" strokeWidth="3" />
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
+            <path d="M135,154 Q150,148 165,154" fill="none" stroke="#0F172A" strokeWidth="3" />
           {/* Thick round frames */}
           <circle cx="118" cy="154" r="18" fill="rgba(255,255,255,0.05)" stroke="#0F172A" strokeWidth="4" />
           <circle cx="182" cy="154" r="18" fill="rgba(255,255,255,0.05)" stroke="#0F172A" strokeWidth="4" />
@@ -132,6 +143,7 @@ export function GlassesLayer({ id }: { id: string }) {
           {/* Swirl glare */}
           <path d="M108,144 A 8,8 0 0,1 122,144" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
           <path d="M172,144 A 8,8 0 0,1 186,144" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+          </g>
         </motion.g>
       );
     default:

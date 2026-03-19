@@ -27,6 +27,8 @@ export default function WaterTracker({
 }: WaterTrackerProps) {
   // Bowl fill animation
   const fillHeight = Math.min(100, percent);
+  const waterY = 65 - (fillHeight / 100) * 40;
+  const wavePath = `M4,${waterY} Q16,${waterY - 2.5} 28,${waterY} T52,${waterY} T76,${waterY}`;
 
   return (
     <div className="rounded-2xl bg-purple-900/30 border border-purple-500/20 p-4">
@@ -55,19 +57,20 @@ export default function WaterTracker({
               clipPath="url(#bowlClip)"
               fill="url(#waterGrad)"
               initial={{ y: 65 }}
-              animate={{ y: 65 - (fillHeight / 100) * 40 }}
+              animate={{ y: waterY }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
             {/* Wave */}
-            <motion.path
-              d={`M10,${65 - (fillHeight / 100) * 40} Q25,${62 - (fillHeight / 100) * 40} 40,${65 - (fillHeight / 100) * 40} Q55,${68 - (fillHeight / 100) * 40} 70,${65 - (fillHeight / 100) * 40}`}
-              fill="none" stroke="rgba(96,165,250,0.4)" strokeWidth="1.5"
-              animate={{ d: [
-                `M10,${65 - (fillHeight / 100) * 40} Q25,${62 - (fillHeight / 100) * 40} 40,${65 - (fillHeight / 100) * 40} Q55,${68 - (fillHeight / 100) * 40} 70,${65 - (fillHeight / 100) * 40}`,
-                `M10,${65 - (fillHeight / 100) * 40} Q25,${68 - (fillHeight / 100) * 40} 40,${65 - (fillHeight / 100) * 40} Q55,${62 - (fillHeight / 100) * 40} 70,${65 - (fillHeight / 100) * 40}`,
-              ] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
+            <g clipPath="url(#bowlClip)">
+              <motion.path
+                d={wavePath}
+                fill="none"
+                stroke="rgba(96,165,250,0.4)"
+                strokeWidth="1.5"
+                animate={{ x: [-4, 4, -4] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </g>
             <defs>
               <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="rgba(96,165,250,0.6)" />

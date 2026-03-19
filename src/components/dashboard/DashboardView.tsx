@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { SoundEffect, MoodLevel, AppTab } from "@/lib/types";
 import { getCurrentResetSection, getTodayFocus } from "@/lib/daily-reset-plan";
@@ -35,6 +37,27 @@ export default function DashboardView({
   dayProgress, waterCount, streak, todayMood,
   onLogMood, treats, onSwitchTab, playSound,
 }: DashboardViewProps) {
+  const { data: session, status } = useSession();
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [stepCount, setStepCount] = useState<number | null>(null);
+  const [isLoadingGoogleData, setIsLoadingGoogleData] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      setIsLoadingGoogleData(true);
+      Promise.all([
+        fetch("/api/calendar").then((res) => res.json()),
+        fetch("/api/fitness").then((res) => res.json())
+      ])
+        .then(([eventsData, fitnessData]) => {
+          if (!eventsData.error && Array.isArray(eventsData)) setCalendarEvents(eventsData);
+          if (!fitnessData.error) setStepCount(fitnessData.stepCount);
+        })
+        .catch(err => console.error("Error fetching Google data:", err))
+        .finally(() => setIsLoadingGoogleData(false));
+    }
+  }, [session]);
+
   const currentSection = getCurrentResetSection();
   const focus = getTodayFocus();
   const greeting = getTimeGreetingPrefix();
@@ -118,6 +141,70 @@ export default function DashboardView({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Google Ecosystem Widget */}
+      <div className="rounded-2xl bg-purple-900/30 border border-purple-500/20 p-4">
+        {status === "unauthenticated" ? (
+          <div className="text-center">
+            <h3 className="text-sm font-bold text-purple-200 mb-2">Google Integration</h3>
+            <p className="text-[10px] text-purple-400 mb-4">Connect to see your schedule and steps seamlessly.</p>
+            <motion.button
+              onClick={() => signIn("google")}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-xs font-bold shadow-lg shadow-purple-500/20"
+            >
+              Connect Google Ecosystem
+            </motion.button>
+          </div>
+        ) : status === "loading" || isLoadingGoogleData ? (
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fuchsia-500"></div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Steps Ring Area */}
+            <div className="flex items-center justify-between bg-purple-900/40 rounded-xl p-3 border border-purple-500/15">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-fuchsia-500/20 flex items-center justify-center border border-fuchsia-500/30">
+                  <span className="text-lg">👟</span>
+                </div>
+                <div>
+                  <p className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">Activity</p>
+                  <p className="text-sm font-black text-fuchsia-300">
+                    {stepCount !== null ? stepCount.toLocaleString() : "0"} <span className="text-[10px] text-purple-300 font-normal">steps</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Today's Schedule */}
+            <div>
+              <h3 className="text-[10px] text-purple-400 font-bold uppercase tracking-wider mb-2 px-1">Today's Schedule</h3>
+              <div className="space-y-2">
+                {calendarEvents.length === 0 ? (
+                  <p className="text-xs text-purple-300 italic px-1">No events scheduled for today. ✨</p>
+                ) : (
+                  calendarEvents.slice(0, 3).map((event: any, idx: number) => {
+                    const startTime = event.start?.dateTime ? new Date(event.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'All Day';
+                    return (
+                      <div key={idx} className="flex items-center gap-3 bg-purple-900/40 rounded-xl p-2.5 border border-purple-500/15">
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-purple-200 truncate">{event.summary || "Busy"}</p>
+                          <p className="text-[10px] text-purple-400">{startTime}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                {calendarEvents.length > 3 && (
+                  <p className="text-[10px] text-purple-400 text-center pt-1">+{calendarEvents.length - 3} more events</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mood Check */}

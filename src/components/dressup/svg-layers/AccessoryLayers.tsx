@@ -159,6 +159,7 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
     case "acc-headphones":
       return (
         <motion.g {...equipAnim} filter="drop-shadow(0px 4px 4px rgba(0,0,0,0.3))">
+          <g transform="translate(150 155) scale(0.833) translate(-150 -155)">
           <defs>
             <linearGradient id="hp-band" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#1E293B" />
@@ -187,6 +188,7 @@ export function AccessoryLayer({ id, position }: AccessoryLayerProps) {
           <rect x="212" y="136" width="14" height="24" rx="4" fill="#64748B" />
           <circle cx="219" cy="148" r="3" fill="#10B981" filter="url(#soft-drop-shadow)" />
           <ellipse cx="212" cy="148" rx="6" ry="12" fill="#0F172A" />
+          </g>
         </motion.g>
       );
     case "acc-bandana":

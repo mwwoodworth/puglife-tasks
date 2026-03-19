@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { WeightGoalData } from "@/lib/types";
+import { getLocalDateString } from "@/lib/date";
 
 interface WeightGoalProps {
   goal: WeightGoalData | null;
@@ -23,7 +24,7 @@ export default function WeightGoal({ goal, progress, onSetGoal }: WeightGoalProp
     onSetGoal({
       startWeight: sw,
       goalWeight: gw,
-      startDate: goal?.startDate || new Date().toISOString().split("T")[0],
+      startDate: goal?.startDate || getLocalDateString(),
       heightInches: height ? parseInt(height) : undefined,
     });
     setEditing(false);

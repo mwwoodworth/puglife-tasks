@@ -84,6 +84,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, index }: Ta
             <>
               <span className={`text-sm font-semibold leading-tight block ${task.completed ? "line-through text-purple-500" : "text-purple-100"}`}>
                 {task.title}
+                {task.isRecurring && <span className="ml-1.5" title="Daily Recurring">🔄</span>}
                 {task.completed && <span className="ml-1.5">🐾</span>}
               </span>
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
