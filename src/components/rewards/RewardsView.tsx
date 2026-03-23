@@ -18,9 +18,9 @@ export default function RewardsView({ state, onEquipOutfit, onUnlockOutfit }: Re
     <div className="space-y-4 animate-slide-up">
       {/* Level + Treats Header */}
       <div className="rounded-2xl bg-purple-900/40 border border-purple-500/25 p-5 text-center">
-        <motion.span className="text-4xl block mb-2" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-          {lp.currentLevel.icon}
-        </motion.span>
+        <motion.div className="flex justify-center mb-2" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+          <DynamicIcon name={lp.currentLevel.icon} className="w-10 h-10" />
+        </motion.div>
         <h2 className="text-xl font-black text-purple-200">Level {lp.currentLevel.level}: {lp.currentLevel.name}</h2>
         <p className="text-xs text-purple-400 font-bold mt-1">🍖 {state.treats} treats available</p>
 

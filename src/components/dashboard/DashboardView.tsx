@@ -135,7 +135,7 @@ export default function DashboardView({
             </div>
           </button>
           <div className="flex items-center gap-1.5 bg-purple-900/30 rounded-xl px-3 py-2 border border-purple-500/15">
-            <span className="text-sm">{dayProgress.done === dayProgress.total && dayProgress.total > 0 ? "🌟" : "CheckCircle"}</span>
+            <span className="text-sm">{dayProgress.done === dayProgress.total && dayProgress.total > 0 ? "🌟" : "✅"}</span>
             <div>
               <p className="text-xs font-bold text-purple-200">{dayProgress.done}/{dayProgress.total}</p>
               <p className="text-[8px] text-purple-400">tasks</p>

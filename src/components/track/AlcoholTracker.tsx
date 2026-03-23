@@ -13,7 +13,7 @@ interface AlcoholTrackerProps {
 
 const drinkButtons: { type: AlcoholDrinkType; icon: string; label: string; std: string }[] = [
   { type: "beer", icon: "Beer", label: "Beer", std: "1" },
-  { type: "wine", icon: "WineGlass", label: "Wine", std: "1" },
+  { type: "wine", icon: "Wine", label: "Wine", std: "1" },
   { type: "cocktail", icon: "GlassWater", label: "Cocktail", std: "1.5" },
   { type: "shot", icon: "Martini", label: "Shot", std: "1" },
 ];

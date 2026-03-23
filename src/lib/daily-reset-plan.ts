@@ -38,7 +38,7 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
     tasks: [
       { id: "pd1", label: "Clear kitchen space", icon: "CookingPot" },
       { id: "pd2", label: "Quick living room pickup", icon: "Sofa" },
-      { id: "pd3", label: "Decide dinner (follow weekly plan)", icon: "ClipboardHeart" },
+      { id: "pd3", label: "Decide dinner (follow weekly plan)", icon: "ClipboardCheck" },
     ],
   },
   {

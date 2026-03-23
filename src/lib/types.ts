@@ -238,14 +238,14 @@ export const CATEGORY_CONFIG: Record<
   personal: { label: "Personal", icon: "Heart", gradient: "from-pink-400 to-fuchsia-500" },
   work: { label: "Work", icon: "Briefcase", gradient: "from-violet-500 to-purple-600" },
   shopping: { label: "Shopping", icon: "ShoppingBag", gradient: "from-fuchsia-400 to-pink-500" },
-  home: { label: "Home", icon: "Home", gradient: "from-purple-400 to-violet-500" },
+  home: { label: "Home", icon: "House", gradient: "from-purple-400 to-violet-500" },
   health: { label: "Health", icon: "HeartPulse", gradient: "from-indigo-400 to-purple-500" },
   fun: { label: "Fun", icon: "PartyPopper", gradient: "from-purple-500 to-fuchsia-500" },
   pugcare: { label: "Lollie Care", icon: "PawPrint", gradient: "from-amber-400 to-purple-400" },
 };
 
 export const TAB_CONFIG: Record<AppTab, { label: string; icon: string; iconName: string }> = {
-  dashboard: { label: "Home", icon: "Sparkles", iconName: "home" },
+  dashboard: { label: "Home", icon: "House", iconName: "home" },
   tasks: { label: "Tasks", icon: "ListTodo", iconName: "tasks" },
   track: { label: "Track", icon: "Heart", iconName: "track" },
   rewards: { label: "Rewards", icon: "Star", iconName: "rewards" },

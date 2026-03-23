@@ -11,9 +11,9 @@ interface TabBarProps {
 }
 
 const tabs: { id: AppTab; label: string; icon: string }[] = [
-  { id: "dashboard", label: "Home", icon: "Home" },
-  { id: "tasks", label: "Tasks", icon: "CheckCircle" },
-  { id: "track", label: "Track", icon: "BarChart" },
+  { id: "dashboard", label: "Home", icon: "House" },
+  { id: "tasks", label: "Tasks", icon: "CircleCheck" },
+  { id: "track", label: "Track", icon: "ChartBar" },
   { id: "rewards", label: "Rewards", icon: "Star" },
   { id: "lollie", label: "Lollie", icon: "Dog" },
 ];
