@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { DressUpSlot } from "@/lib/types";
@@ -11,14 +12,14 @@ interface CategoryTabsProps {
   onChange: (cat: FilterCategory) => void;
 }
 
-const categories: { id: FilterCategory; label: string; emoji: string }[] = [
-  { id: "all", label: "All", emoji: "✨" },
+const categories: { id: FilterCategory; label: string; icon: string }[] = [
+  { id: "all", label: "All", icon: "Sparkles" },
   ...Object.entries(SLOT_LABELS).map(([id, val]) => ({
     id: id as FilterCategory,
     label: val.label,
-    emoji: val.emoji,
+    icon: val.icon,
   })),
-  { id: "special", label: "Special", emoji: "💎" },
+  { id: "special", label: "Special", icon: "Gem" },
 ];
 
 export default function CategoryTabs({ active, onChange }: CategoryTabsProps) {
@@ -43,7 +44,7 @@ export default function CategoryTabs({ active, onChange }: CategoryTabsProps) {
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
-            <span className="relative z-10">{cat.emoji}</span>
+            <DynamicIcon name={cat.icon} className="relative z-10" />
             <span className="relative z-10">{cat.label}</span>
           </button>
         );

@@ -5,6 +5,7 @@ import {
   AlcoholDayData, NotificationPrefs,
 } from "./types";
 import { createDefaultRewardsState } from "./rewards-engine";
+import { syncToSupabase } from "./sync";
 import { getLocalDateString, getRelativeLocalDateString } from "./date";
 
 // ── Keys ──
@@ -32,6 +33,7 @@ const DRESSUP_STATE_KEY = "puglife-dressup-state";
 const ALCOHOL_DATA_KEY = "puglife-alcohol-data";
 const ALCOHOL_HISTORY_KEY = "puglife-alcohol-history";
 const NOTIFICATION_PREFS_KEY = "puglife-notification-prefs";
+const PROFILE_KEY = "puglife-profile";
 
 // ── Helpers ──
 function safeGet<T>(key: string, fallback: T): T {
@@ -88,7 +90,10 @@ export function loadTasks(): Task[] {
 
   return tasks;
 }
-export function saveTasks(tasks: Task[]) { safeSet(TASKS_KEY, tasks); }
+export function saveTasks(tasks: Task[]) { 
+  safeSet(TASKS_KEY, tasks); 
+  void syncToSupabase("tasks", tasks);
+}
 
 // ── Streak ──
 export function getStreak(): StreakData {
@@ -178,6 +183,7 @@ export function loadWaterData(): WaterDayData {
 
 export function saveWaterData(data: WaterDayData) {
   safeSet(WATER_DATA_KEY, data);
+  void syncToSupabase("water", data);
 }
 
 export function loadWaterHistory(): WaterDayData[] {
@@ -204,6 +210,7 @@ export function saveTodayMood(mood: MoodLevel) {
     history.push(entry);
   }
   safeSet(MOOD_HISTORY_KEY, history.slice(-90)); // Keep 90 days
+  void syncToSupabase("mood", entry);
 }
 
 export function loadMoodHistory(): MoodEntry[] {
@@ -217,6 +224,7 @@ export function loadRewards(): RewardsState {
 
 export function saveRewards(state: RewardsState) {
   safeSet(REWARDS_KEY, state);
+  void syncToSupabase("rewards", state);
 }
 
 // ── Encouragement Favorites ──
@@ -296,6 +304,7 @@ export function loadAlcoholData(): AlcoholDayData {
 
 export function saveAlcoholData(data: AlcoholDayData) {
   safeSet(ALCOHOL_DATA_KEY, data);
+  void syncToSupabase("alcohol", data);
 }
 
 export function loadAlcoholHistory(): AlcoholDayData[] {
@@ -309,6 +318,24 @@ export function loadNotificationPrefs(): NotificationPrefs {
 
 export function saveNotificationPrefs(prefs: NotificationPrefs) {
   safeSet(NOTIFICATION_PREFS_KEY, prefs);
+}
+
+// ── Profile ──
+export interface UserProfile {
+  id?: string;
+  email?: string;
+  user_name: string;
+  pet_name: string;
+  partner_name: string;
+  settings?: any;
+}
+
+export function loadProfile(): UserProfile {
+  return safeGet<UserProfile>(PROFILE_KEY, {
+    user_name: "Danielle",
+    pet_name: "Lollie",
+    partner_name: "Matt"
+  });
 }
 
 // ── Data Migration (v4 → v5) ──

@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,7 +37,7 @@ export default function FilterBar({
             className={`category-pill shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
               activeCategory === key ? `bg-gradient-to-r ${config.gradient} text-white shadow-md` : "bg-purple-800/30 text-purple-300"
             }`}
-          >{config.emoji}{(taskCounts[key] || 0) > 0 ? ` ${taskCounts[key]}` : ""}</button>
+          ><DynamicIcon name={config.icon} className="w-5 h-5" />{(taskCounts[key] || 0) > 0 ? ` ${taskCounts[key]}` : ""}</button>
         ))}
       </div>
 
@@ -60,7 +61,7 @@ export default function FilterBar({
               {(Object.entries(PRIORITY_CONFIG) as [Priority, typeof PRIORITY_CONFIG.paw][]).map(([key, config]) => (
                 <button key={key} onClick={() => onPriorityChange(key)}
                   className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${activePriority === key ? `${config.className} text-white` : "bg-purple-800/30 text-purple-300"}`}
-                >{config.emoji}</button>
+                >{config.icon}</button>
               ))}
             </div>
 

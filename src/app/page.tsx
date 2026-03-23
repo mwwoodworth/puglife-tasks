@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Task, AppTab, PugMood, SoundEffect, MoodLevel, AlcoholDrinkType } from "@/lib/types";
-import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats, migrateV4ToV5, getStorageUsage } from "@/lib/storage";
+import { loadTasks, saveTasks, updateStreak, getStreak, loadActiveTab, saveActiveTab, loadFavorites, saveFavorites, loadStats, saveStats, migrateV4ToV5, getStorageUsage, loadProfile } from "@/lib/storage";
+import { useSession } from "next-auth/react";
+import { initSync, fetchCloudData } from "@/lib/sync";
 import { PUG_ENCOURAGEMENTS, getRandomMessage } from "@/lib/pug-wisdom";
 import { TREAT_VALUES, checkNewAchievements, ACHIEVEMENTS } from "@/lib/rewards-engine";
 import { buildSystemPrompt, getTimeOfDay } from "@/lib/chat-context";
@@ -36,6 +38,9 @@ import RewardsView from "@/components/rewards/RewardsView";
 import LollieView from "@/components/lollie/LollieView";
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const profile = typeof window !== "undefined" ? loadProfile() : { user_name: "Danielle", pet_name: "Lollie", partner_name: "Matt" };
+
   // ── Legacy Tasks ──
   const [tasks, setTasks] = useState<Task[]>(() => {
     if (typeof window !== "undefined") {
@@ -74,8 +79,21 @@ export default function Home() {
 
   // ── Init ──
   useEffect(() => {
-    setIsLoaded(true);
-  }, []);
+    if (status === "loading") return;
+    
+    async function init() {
+      if (session?.user?.email) {
+        const cloudProfile = await initSync(session.user.email);
+        if (cloudProfile && typeof window !== "undefined") {
+          if (cloudProfile.user_name !== profile.user_name) {
+             localStorage.setItem("puglife-profile", JSON.stringify(cloudProfile));
+          }
+        }
+      }
+      setIsLoaded(true);
+    }
+    init();
+  }, [session, status]);
 
   // Save tasks on change
   useEffect(() => {
@@ -103,6 +121,9 @@ export default function Home() {
     if (!recording?.audioBlob) return;
     
     const systemPrompt = buildSystemPrompt({
+      userName: profile.user_name,
+      petName: profile.pet_name,
+      partnerName: profile.partner_name,
       timeOfDay: getTimeOfDay(),
       tasksCompleted: dailyReset.completedTasks.length,
       totalTasks: dailyReset.allSections.reduce((s, sec) => s + sec.tasks.length, 0),
@@ -147,7 +168,7 @@ export default function Home() {
       confetti.achievementUnlock();
       const achievement = ACHIEVEMENTS.find(a => a.id === id);
       if (achievement) {
-        toast.show(`${achievement.emoji} ${achievement.name}!`, "success");
+        toast.show(`${achievement.icon} ${achievement.name}!`, "success");
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -344,6 +365,9 @@ export default function Home() {
   // ── Chat ──
   const handleChatSend = useCallback((content: string) => {
     const systemPrompt = buildSystemPrompt({
+      userName: profile.user_name,
+      petName: profile.pet_name,
+      partnerName: profile.partner_name,
       timeOfDay: getTimeOfDay(),
       tasksCompleted: dailyReset.completedTasks.length,
       totalTasks: dailyReset.allSections.reduce((s, sec) => s + sec.tasks.length, 0),

@@ -93,13 +93,13 @@ export type ResetSectionId = "morning" | "midday" | "pre-dinner" | "dinner" | "e
 export interface ResetTaskDef {
   id: string;
   label: string;
-  emoji: string;
+  icon: string;
 }
 
 export interface ResetSectionDef {
   id: ResetSectionId;
   title: string;
-  emoji: string;
+  icon: string;
   timeRange: string;
   startHour: number;
   tasks: ResetTaskDef[];
@@ -137,12 +137,12 @@ export interface MoodEntry {
   timestamp: string;
 }
 
-export const MOOD_CONFIG: Record<MoodLevel, { label: string; emoji: string; color: string }> = {
-  5: { label: "Amazing", emoji: "🤩", color: "#a855f7" },
-  4: { label: "Good", emoji: "😊", color: "#c084fc" },
-  3: { label: "Okay", emoji: "😐", color: "#d8b4fe" },
-  2: { label: "Rough", emoji: "😔", color: "#f0abfc" },
-  1: { label: "Bad Day", emoji: "😢", color: "#f472b6" },
+export const MOOD_CONFIG: Record<MoodLevel, { label: string; icon: string; color: string }> = {
+  5: { label: "Amazing", icon: "Star", color: "#a855f7" },
+  4: { label: "Good", icon: "Smile", color: "#c084fc" },
+  3: { label: "Okay", icon: "Meh", color: "#d8b4fe" },
+  2: { label: "Rough", icon: "Frown", color: "#f0abfc" },
+  1: { label: "Bad Day", icon: "Frown", color: "#f472b6" },
 };
 
 // ── Rewards / Gamification ──
@@ -159,21 +159,21 @@ export interface AchievementDef {
   id: string;
   name: string;
   description: string;
-  emoji: string;
+  icon: string;
   condition: string; // human-readable
 }
 
 export interface LollieOutfitDef {
   id: string;
   name: string;
-  emoji: string;
+  icon: string;
   treatsRequired: number;
 }
 
 export interface LevelDef {
   level: number;
   name: string;
-  emoji: string;
+  icon: string;
   treatsRequired: number;
 }
 
@@ -195,7 +195,7 @@ export interface DailyMotivation {
 // ── Encouragement Wall ──
 export interface EncouragementCard {
   message: string;
-  emoji: string;
+  icon: string;
   backMessage?: string;
 }
 
@@ -210,46 +210,46 @@ export interface StepGoal {
 // ── Weekly Focus ──
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export const WEEKLY_FOCUS: Record<DayOfWeek, { area: string; emoji: string }> = {
-  0: { area: "Rest / Reset", emoji: "🛋️" },
-  1: { area: "Kitchen", emoji: "🍳" },
-  2: { area: "Living Room", emoji: "🛋️" },
-  3: { area: "Bathrooms", emoji: "🚿" },
-  4: { area: "Bedrooms", emoji: "🛏️" },
-  5: { area: "Catch-up", emoji: "✨" },
-  6: { area: "Rest / Reset", emoji: "🛋️" },
+export const WEEKLY_FOCUS: Record<DayOfWeek, { area: string; icon: string }> = {
+  0: { area: "Rest / Reset", icon: "Sofa" },
+  1: { area: "Kitchen", icon: "CookingPot" },
+  2: { area: "Living Room", icon: "Sofa" },
+  3: { area: "Bathrooms", icon: "ShowerHead" },
+  4: { area: "Bedrooms", icon: "Bed" },
+  5: { area: "Catch-up", icon: "Sparkles" },
+  6: { area: "Rest / Reset", icon: "Sofa" },
 };
 
 // ── Configs ──
 export const PRIORITY_CONFIG: Record<
   Priority,
-  { label: string; emoji: string; color: string; className: string }
+  { label: string; icon: string; color: string; className: string }
 > = {
-  paw: { label: "Chill Pug", emoji: "🐾", color: "#8b5cf6", className: "priority-paw" },
-  bone: { label: "Good Boy", emoji: "🦴", color: "#7c3aed", className: "priority-bone" },
-  treat: { label: "Treat Time", emoji: "🍖", color: "#9333ea", className: "priority-treat" },
-  zoomies: { label: "ZOOMIES!", emoji: "💨", color: "#c026d3", className: "priority-zoomies" },
+  paw: { label: "Chill Pug", icon: "PawPrint", color: "#8b5cf6", className: "priority-paw" },
+  bone: { label: "Good Boy", icon: "Bone", color: "#7c3aed", className: "priority-bone" },
+  treat: { label: "Treat Time", icon: "Drumstick", color: "#9333ea", className: "priority-treat" },
+  zoomies: { label: "ZOOMIES!", icon: "Wind", color: "#c026d3", className: "priority-zoomies" },
 };
 
 export const CATEGORY_CONFIG: Record<
   Category,
-  { label: string; emoji: string; gradient: string }
+  { label: string; icon: string; gradient: string }
 > = {
-  personal: { label: "Personal", emoji: "💖", gradient: "from-pink-400 to-fuchsia-500" },
-  work: { label: "Work", emoji: "💼", gradient: "from-violet-500 to-purple-600" },
-  shopping: { label: "Shopping", emoji: "🛍️", gradient: "from-fuchsia-400 to-pink-500" },
-  home: { label: "Home", emoji: "🏠", gradient: "from-purple-400 to-violet-500" },
-  health: { label: "Health", emoji: "🧘‍♀️", gradient: "from-indigo-400 to-purple-500" },
-  fun: { label: "Fun", emoji: "🎉", gradient: "from-purple-500 to-fuchsia-500" },
-  pugcare: { label: "Lollie Care", emoji: "🐶", gradient: "from-amber-400 to-purple-400" },
+  personal: { label: "Personal", icon: "Heart", gradient: "from-pink-400 to-fuchsia-500" },
+  work: { label: "Work", icon: "Briefcase", gradient: "from-violet-500 to-purple-600" },
+  shopping: { label: "Shopping", icon: "ShoppingBag", gradient: "from-fuchsia-400 to-pink-500" },
+  home: { label: "Home", icon: "Home", gradient: "from-purple-400 to-violet-500" },
+  health: { label: "Health", icon: "PersonStanding", gradient: "from-indigo-400 to-purple-500" },
+  fun: { label: "Fun", icon: "PartyPopper", gradient: "from-purple-500 to-fuchsia-500" },
+  pugcare: { label: "Lollie Care", icon: "Dog", gradient: "from-amber-400 to-purple-400" },
 };
 
-export const TAB_CONFIG: Record<AppTab, { label: string; emoji: string; icon: string }> = {
-  dashboard: { label: "Home", emoji: "🏠", icon: "home" },
-  tasks: { label: "Tasks", emoji: "✅", icon: "tasks" },
-  track: { label: "Track", emoji: "📊", icon: "track" },
-  rewards: { label: "Rewards", emoji: "⭐", icon: "rewards" },
-  lollie: { label: "Lollie", emoji: "🐶", icon: "lollie" },
+export const TAB_CONFIG: Record<AppTab, { label: string; icon: string; iconName: string }> = {
+  dashboard: { label: "Home", icon: "Home", iconName: "home" },
+  tasks: { label: "Tasks", icon: "CheckCircle", iconName: "tasks" },
+  track: { label: "Track", icon: "BarChart", iconName: "track" },
+  rewards: { label: "Rewards", icon: "Star", iconName: "rewards" },
+  lollie: { label: "Lollie", icon: "Dog", iconName: "lollie" },
 };
 
 // ── AI Chat ──

@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { MoodLevel, MOOD_CONFIG } from "@/lib/types";
@@ -46,7 +47,7 @@ export default function MoodHistory({ last30Days, weekAverage, todayMood, onLogM
                 }`}
                 whileTap={{ scale: 1.1 }}
               >
-                <span className={`text-xl ${isSelected ? "" : "opacity-60"}`}>{config.emoji}</span>
+                <DynamicIcon name={config.icon} className={`text-xl ${isSelected ? "" : "opacity-60"}`} />
                 <span className="text-[8px] text-purple-400 font-medium">{config.label}</span>
               </motion.button>
             );

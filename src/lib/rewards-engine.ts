@@ -2,16 +2,16 @@ import { AchievementDef, LevelDef, LollieOutfitDef, RewardsState } from "./types
 
 // ── Levels ──
 export const LEVELS: LevelDef[] = [
-  { level: 1, name: "Puppy", emoji: "🐾", treatsRequired: 0 },
-  { level: 2, name: "Good Girl", emoji: "🌟", treatsRequired: 50 },
-  { level: 3, name: "Snuggle Bug", emoji: "🐛", treatsRequired: 150 },
-  { level: 4, name: "Treat Monster", emoji: "🍖", treatsRequired: 300 },
-  { level: 5, name: "Zoomie Queen", emoji: "💨", treatsRequired: 500 },
-  { level: 6, name: "Couch Potato Pro", emoji: "🛋️", treatsRequired: 800 },
-  { level: 7, name: "Nap Champion", emoji: "😴", treatsRequired: 1200 },
-  { level: 8, name: "Royal Pugness", emoji: "👑", treatsRequired: 1800 },
-  { level: 9, name: "Lollie's BFF", emoji: "💜", treatsRequired: 2500 },
-  { level: 10, name: "Ultimate Pug Mom", emoji: "🏆", treatsRequired: 4000 },
+  { level: 1, name: "Puppy", icon: "PawPrint", treatsRequired: 0 },
+  { level: 2, name: "Good Girl", icon: "Star", treatsRequired: 50 },
+  { level: 3, name: "Snuggle Bug", icon: "Star", treatsRequired: 150 },
+  { level: 4, name: "Treat Monster", icon: "Drumstick", treatsRequired: 300 },
+  { level: 5, name: "Zoomie Queen", icon: "Wind", treatsRequired: 500 },
+  { level: 6, name: "Couch Potato Pro", icon: "Sofa", treatsRequired: 800 },
+  { level: 7, name: "Nap Champion", icon: "Star", treatsRequired: 1200 },
+  { level: 8, name: "Royal Pugness", icon: "Star", treatsRequired: 1800 },
+  { level: 9, name: "Lollie's BFF", icon: "Heart", treatsRequired: 2500 },
+  { level: 10, name: "Ultimate Pug Mom", icon: "Trophy", treatsRequired: 4000 },
 ];
 
 // ── Treat Values ──
@@ -33,32 +33,32 @@ export const TREAT_VALUES = {
 
 // ── Achievements ──
 export const ACHIEVEMENTS: AchievementDef[] = [
-  { id: "first-reset", name: "First Reset", description: "Complete your first reset section", emoji: "🌱", condition: "Complete 1 reset section" },
-  { id: "full-day", name: "Full Day", description: "Complete every reset in a single day", emoji: "🌟", condition: "Complete all daily sections" },
-  { id: "streak-3", name: "3-Day Streak", description: "Use the app 3 days in a row", emoji: "🔥", condition: "3-day streak" },
-  { id: "streak-7", name: "Week Warrior", description: "7-day streak!", emoji: "⚡", condition: "7-day streak" },
-  { id: "streak-14", name: "Two Week Queen", description: "14 days strong!", emoji: "👑", condition: "14-day streak" },
-  { id: "streak-30", name: "Monthly Master", description: "30-day streak. Incredible!", emoji: "🏆", condition: "30-day streak" },
-  { id: "hydration-hero", name: "Hydration Hero", description: "Hit your water goal", emoji: "💧", condition: "Hit water goal once" },
-  { id: "hydration-week", name: "Water Week", description: "Hit water goal 7 days", emoji: "🌊", condition: "7 days of water goals" },
-  { id: "bad-day-survivor", name: "Bad Day Survivor", description: "Completed the survival plan", emoji: "💪", condition: "Finish bad day plan" },
-  { id: "early-bird", name: "Early Bird", description: "Complete morning reset before 8am", emoji: "🐦", condition: "Morning reset by 8am" },
-  { id: "night-owl", name: "Night Owl Reset", description: "Complete evening reset after 9pm", emoji: "🦉", condition: "Evening reset after 9pm" },
-  { id: "mood-tracker", name: "Mood Maven", description: "Log your mood 7 days in a row", emoji: "🎭", condition: "7 mood logs" },
-  { id: "treat-100", name: "Treat Hoarder", description: "Earn 100 treats total", emoji: "🍖", condition: "100 total treats" },
-  { id: "treat-500", name: "Treat Tycoon", description: "Earn 500 treats total", emoji: "💎", condition: "500 total treats" },
-  { id: "level-5", name: "Halfway There", description: "Reach level 5", emoji: "🎯", condition: "Reach Zoomie Queen" },
+  { id: "first-reset", name: "First Reset", description: "Complete your first reset section", icon: "Star", condition: "Complete 1 reset section" },
+  { id: "full-day", name: "Full Day", description: "Complete every reset in a single day", icon: "Star", condition: "Complete all daily sections" },
+  { id: "streak-3", name: "3-Day Streak", description: "Use the app 3 days in a row", icon: "Star", condition: "3-day streak" },
+  { id: "streak-7", name: "Week Warrior", description: "7-day streak!", icon: "Star", condition: "7-day streak" },
+  { id: "streak-14", name: "Two Week Queen", description: "14 days strong!", icon: "Star", condition: "14-day streak" },
+  { id: "streak-30", name: "Monthly Master", description: "30-day streak. Incredible!", icon: "Trophy", condition: "30-day streak" },
+  { id: "hydration-hero", name: "Hydration Hero", description: "Hit your water goal", icon: "Droplet", condition: "Hit water goal once" },
+  { id: "hydration-week", name: "Water Week", description: "Hit water goal 7 days", icon: "Star", condition: "7 days of water goals" },
+  { id: "bad-day-survivor", name: "Bad Day Survivor", description: "Completed the survival plan", icon: "Star", condition: "Finish bad day plan" },
+  { id: "early-bird", name: "Early Bird", description: "Complete morning reset before 8am", icon: "Star", condition: "Morning reset by 8am" },
+  { id: "night-owl", name: "Night Owl Reset", description: "Complete evening reset after 9pm", icon: "Star", condition: "Evening reset after 9pm" },
+  { id: "mood-tracker", name: "Mood Maven", description: "Log your mood 7 days in a row", icon: "Star", condition: "7 mood logs" },
+  { id: "treat-100", name: "Treat Hoarder", description: "Earn 100 treats total", icon: "Drumstick", condition: "100 total treats" },
+  { id: "treat-500", name: "Treat Tycoon", description: "Earn 500 treats total", icon: "Gem", condition: "500 total treats" },
+  { id: "level-5", name: "Halfway There", description: "Reach level 5", icon: "Star", condition: "Reach Zoomie Queen" },
 ];
 
 // ── Outfits ──
 export const OUTFITS: LollieOutfitDef[] = [
-  { id: "crown", name: "Crown", emoji: "👑", treatsRequired: 100 },
-  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️", treatsRequired: 75 },
-  { id: "party-hat", name: "Party Hat", emoji: "🎉", treatsRequired: 50 },
-  { id: "cape", name: "Superhero Cape", emoji: "🦸", treatsRequired: 200 },
-  { id: "bow-tie", name: "Bow Tie", emoji: "🎀", treatsRequired: 60 },
-  { id: "flower-crown", name: "Flower Crown", emoji: "🌸", treatsRequired: 150 },
-  { id: "pajamas", name: "Cozy Pajamas", emoji: "😴", treatsRequired: 120 },
+  { id: "crown", name: "Crown", icon: "Star", treatsRequired: 100 },
+  { id: "sunglasses", name: "Sunglasses", icon: "Star", treatsRequired: 75 },
+  { id: "party-hat", name: "Party Hat", icon: "PartyPopper", treatsRequired: 50 },
+  { id: "cape", name: "Superhero Cape", icon: "Star", treatsRequired: 200 },
+  { id: "bow-tie", name: "Bow Tie", icon: "Star", treatsRequired: 60 },
+  { id: "flower-crown", name: "Flower Crown", icon: "Star", treatsRequired: 150 },
+  { id: "pajamas", name: "Cozy Pajamas", icon: "Star", treatsRequired: 120 },
 ];
 
 // ── Engine Functions ──

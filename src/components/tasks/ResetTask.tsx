@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { ResetTaskDef } from "@/lib/types";
@@ -49,7 +50,7 @@ export default function ResetTask({ task, completed, onToggle }: ResetTaskProps)
       </motion.div>
 
       {/* Emoji + Label */}
-      <span className="text-base flex-shrink-0">{task.emoji}</span>
+      <DynamicIcon name={task.icon} className="text-base flex-shrink-0" />
       <span
         className={`text-sm font-medium flex-1 ${
           completed ? "text-purple-400 line-through" : "text-purple-200"

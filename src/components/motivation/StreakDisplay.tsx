@@ -69,7 +69,7 @@ export default function StreakDisplay({ streak }: StreakDisplayProps) {
                 animate={isAchieved ? { scale: [1, 1.05, 1] } : {}}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                {isAchieved ? "⭐" : "🔒"} {m.days}d
+                {isAchieved ? "Star" : "🔒"} {m.days}d
               </motion.div>
             );
           })}

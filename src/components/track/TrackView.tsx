@@ -118,7 +118,7 @@ export default function TrackView({
           <div className="flex flex-wrap gap-2">
             {milestones.map((m, i) => (
               <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-md shadow-purple-500/20">
-                {m.type === "goal-reached" ? "🏆" : m.type === "halfway" ? "🎯" : m.type === "new-low" ? "⭐" : "🎉"}
+                {m.type === "goal-reached" ? "Trophy" : m.type === "halfway" ? "🎯" : m.type === "new-low" ? "Star" : "PartyPopper"}
                 {m.type.replace("-", " ")}
               </span>
             ))}

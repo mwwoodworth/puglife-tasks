@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
@@ -24,12 +25,12 @@ interface DashboardViewProps {
   playSound: (effect: SoundEffect) => void;
 }
 
-const MOOD_OPTIONS: { mood: MoodLevel; emoji: string; label: string }[] = [
-  { mood: 5, emoji: "🤩", label: "Amazing" },
-  { mood: 4, emoji: "😊", label: "Good" },
-  { mood: 3, emoji: "😐", label: "Okay" },
-  { mood: 2, emoji: "😔", label: "Rough" },
-  { mood: 1, emoji: "😢", label: "Bad" },
+const MOOD_OPTIONS: { mood: MoodLevel; icon: string; label: string }[] = [
+  { mood: 5, icon: "Star", label: "Amazing" },
+  { mood: 4, icon: "Smile", label: "Good" },
+  { mood: 3, icon: "Meh", label: "Okay" },
+  { mood: 2, icon: "Frown", label: "Rough" },
+  { mood: 1, icon: "Frown", label: "Bad" },
 ];
 
 export default function DashboardView({
@@ -134,7 +135,7 @@ export default function DashboardView({
             </div>
           </button>
           <div className="flex items-center gap-1.5 bg-purple-900/30 rounded-xl px-3 py-2 border border-purple-500/15">
-            <span className="text-sm">{dayProgress.done === dayProgress.total && dayProgress.total > 0 ? "🌟" : "✅"}</span>
+            <span className="text-sm">{dayProgress.done === dayProgress.total && dayProgress.total > 0 ? "🌟" : "CheckCircle"}</span>
             <div>
               <p className="text-xs font-bold text-purple-200">{dayProgress.done}/{dayProgress.total}</p>
               <p className="text-[8px] text-purple-400">tasks</p>
@@ -225,7 +226,7 @@ export default function DashboardView({
                 className="flex flex-col items-center gap-0.5"
                 whileTap={{ scale: 1.2 }}
               >
-                <span className="text-2xl">{opt.emoji}</span>
+                <DynamicIcon name={opt.icon} className="text-2xl" />
                 <span className="text-[8px] text-purple-400 font-medium">{opt.label}</span>
               </motion.button>
             ))}
@@ -235,7 +236,7 @@ export default function DashboardView({
 
       {/* Today's Focus */}
       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-900/20 border border-purple-500/10">
-        <span>{focus.emoji}</span>
+        <DynamicIcon name={focus.icon} />
         <span className="text-xs font-bold text-purple-300">{dayName} Focus: {focus.area}</span>
       </div>
 
@@ -243,7 +244,7 @@ export default function DashboardView({
       {currentSection && !badDayMode && (
         <div className="rounded-2xl bg-purple-900/40 border border-purple-500/25 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">{currentSection.emoji}</span>
+            <DynamicIcon name={currentSection.icon} className="text-lg" />
             <div>
               <h3 className="text-sm font-bold text-purple-200">{currentSection.title}</h3>
               {currentSection.timeRange && (

@@ -8,9 +8,9 @@ interface DailyWinCheckProps {
 }
 
 const WIN_TASKS = [
-  { id: "w1", label: "I fed myself", emoji: "💜" },
-  { id: "w2", label: "I kept the house from getting worse", emoji: "💜" },
-  { id: "w3", label: "I did enough", emoji: "💜" },
+  { id: "w1", label: "I fed myself", icon: "Heart" },
+  { id: "w2", label: "I kept the house from getting worse", icon: "Heart" },
+  { id: "w3", label: "I did enough", icon: "Heart" },
 ];
 
 export default function DailyWinCheck({ completedTasks, onToggle }: DailyWinCheckProps) {

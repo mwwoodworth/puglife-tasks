@@ -6,11 +6,11 @@ export function calculateBMI(weightLbs: number, heightInches: number): number {
   return (weightLbs / (heightInches * heightInches)) * 703;
 }
 
-export function getBMICategory(bmi: number): { label: string; emoji: string } {
-  if (bmi < 18.5) return { label: "Underweight", emoji: "🍃" };
-  if (bmi < 25) return { label: "Normal", emoji: "💚" };
-  if (bmi < 30) return { label: "Overweight", emoji: "💛" };
-  return { label: "Obese", emoji: "🧡" };
+export function getBMICategory(bmi: number): { label: string; icon: string } {
+  if (bmi < 18.5) return { label: "Underweight", icon: "Star" };
+  if (bmi < 25) return { label: "Normal", icon: "Star" };
+  if (bmi < 30) return { label: "Overweight", icon: "Star" };
+  return { label: "Obese", icon: "Star" };
 }
 
 export function detectNewMilestones(

@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
@@ -119,7 +120,7 @@ export default function EncouragementWall({ favorites, onToggleFavorite }: Encou
                   style={{ backfaceVisibility: "hidden" }}
                 >
                   {isFav && <span className="absolute top-1 right-1 text-[10px]">⭐</span>}
-                  <span className="text-xl block mb-1">{item.emoji}</span>
+                  <DynamicIcon name={item.icon} className="text-xl block mb-1" />
                   <p className="text-[11px] font-bold text-purple-200">{item.message}</p>
                 </div>
 

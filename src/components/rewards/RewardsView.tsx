@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { RewardsState } from "@/lib/types";
@@ -18,7 +19,7 @@ export default function RewardsView({ state, onEquipOutfit, onUnlockOutfit }: Re
       {/* Level + Treats Header */}
       <div className="rounded-2xl bg-purple-900/40 border border-purple-500/25 p-5 text-center">
         <motion.span className="text-4xl block mb-2" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-          {lp.currentLevel.emoji}
+          {lp.currentLevel.icon}
         </motion.span>
         <h2 className="text-xl font-black text-purple-200">Level {lp.currentLevel.level}: {lp.currentLevel.name}</h2>
         <p className="text-xs text-purple-400 font-bold mt-1">🍖 {state.treats} treats available</p>
@@ -53,7 +54,7 @@ export default function RewardsView({ state, onEquipOutfit, onUnlockOutfit }: Re
             const reached = state.level >= level.level;
             return (
               <div key={level.level} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${reached ? "bg-purple-500/10" : ""}`}>
-                <span className={`text-base ${reached ? "" : "opacity-30"}`}>{level.emoji}</span>
+                <DynamicIcon name={level.icon} className={`text-base ${reached ? "" : "opacity-30"}`} />
                 <span className={`text-xs font-bold flex-1 ${reached ? "text-purple-200" : "text-purple-500"}`}>
                   Lv{level.level} {level.name}
                 </span>
@@ -81,7 +82,7 @@ export default function RewardsView({ state, onEquipOutfit, onUnlockOutfit }: Re
                 }`}
                 whileHover={{ scale: 1.05 }}
               >
-                <span className={`text-2xl ${unlocked ? "" : "grayscale"}`}>{achievement.emoji}</span>
+                <DynamicIcon name={achievement.icon} className={`text-2xl ${unlocked ? "" : "grayscale"}`} />
                 <span className="text-[9px] font-bold text-purple-200 leading-tight">{achievement.name}</span>
                 {!unlocked && (
                   <span className="text-[8px] text-purple-500">🔒</span>
@@ -134,7 +135,7 @@ export default function RewardsView({ state, onEquipOutfit, onUnlockOutfit }: Re
                 }`}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="text-xl">{outfit.emoji}</span>
+                <DynamicIcon name={outfit.icon} className="text-xl" />
                 <span className="text-[8px] font-bold text-purple-300">{outfit.name}</span>
                 {!unlocked && (
                   <span className="text-[7px] text-purple-500">🍖{outfit.treatsRequired}</span>

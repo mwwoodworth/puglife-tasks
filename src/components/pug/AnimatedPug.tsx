@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion, AnimatePresence, type TargetAndTransition } from "framer-motion";
 import { PugMood } from "@/lib/types";
@@ -39,7 +40,7 @@ const PUG_FALLBACKS: Record<PugMood, string> = {
 const OUTFIT_EMOJIS: Record<string, string> = {
   crown: "👑",
   sunglasses: "🕶️",
-  "party-hat": "🎉",
+  "party-hat": "PartyPopper",
   cape: "🦸",
   "bow-tie": "🎀",
   "flower-crown": "🌸",
@@ -59,19 +60,19 @@ const bodyVariants: Record<PugMood, TargetAndTransition> = {
 };
 
 export default function AnimatedPug({ mood, size = 120, onClick, outfit }: AnimatedPugProps) {
-  const [particles, setParticles] = useState<{ id: number; emoji: string; x: number; delay: number }[]>([]);
+  const [particles, setParticles] = useState<{ id: number; icon: string; x: number; delay: number }[]>([]);
 
   useEffect(() => {
     const emojis: Record<string, string[]> = {
-      celebrating: ["🎉", "🎊", "⭐", "✨", "💜"],
-      love: ["💜", "💕", "💖", "💗", "✨"],
-      excited: ["✨", "⭐", "💫", "💜", "🌟"],
-      happy: ["✨", "💜", "🌟"],
+      celebrating: ["PartyPopper", "🎊", "Star", "Sparkles", "Heart"],
+      love: ["Heart", "💕", "Heart", "💗", "Sparkles"],
+      excited: ["Sparkles", "Star", "💫", "Heart", "🌟"],
+      happy: ["Sparkles", "Heart", "🌟"],
     };
     const set = emojis[mood];
     if (set) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setParticles(set.map((emoji, i) => ({ id: Date.now() + i, emoji, x: (i - 2) * 22, delay: i * 0.1 })));
+      setParticles(set.map((icon, i) => ({ id: Date.now() + i, icon, x: (i - 2) * 22, delay: i * 0.1 })));
       const t = setTimeout(() => setParticles([]), 2500);
       return () => clearTimeout(t);
     }
@@ -91,7 +92,7 @@ export default function AnimatedPug({ mood, size = 120, onClick, outfit }: Anima
             transition={{ duration: 1.8, delay: p.delay }}
             style={{ top: "5%" }}
           >
-            {p.emoji}
+            <DynamicIcon name={p.icon} className="w-5 h-5" />
           </motion.span>
         ))}
       </AnimatePresence>

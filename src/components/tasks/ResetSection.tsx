@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,7 +37,7 @@ export default function ResetSection({
         className="w-full flex items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">{section.emoji}</span>
+          <DynamicIcon name={section.icon} className="text-lg" />
           <div>
             <h3 className={`text-sm font-bold ${allDone ? "text-emerald-400" : "text-purple-200"}`}>
               {section.title}

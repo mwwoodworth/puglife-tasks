@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { Task, PRIORITY_CONFIG, CATEGORY_CONFIG } from "@/lib/types";
@@ -89,10 +90,10 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, index }: Ta
               </span>
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full text-white ${priority.className}`}>
-                  {priority.emoji} {priority.label}
+                  <DynamicIcon name={priority.icon} className="w-5 h-5" /> {priority.label}
                 </span>
                 <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${category.gradient} text-white`}>
-                  {category.emoji} {category.label}
+                  {category.icon} {category.label}
                 </span>
                 {task.dueDate && (
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${isOverdue ? "bg-red-500/30 text-red-300" : "bg-purple-800/40 text-purple-300"}`}>

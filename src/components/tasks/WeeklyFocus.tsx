@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { getTodayFocus } from "@/lib/daily-reset-plan";
 
@@ -8,7 +9,7 @@ export default function WeeklyFocus() {
 
   return (
     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-900/30 border border-purple-500/15">
-      <span className="text-base">{focus.emoji}</span>
+      <DynamicIcon name={focus.icon} className="text-base" />
       <div>
         <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">{dayName} Focus</span>
         <p className="text-xs font-bold text-purple-200">{focus.area}</p>

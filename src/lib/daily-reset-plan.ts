@@ -8,73 +8,73 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
   {
     id: "morning",
     title: "Morning Reset",
-    emoji: "🌅",
+    icon: "Sunrise",
     timeRange: "5-10 min",
     startHour: 6,
     tasks: [
-      { id: "m1", label: "Drink something (chocolate milk / shake / coffee)", emoji: "☕" },
-      { id: "m2", label: "Start laundry OR unload dishwasher", emoji: "🧺" },
-      { id: "m3", label: "Quick counter wipe OR pick up main area", emoji: "✨" },
+      { id: "m1", label: "Drink something (chocolate milk / shake / coffee)", icon: "Coffee" },
+      { id: "m2", label: "Start laundry OR unload dishwasher", icon: "ShoppingBasket" },
+      { id: "m3", label: "Quick counter wipe OR pick up main area", icon: "Sparkles" },
     ],
   },
   {
     id: "midday",
     title: "Midday Reset",
-    emoji: "☀️",
+    icon: "Sun",
     timeRange: "20-30 min",
     startHour: 11,
     tasks: [
-      { id: "md1", label: "10-minute tidy (set a timer!)", emoji: "⏱️" },
-      { id: "md2", label: "Switch / start laundry", emoji: "🧺" },
-      { id: "md3", label: "Eat something (shake or easy lunch)", emoji: "🍽️" },
+      { id: "md1", label: "10-minute tidy (set a timer!)", icon: "Timer" },
+      { id: "md2", label: "Switch / start laundry", icon: "ShoppingBasket" },
+      { id: "md3", label: "Eat something (shake or easy lunch)", icon: "Utensils" },
     ],
   },
   {
     id: "pre-dinner",
     title: "Pre-Dinner Reset",
-    emoji: "🌇",
+    icon: "Sunset",
     timeRange: "10-15 min",
     startHour: 15,
     tasks: [
-      { id: "pd1", label: "Clear kitchen space", emoji: "🍳" },
-      { id: "pd2", label: "Quick living room pickup", emoji: "🛋️" },
-      { id: "pd3", label: "Decide dinner (follow weekly plan)", emoji: "📋" },
+      { id: "pd1", label: "Clear kitchen space", icon: "CookingPot" },
+      { id: "pd2", label: "Quick living room pickup", icon: "Sofa" },
+      { id: "pd3", label: "Decide dinner (follow weekly plan)", icon: "ClipboardList" },
     ],
   },
   {
     id: "dinner",
     title: "Dinner Flow",
-    emoji: "🍝",
+    icon: "ChefHat",
     timeRange: "",
     startHour: 17,
     tasks: [
-      { id: "d1", label: "Cook simple meal (not perfect!)", emoji: "👩‍🍳" },
-      { id: "d2", label: "Deconstruct for Aspen if needed", emoji: "👶" },
-      { id: "d3", label: "Rinse / load dishes", emoji: "🍽️" },
+      { id: "d1", label: "Cook simple meal (not perfect!)", icon: "ChefHat" },
+      { id: "d2", label: "Deconstruct for Aspen if needed", icon: "Baby" },
+      { id: "d3", label: "Rinse / load dishes", icon: "Utensils" },
     ],
   },
   {
     id: "evening",
     title: "Evening Reset",
-    emoji: "🌙",
+    icon: "Moon",
     timeRange: "10-15 min",
     startHour: 19,
     tasks: [
-      { id: "e1", label: "Load / run dishwasher", emoji: "🫧" },
-      { id: "e2", label: "Wipe counters", emoji: "✨" },
-      { id: "e3", label: "Quick pickup (toys, clutter, blankets)", emoji: "🧸" },
+      { id: "e1", label: "Load / run dishwasher", icon: "Droplets" },
+      { id: "e2", label: "Wipe counters", icon: "Sparkles" },
+      { id: "e3", label: "Quick pickup (toys, clutter, blankets)", icon: "PackageOpen" },
     ],
   },
   {
     id: "daily-win",
     title: "Daily Win Check",
-    emoji: "🏆",
+    icon: "Trophy",
     timeRange: "",
     startHour: 20,
     tasks: [
-      { id: "w1", label: "I fed myself", emoji: "💜" },
-      { id: "w2", label: "I kept the house from getting worse", emoji: "💜" },
-      { id: "w3", label: "I did enough", emoji: "💜" },
+      { id: "w1", label: "I fed myself", icon: "Heart" },
+      { id: "w2", label: "I kept the house from getting worse", icon: "Heart" },
+      { id: "w3", label: "I did enough", icon: "Heart" },
     ],
   },
 ];
@@ -82,11 +82,11 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
 // ── Bad Day Survival Plan ──
 // Rule: Something > Nothing
 export const BAD_DAY_TASKS: ResetTaskDef[] = [
-  { id: "bd1", label: "Drink something (milk / shake / coffee)", emoji: "☕" },
-  { id: "bd2", label: "Eat: shake OR snack plate OR frozen meal", emoji: "🍕" },
-  { id: "bd3", label: "Do a 5-minute reset (any one thing)", emoji: "⏱️" },
-  { id: "bd4", label: "Easy dinner (pizza, nuggets, snack plate)", emoji: "🍗" },
-  { id: "bd5", label: "Evening: load dishwasher OR clear one surface", emoji: "🫧" },
+  { id: "bd1", label: "Drink something (milk / shake / coffee)", icon: "Coffee" },
+  { id: "bd2", label: "Eat: shake OR snack plate OR frozen meal", icon: "Pizza" },
+  { id: "bd3", label: "Do a 5-minute reset (any one thing)", icon: "Timer" },
+  { id: "bd4", label: "Easy dinner (pizza, nuggets, snack plate)", icon: "Drumstick" },
+  { id: "bd5", label: "Evening: load dishwasher OR clear one surface", icon: "Droplets" },
 ];
 
 export const BAD_DAY_MESSAGE = "You are not behind. You are doing your best — and that counts.";
@@ -146,16 +146,16 @@ export function getBadDayProgress(completedTasks: string[]): {
 }
 
 // ── Weekly Focus ──
-export function getTodayFocus(): { area: string; emoji: string } {
+export function getTodayFocus(): { area: string; icon: string } {
   const day = new Date().getDay();
-  const focuses: Record<number, { area: string; emoji: string }> = {
-    0: { area: "Rest / Reset", emoji: "🛋️" },
-    1: { area: "Kitchen", emoji: "🍳" },
-    2: { area: "Living Room", emoji: "🛋️" },
-    3: { area: "Bathrooms", emoji: "🚿" },
-    4: { area: "Bedrooms", emoji: "🛏️" },
-    5: { area: "Catch-up", emoji: "✨" },
-    6: { area: "Rest / Reset", emoji: "🛋️" },
+  const focuses: Record<number, { area: string; icon: string }> = {
+    0: { area: "Rest / Reset", icon: "Sofa" },
+    1: { area: "Kitchen", icon: "CookingPot" },
+    2: { area: "Living Room", icon: "Sofa" },
+    3: { area: "Bathrooms", icon: "ShowerHead" },
+    4: { area: "Bedrooms", icon: "Bed" },
+    5: { area: "Catch-up", icon: "Sparkles" },
+    6: { area: "Rest / Reset", icon: "Sofa" },
   };
   return focuses[day];
 }

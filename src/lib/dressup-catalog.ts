@@ -6,19 +6,19 @@ import { DressUpItem, DressUpSlot, ItemRarity } from "./types";
 export const DRESSUP_ITEMS: DressUpItem[] = [
   // ── HATS (9) ──
   { id: "hat-crown", name: "Crown", slot: "hat", rarity: "rare", treatsCost: 150, svgLayerId: "crown", previewEmoji: "👑" },
-  { id: "hat-party", name: "Party Hat", slot: "hat", rarity: "common", treatsCost: 25, svgLayerId: "party-hat", previewEmoji: "🎉" },
+  { id: "hat-party", name: "Party Hat", slot: "hat", rarity: "common", treatsCost: 25, svgLayerId: "party-hat", previewEmoji: "PartyPopper" },
   { id: "hat-beanie", name: "Beanie", slot: "hat", rarity: "common", treatsCost: 20, svgLayerId: "beanie", previewEmoji: "🧶" },
   { id: "hat-cowboy", name: "Cowboy Hat", slot: "hat", rarity: "uncommon", treatsCost: 60, svgLayerId: "cowboy", previewEmoji: "🤠" },
   { id: "hat-chef", name: "Chef Hat", slot: "hat", rarity: "uncommon", treatsCost: 55, svgLayerId: "chef", previewEmoji: "👨‍🍳" },
   { id: "hat-flower-crown", name: "Flower Crown", slot: "hat", rarity: "rare", treatsCost: 120, svgLayerId: "flower-crown", previewEmoji: "🌸" },
   { id: "hat-witch", name: "Witch Hat", slot: "hat", rarity: "uncommon", treatsCost: 70, svgLayerId: "witch", previewEmoji: "🧙‍♀️" },
   { id: "hat-santa", name: "Santa Hat", slot: "hat", rarity: "uncommon", treatsCost: 65, svgLayerId: "santa", previewEmoji: "🎅" },
-  { id: "hat-diamond-crown", name: "Diamond Crown", slot: "hat", rarity: "epic", treatsCost: 400, svgLayerId: "diamond-crown", previewEmoji: "💎", isSpecial: true },
+  { id: "hat-diamond-crown", name: "Diamond Crown", slot: "hat", rarity: "epic", treatsCost: 400, svgLayerId: "diamond-crown", previewEmoji: "Gem", isSpecial: true },
 
   // ── GLASSES (6) ──
   { id: "glasses-sun", name: "Sunglasses", slot: "glasses", rarity: "common", treatsCost: 30, svgLayerId: "sunglasses", previewEmoji: "🕶️" },
   { id: "glasses-heart", name: "Heart Glasses", slot: "glasses", rarity: "common", treatsCost: 25, svgLayerId: "heart-glasses", previewEmoji: "💕" },
-  { id: "glasses-star", name: "Star Glasses", slot: "glasses", rarity: "uncommon", treatsCost: 50, svgLayerId: "star-glasses", previewEmoji: "⭐" },
+  { id: "glasses-star", name: "Star Glasses", slot: "glasses", rarity: "uncommon", treatsCost: 50, svgLayerId: "star-glasses", previewEmoji: "Star" },
   { id: "glasses-reading", name: "Reading Glasses", slot: "glasses", rarity: "common", treatsCost: 15, svgLayerId: "reading", previewEmoji: "🤓" },
   { id: "glasses-aviator", name: "Aviator Shades", slot: "glasses", rarity: "uncommon", treatsCost: 55, svgLayerId: "aviator", previewEmoji: "😎" },
   { id: "glasses-nerd", name: "Nerd Specs", slot: "glasses", rarity: "common", treatsCost: 20, svgLayerId: "nerd", previewEmoji: "🧐" },
@@ -32,7 +32,7 @@ export const DRESSUP_ITEMS: DressUpItem[] = [
   { id: "outfit-hawaiian", name: "Hawaiian Shirt", slot: "outfit", rarity: "uncommon", treatsCost: 50, svgLayerId: "hawaiian", previewEmoji: "🌺" },
   { id: "outfit-hoodie", name: "Cozy Hoodie", slot: "outfit", rarity: "common", treatsCost: 25, svgLayerId: "hoodie", previewEmoji: "🧥" },
   { id: "outfit-superhero", name: "Super Suit", slot: "outfit", rarity: "uncommon", treatsCost: 80, svgLayerId: "superhero", previewEmoji: "💪" },
-  { id: "outfit-lorelei", name: "Lorelei Dress", slot: "outfit", rarity: "epic", treatsCost: 300, svgLayerId: "lorelei", previewEmoji: "💎", isSpecial: true },
+  { id: "outfit-lorelei", name: "Lorelei Dress", slot: "outfit", rarity: "epic", treatsCost: 300, svgLayerId: "lorelei", previewEmoji: "Gem", isSpecial: true },
   { id: "outfit-galaxy-cape", name: "Galaxy Cape", slot: "outfit", rarity: "epic", treatsCost: 350, svgLayerId: "galaxy-cape", previewEmoji: "🌌", isSpecial: true },
 
   // ── ACCESSORIES (9) ──
@@ -44,7 +44,7 @@ export const DRESSUP_ITEMS: DressUpItem[] = [
   { id: "acc-medal", name: "Gold Medal", slot: "accessory", rarity: "uncommon", treatsCost: 70, svgLayerId: "medal", previewEmoji: "🏅" },
   { id: "acc-headphones", name: "Headphones", slot: "accessory", rarity: "uncommon", treatsCost: 55, svgLayerId: "headphones", previewEmoji: "🎧" },
   { id: "acc-bandana", name: "Bandana", slot: "accessory", rarity: "common", treatsCost: 15, svgLayerId: "bandana", previewEmoji: "🏴‍☠️" },
-  { id: "acc-golden-wings", name: "Golden Wings", slot: "accessory", rarity: "epic", treatsCost: 450, svgLayerId: "golden-wings", previewEmoji: "✨", isSpecial: true },
+  { id: "acc-golden-wings", name: "Golden Wings", slot: "accessory", rarity: "epic", treatsCost: 450, svgLayerId: "golden-wings", previewEmoji: "Sparkles", isSpecial: true },
 
   // ── BACKGROUNDS (7) ──
   { id: "bg-clouds", name: "Fluffy Clouds", slot: "background", rarity: "common", treatsCost: 15, svgLayerId: "clouds", previewEmoji: "☁️" },
@@ -79,10 +79,10 @@ export const RARITY_COLORS: Record<ItemRarity, { bg: string; border: string; tex
   epic: { bg: "bg-purple-900/40", border: "border-purple-400/50", text: "text-purple-200", glow: "shadow-purple-400/40" },
 };
 
-export const SLOT_LABELS: Record<DressUpSlot, { label: string; emoji: string }> = {
-  hat: { label: "Hats", emoji: "🎩" },
-  glasses: { label: "Glasses", emoji: "👓" },
-  outfit: { label: "Outfits", emoji: "👗" },
-  accessory: { label: "Accessories", emoji: "💍" },
-  background: { label: "Scenes", emoji: "🎨" },
+export const SLOT_LABELS: Record<DressUpSlot, { label: string; icon: string }> = {
+  hat: { label: "Hats", icon: "Star" },
+  glasses: { label: "Glasses", icon: "Star" },
+  outfit: { label: "Outfits", icon: "Star" },
+  accessory: { label: "Accessories", icon: "Star" },
+  background: { label: "Scenes", icon: "Star" },
 };

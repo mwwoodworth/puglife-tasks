@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { DrinkType, SoundEffect } from "@/lib/types";
@@ -14,11 +15,11 @@ interface WaterTrackerProps {
   playSound: (effect: SoundEffect) => void;
 }
 
-const DRINKS: { type: DrinkType; emoji: string; label: string }[] = [
-  { type: "water", emoji: "💧", label: "Water" },
-  { type: "coffee", emoji: "☕", label: "Coffee" },
-  { type: "shake", emoji: "🥤", label: "Shake" },
-  { type: "chocolate-milk", emoji: "🍫", label: "Choco" },
+const DRINKS: { type: DrinkType; icon: string; label: string }[] = [
+  { type: "water", icon: "Droplet", label: "Water" },
+  { type: "coffee", icon: "Coffee", label: "Coffee" },
+  { type: "shake", icon: "CupSoda", label: "Shake" },
+  { type: "chocolate-milk", icon: "Candy", label: "Choco" },
 ];
 
 export default function WaterTracker({
@@ -117,7 +118,7 @@ export default function WaterTracker({
             className="flex flex-col items-center gap-1 bg-purple-900/40 rounded-xl py-2.5 border border-purple-500/20 active:bg-purple-800/40 transition-all"
             whileTap={{ scale: 0.95 }}
           >
-            <span className="text-xl">{drink.emoji}</span>
+            <DynamicIcon name={drink.icon} className="text-xl" />
             <span className="text-[9px] font-bold text-purple-300">{drink.label}</span>
           </motion.button>
         ))}

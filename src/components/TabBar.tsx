@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { AppTab } from "@/lib/types";
@@ -10,11 +11,11 @@ interface TabBarProps {
 }
 
 const tabs: { id: AppTab; label: string; icon: string }[] = [
-  { id: "dashboard", label: "Home", icon: "🏠" },
-  { id: "tasks", label: "Tasks", icon: "✅" },
-  { id: "track", label: "Track", icon: "📊" },
-  { id: "rewards", label: "Rewards", icon: "⭐" },
-  { id: "lollie", label: "Lollie", icon: "🐶" },
+  { id: "dashboard", label: "Home", icon: "Home" },
+  { id: "tasks", label: "Tasks", icon: "CheckCircle" },
+  { id: "track", label: "Track", icon: "BarChart" },
+  { id: "rewards", label: "Rewards", icon: "Star" },
+  { id: "lollie", label: "Lollie", icon: "Dog" },
 ];
 
 export default function TabBar({ activeTab, onTabChange }: TabBarProps) {
@@ -42,7 +43,7 @@ export default function TabBar({ activeTab, onTabChange }: TabBarProps) {
                 animate={isActive ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                {tab.icon}
+                <DynamicIcon name={tab.icon} className="w-5 h-5" />
               </motion.span>
               <span
                 className={`text-[9px] font-bold relative z-10 transition-colors ${

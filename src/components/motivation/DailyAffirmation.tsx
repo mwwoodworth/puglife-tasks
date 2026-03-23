@@ -9,7 +9,7 @@ export default function DailyAffirmation() {
   const categoryEmojis: Record<string, string> = {
     encouragement: "🌟",
     persistence: "💪",
-    "self-love": "💜",
+    "self-love": "Heart",
     strength: "🔥",
     humor: "😄",
   };
@@ -26,7 +26,7 @@ export default function DailyAffirmation() {
 
       <div className="relative z-10">
         <div className="flex items-center justify-center gap-2 mb-3">
-          <span className="text-2xl">{categoryEmojis[affirmation.category] || "💜"}</span>
+          <span className="text-2xl">{categoryEmojis[affirmation.category] || "Heart"}</span>
           <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest">Lollie Says</h3>
           <span className="text-2xl">🐶</span>
         </div>

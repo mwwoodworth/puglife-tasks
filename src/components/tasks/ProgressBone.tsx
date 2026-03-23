@@ -42,7 +42,7 @@ export default function ProgressBone({ completed, total }: ProgressBoneProps) {
         <div className="flex justify-between mt-1 px-0.5">
           {[0, 25, 50, 75, 100].map((m) => (
             <span key={m} className={`text-xs ${pct >= m ? "opacity-100" : "opacity-30"}`}>
-              {m === 100 ? "🏆" : m >= 75 ? "🍖" : m >= 50 ? "🦴" : m >= 25 ? "🐾" : "🐕"}
+              {m === 100 ? "Trophy" : m >= 75 ? "Drumstick" : m >= 50 ? "Bone" : m >= 25 ? "PawPrint" : "🐕"}
             </span>
           ))}
         </div>

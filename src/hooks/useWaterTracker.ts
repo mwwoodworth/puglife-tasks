@@ -11,11 +11,11 @@ const DRINK_OZ: Record<DrinkType, number> = {
   "chocolate-milk": 8,
 };
 
-const DRINK_LABELS: Record<DrinkType, { label: string; emoji: string }> = {
-  water: { label: "Water", emoji: "💧" },
-  coffee: { label: "Coffee", emoji: "☕" },
-  shake: { label: "Shake", emoji: "🥤" },
-  "chocolate-milk": { label: "Choco Milk", emoji: "🍫" },
+const DRINK_LABELS: Record<DrinkType, { label: string; icon: string }> = {
+  water: { label: "Water", icon: "Droplet" },
+  coffee: { label: "Coffee", icon: "Coffee" },
+  shake: { label: "Shake", icon: "CupSoda" },
+  "chocolate-milk": { label: "Choco Milk", icon: "Candy" },
 };
 
 export function useWaterTracker() {

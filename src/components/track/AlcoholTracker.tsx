@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion } from "framer-motion";
 import { AlcoholDrinkType } from "@/lib/types";
@@ -10,11 +11,11 @@ interface AlcoholTrackerProps {
   onRemoveLast: () => void;
 }
 
-const drinkButtons: { type: AlcoholDrinkType; emoji: string; label: string; std: string }[] = [
-  { type: "beer", emoji: "🍺", label: "Beer", std: "1" },
-  { type: "wine", emoji: "🍷", label: "Wine", std: "1" },
-  { type: "cocktail", emoji: "🍹", label: "Cocktail", std: "1.5" },
-  { type: "shot", emoji: "🥃", label: "Shot", std: "1" },
+const drinkButtons: { type: AlcoholDrinkType; icon: string; label: string; std: string }[] = [
+  { type: "beer", icon: "Beer", label: "Beer", std: "1" },
+  { type: "wine", icon: "WineGlass", label: "Wine", std: "1" },
+  { type: "cocktail", icon: "GlassWater", label: "Cocktail", std: "1.5" },
+  { type: "shot", icon: "Martini", label: "Shot", std: "1" },
 ];
 
 export default function AlcoholTracker({ todayCount, last7Days, onAddDrink, onRemoveLast }: AlcoholTrackerProps) {
@@ -41,7 +42,7 @@ export default function AlcoholTracker({ todayCount, last7Days, onAddDrink, onRe
             className="flex flex-col items-center gap-0.5 p-2 rounded-xl bg-purple-900/30 border border-purple-500/15 transition-all"
             whileTap={{ scale: 0.9 }}
           >
-            <span className="text-xl">{btn.emoji}</span>
+            <DynamicIcon name={btn.icon} className="text-xl" />
             <span className="text-[9px] font-bold text-purple-300">{btn.label}</span>
             <span className="text-[8px] text-purple-500">{btn.std} std</span>
           </motion.button>

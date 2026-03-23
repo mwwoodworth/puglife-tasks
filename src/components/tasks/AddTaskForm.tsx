@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,7 +73,7 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
                       priority === key ? `${config.className} text-white shadow-lg scale-105` : "bg-purple-800/30 text-purple-300 active:bg-purple-700/40"
                     }`}
                   >
-                    <span className="text-base">{config.emoji}</span>
+                    <DynamicIcon name={config.icon} className="text-base" />
                     <span className="text-[9px]">{config.label}</span>
                   </button>
                 ))}
@@ -89,7 +90,7 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
                       category === key ? `bg-gradient-to-r ${config.gradient} text-white shadow-md active` : "bg-purple-800/30 text-purple-300"
                     }`}
                   >
-                    <span>{config.emoji}</span><span>{config.label}</span>
+                    <DynamicIcon name={config.icon} /><span>{config.label}</span>
                   </button>
                 ))}
               </div>

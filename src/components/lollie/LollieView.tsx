@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
@@ -120,7 +121,7 @@ export default function LollieView({ chat, wardrobe, settings, pugMood, playSoun
                   transition={{ type: "spring" as const, stiffness: 400, damping: 30 }}
                 />
               )}
-              <span className="relative z-10">{tab.icon} {tab.label}</span>
+              <span className="relative z-10"><DynamicIcon name={tab.icon} className="w-5 h-5" /> {tab.label}</span>
             </button>
           ))}
         </div>

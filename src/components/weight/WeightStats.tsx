@@ -1,4 +1,5 @@
 "use client";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { WeightEntry, WeightGoalData } from "@/lib/types";
@@ -26,7 +27,7 @@ export default function WeightStats({ entries, goal, onDeleteEntry }: WeightStat
           <div className="flex items-center gap-3">
             <div className="text-2xl font-black text-purple-200">{bmi.toFixed(1)}</div>
             <div>
-              <span className="text-sm font-bold text-purple-200">{bmiCat.emoji} {bmiCat.label}</span>
+              <span className="text-sm font-bold text-purple-200"><DynamicIcon name={bmiCat.icon} className="w-5 h-5" /> {bmiCat.label}</span>
               <p className="text-[10px] text-purple-400">Based on your latest weight & height</p>
             </div>
           </div>
