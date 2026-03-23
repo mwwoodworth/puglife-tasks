@@ -8,12 +8,12 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
   {
     id: "morning",
     title: "Morning Reset",
-    icon: "Sunrise",
+    icon: "Coffee",
     timeRange: "5-10 min",
     startHour: 6,
     tasks: [
       { id: "m1", label: "Drink something (chocolate milk / shake / coffee)", icon: "Coffee" },
-      { id: "m2", label: "Start laundry OR unload dishwasher", icon: "ShoppingBasket" },
+      { id: "m2", label: "Start laundry OR unload dishwasher", icon: "Shirt" },
       { id: "m3", label: "Quick counter wipe OR pick up main area", icon: "Sparkles" },
     ],
   },
@@ -25,7 +25,7 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
     startHour: 11,
     tasks: [
       { id: "md1", label: "10-minute tidy (set a timer!)", icon: "Timer" },
-      { id: "md2", label: "Switch / start laundry", icon: "ShoppingBasket" },
+      { id: "md2", label: "Switch / start laundry", icon: "Shirt" },
       { id: "md3", label: "Eat something (shake or easy lunch)", icon: "Utensils" },
     ],
   },
@@ -38,17 +38,17 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
     tasks: [
       { id: "pd1", label: "Clear kitchen space", icon: "CookingPot" },
       { id: "pd2", label: "Quick living room pickup", icon: "Sofa" },
-      { id: "pd3", label: "Decide dinner (follow weekly plan)", icon: "ClipboardList" },
+      { id: "pd3", label: "Decide dinner (follow weekly plan)", icon: "ClipboardHeart" },
     ],
   },
   {
     id: "dinner",
     title: "Dinner Flow",
-    icon: "ChefHat",
+    icon: "CookingPot",
     timeRange: "",
     startHour: 17,
     tasks: [
-      { id: "d1", label: "Cook simple meal (not perfect!)", icon: "ChefHat" },
+      { id: "d1", label: "Cook simple meal (not perfect!)", icon: "CookingPot" },
       { id: "d2", label: "Deconstruct for Aspen if needed", icon: "Baby" },
       { id: "d3", label: "Rinse / load dishes", icon: "Utensils" },
     ],
@@ -62,13 +62,13 @@ export const RESET_SECTIONS: ResetSectionDef[] = [
     tasks: [
       { id: "e1", label: "Load / run dishwasher", icon: "Droplets" },
       { id: "e2", label: "Wipe counters", icon: "Sparkles" },
-      { id: "e3", label: "Quick pickup (toys, clutter, blankets)", icon: "PackageOpen" },
+      { id: "e3", label: "Quick pickup (toys, clutter, blankets)", icon: "Sofa" },
     ],
   },
   {
     id: "daily-win",
     title: "Daily Win Check",
-    icon: "Trophy",
+    icon: "Heart",
     timeRange: "",
     startHour: 20,
     tasks: [

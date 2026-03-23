@@ -239,17 +239,17 @@ export const CATEGORY_CONFIG: Record<
   work: { label: "Work", icon: "Briefcase", gradient: "from-violet-500 to-purple-600" },
   shopping: { label: "Shopping", icon: "ShoppingBag", gradient: "from-fuchsia-400 to-pink-500" },
   home: { label: "Home", icon: "Home", gradient: "from-purple-400 to-violet-500" },
-  health: { label: "Health", icon: "PersonStanding", gradient: "from-indigo-400 to-purple-500" },
+  health: { label: "Health", icon: "HeartPulse", gradient: "from-indigo-400 to-purple-500" },
   fun: { label: "Fun", icon: "PartyPopper", gradient: "from-purple-500 to-fuchsia-500" },
-  pugcare: { label: "Lollie Care", icon: "Dog", gradient: "from-amber-400 to-purple-400" },
+  pugcare: { label: "Lollie Care", icon: "PawPrint", gradient: "from-amber-400 to-purple-400" },
 };
 
 export const TAB_CONFIG: Record<AppTab, { label: string; icon: string; iconName: string }> = {
-  dashboard: { label: "Home", icon: "Home", iconName: "home" },
-  tasks: { label: "Tasks", icon: "CheckCircle", iconName: "tasks" },
-  track: { label: "Track", icon: "BarChart", iconName: "track" },
+  dashboard: { label: "Home", icon: "Sparkles", iconName: "home" },
+  tasks: { label: "Tasks", icon: "ListTodo", iconName: "tasks" },
+  track: { label: "Track", icon: "Heart", iconName: "track" },
   rewards: { label: "Rewards", icon: "Star", iconName: "rewards" },
-  lollie: { label: "Lollie", icon: "Dog", iconName: "lollie" },
+  lollie: { label: "Lollie", icon: "PawPrint", iconName: "lollie" },
 };
 
 // ── AI Chat ──
